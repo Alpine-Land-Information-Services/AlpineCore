@@ -1,3 +1,3 @@
 # AlpineCore
 
-A description of this package.
+Alpine LIS iOS core functionality framework.

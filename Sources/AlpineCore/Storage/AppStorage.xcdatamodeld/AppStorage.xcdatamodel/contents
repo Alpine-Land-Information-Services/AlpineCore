@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21513" systemVersion="21G526" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="SFile" representedClassName="SFile" parentEntity="SItem" syncable="YES" codeGenerationType="class">
+        <relationship name="folder" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SFolder" inverseName="files" inverseEntity="SFolder"/>
+    </entity>
+    <entity name="SFolder" representedClassName="SFolder" parentEntity="SItem" syncable="YES" codeGenerationType="class">
+        <relationship name="files" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="SFile" inverseName="folder" inverseEntity="SFile"/>
+    </entity>
+    <entity name="SItem" representedClassName="SItem" syncable="YES" codeGenerationType="class">
+        <attribute name="dateAdded" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="dateModified" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="guid" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isVisible" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="path" optional="YES" attributeType="String"/>
+        <attribute name="size" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="status" optional="YES" attributeType="String"/>
+    </entity>
+</model>
