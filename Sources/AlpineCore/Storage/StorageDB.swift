@@ -7,12 +7,26 @@
 
 import CoreData
 
-public class StorageDB: Database, CDStack {
+public class StorageDB: Database {
     
     public static var shared: Database = StorageDB()
+    
+    public var container: NSPersistentContainer
+    public var moc: NSManagedObjectContext
+    public var poc: NSManagedObjectContext
 
-    public static var identifier = "AlpineCore"
+    init () {
+        self.container = StorageStack.persitentContainer
+        self.moc = self.container.viewContext
+        self.poc = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+        self.poc.parent = moc
+    }
+}
+
+class StorageStack: CDStack {
+    
     public static var model = "AppStorage"
+    static var identifier: String? = nil
     
     public static var storeDescription: NSPersistentStoreDescription?
     public static var persitentContainer: NSPersistentContainer = {
@@ -28,14 +42,4 @@ public class StorageDB: Database, CDStack {
         container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
         return container
     }()
-
-        
-    public var moc: NSManagedObjectContext
-    public var poc: NSManagedObjectContext
-
-    init () {
-        self.moc = Self.persitentContainer.viewContext
-        self.poc = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
-        self.moc.parent = poc
-    }
 }

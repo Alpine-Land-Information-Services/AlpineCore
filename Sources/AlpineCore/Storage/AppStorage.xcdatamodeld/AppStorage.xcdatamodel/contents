@@ -4,7 +4,9 @@
         <relationship name="folder" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SFolder" inverseName="files" inverseEntity="SFolder"/>
     </entity>
     <entity name="SFolder" representedClassName="SFolder" parentEntity="SItem" syncable="YES" codeGenerationType="class">
+        <relationship name="children" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="SFolder" inverseName="children" inverseEntity="SFolder"/>
         <relationship name="files" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="SFile" inverseName="folder" inverseEntity="SFile"/>
+        <relationship name="parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SFolder" inverseName="parent" inverseEntity="SFolder"/>
     </entity>
     <entity name="SItem" representedClassName="SItem" syncable="YES" codeGenerationType="class">
         <attribute name="dateAdded" optional="YES" attributeType="Date" usesScalarValueType="NO"/>

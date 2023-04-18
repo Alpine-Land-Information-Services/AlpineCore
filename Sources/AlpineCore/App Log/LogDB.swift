@@ -7,12 +7,26 @@
 
 import CoreData
 
-class LogDB: Database, CDStack {
+class LogDB: Database {
 
     static var shared: Database = LogDB()
     
-    static var identifier = "AlpineCore"
+    var container: NSPersistentContainer
+    var moc: NSManagedObjectContext
+    var poc: NSManagedObjectContext
+    
+    init() {
+        self.container = LogCDStack.persitentContainer
+        self.moc = self.container.viewContext
+        self.poc = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+        self.poc.parent = self.moc
+    }
+}
+
+class LogCDStack: CDStack {
+    
     static var model = "AppLog"
+    static var identifier: String? = nil
     
     static var storeDescription: NSPersistentStoreDescription?
     static var persitentContainer: NSPersistentContainer = {
@@ -28,13 +42,4 @@ class LogDB: Database, CDStack {
         container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
         return container
     }()
-    
-    var moc: NSManagedObjectContext
-    var poc: NSManagedObjectContext
-    
-    init() {
-        self.moc = Self.persitentContainer.viewContext
-        self.poc = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
-        self.moc.parent = self.poc
-    }
 }

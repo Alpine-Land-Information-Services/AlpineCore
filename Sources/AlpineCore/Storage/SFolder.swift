@@ -9,25 +9,34 @@ import CoreData
 
 public extension SFolder {
     
-    static func getOrCreateFolder(for path: String, in context: NSManagedObjectContext = StorageDB.main) -> SFolder {
-        let predicate = NSPredicate(format: "path = %@", path)
-        if let folder = SFolder.findObject(by: predicate, in: context) as? SFolder {
+    static func findOrCreate(for path: FSPath, in context: NSManagedObjectContext = StorageDB.main) -> SFolder {
+        let predicate = NSPredicate(format: "path = %@", path.string)
+        if let folder = SFolder.findObject(by: predicate, in: context) {
+            _ = FS.findOrCreateDirectoryPath(for: path)
             return folder
         }
         
-        return create(for: path, with: "")
+        return create(for: path, in: context)
     }
     
     
-    static func create(for path: String, with name: String, in context: NSManagedObjectContext = StorageDB.main) -> SFolder {
+    static func create(for path: FSPath, in context: NSManagedObjectContext = StorageDB.main) -> SFolder {
         context.performAndWait {
+            FS.recreateDirectory(at: path, isDirectory: true)
             let new = NSManagedObject(entity: NSEntityDescription.entity(forEntityName: SFolder.entityName, in: context)!, insertInto: context) as! SFolder
             new.guid = UUID()
-            new.path = path
+            new.path = path.string
             
-            context.easySave()
+            new.save()
             
             return new
         }
+    }
+}
+
+public extension SItem {
+    
+    var fsPath: FSPath {
+        PathString(self.path!)
     }
 }

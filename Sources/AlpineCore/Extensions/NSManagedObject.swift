@@ -236,15 +236,15 @@ public extension NSManagedObject {
         return result
     }
     
-    static func findObject(for entity: String? = nil, by predicate: NSPredicate, in context: NSManagedObjectContext) -> NSManagedObject? {
+    static func findObject(for entity: String? = nil, by predicate: NSPredicate, in context: NSManagedObjectContext) -> Self? {
         let request = NSFetchRequest<NSManagedObject>(entityName: entity ?? Self.entityName)
         request.predicate = predicate
         request.returnsObjectsAsFaults = false
         request.fetchLimit = 1
-        var result: NSManagedObject?
+        var result: Self?
         context.performAndWait {
             do {
-                result = try context.fetch(request).first
+                result = try context.fetch(request).first as? Self
             } catch {
                 print(error)
             }

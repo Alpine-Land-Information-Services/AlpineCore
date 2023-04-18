@@ -27,6 +27,35 @@ public class FileSystem {
         return URL(string: urls[0])!
     }
     
+    static public func getDirectoryContents(in folder: SFolder) -> [String]? {
+        return getDirectoryContents(in: folder.fsPath)
+    }
+    
+    
+    static public func getDirectoryContents(in path: FSPath) -> [String]? {
+        do {
+            let path = documentsDirectory.absoluteString.appending("/\(path.string)")
+            return try FileManager.default.contentsOfDirectory(atPath: path)
+        }
+        catch {
+            assertionFailure(error.localizedDescription)
+        }
+        
+        return nil
+    }
+    
+    static public func findOrCreateDirectoryPath(for path: FSPath) -> FSPath {
+        let path = documentsDirectory.absoluteString.appending("/\(path.string)")
+        if !FileManager.default.fileExists(atPath: path) {
+            do {
+                try FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: true)
+            } catch {
+                assertionFailure("Create Directory Error")
+            }
+        }
+        return path.fsPath
+    }
+    
     static public func createNewFilePath(in path: String, for fileName: String) -> String? {
         let filePath = path.appending("/\(fileName)")
         
@@ -134,6 +163,13 @@ public class FileSystem {
         return .success(())
     }
     
+    static func recreateDirectory(at path: FSPath, isDirectory: Bool) {
+        if fileExists(at: path.string) {
+            _ = deleteFile(at: path.string, isDirectory: isDirectory)
+        }
+        _ = findOrCreateDirectoryPath(for: path)
+    }
+    
     static func deleteFile(at path: String, isDirectory: Bool) -> Result<Void, Error> {
         do {
             let url = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false).appendingPathComponent(path, isDirectory: isDirectory)
@@ -164,6 +200,7 @@ extension FileSystem { //MARK: Custom Files
 }
 
 extension FileManager {
+    
     func clearTmpDirectory() {
         do {
             let tmpDirectory = try contentsOfDirectory(atPath: NSTemporaryDirectory())

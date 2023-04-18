@@ -12,6 +12,7 @@ public protocol Database {
     
     static var shared: Database { get set }
     
+    var container: NSPersistentContainer { get }
     var moc: NSManagedObjectContext { get }
     var poc: NSManagedObjectContext { get }
 }
@@ -24,5 +25,9 @@ public extension Database {
     
     static var background: NSManagedObjectContext {
         Self.shared.poc
+    }
+    
+    static var newBackground: NSManagedObjectContext {
+        Self.shared.container.newBackgroundContext()
     }
 }

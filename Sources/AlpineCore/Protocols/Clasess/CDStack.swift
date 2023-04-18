@@ -9,9 +9,8 @@ import CoreData
 
 public protocol CDStack {
     
-    static var identifier: String { get }
     static var model: String { get }
-    
+    static var identifier: String? { get }
     static var managedObjectModel: NSManagedObjectModel { get }
 
     static var storeDescription: NSPersistentStoreDescription? { get set }
@@ -21,13 +20,14 @@ public protocol CDStack {
 public extension CDStack {
     
     static var managedObjectModel: NSManagedObjectModel {
-        let bundle = Bundle(identifier: identifier)
-        let modelURL = bundle!.url(forResource: model, withExtension: "momd")!
+        if let identifier {
+            let bundle = Bundle(identifier: identifier)
+            let modelURL = bundle!.url(forResource: model, withExtension: "momd")!
+            return NSManagedObjectModel(contentsOf: modelURL)!
+        }
 
+        let bundle = Bundle.module
+        let modelURL = bundle.url(forResource: model, withExtension: "momd")!
         return NSManagedObjectModel(contentsOf: modelURL)!
-    }
-    
-    static var newBackground: NSManagedObjectContext {
-        Self.persitentContainer.newBackgroundContext()
     }
 }
