@@ -28,6 +28,18 @@ public extension FSPath {
         self.string.components(separatedBy: "/").last!
     }
     
+    var fullPath: FSPath {
+        return FS.documentsDirectory.absoluteString.appending("/\(self.string)").fsPath
+    }
+    
+    func appending(item: String) -> FSPath {
+        PathString(self.string.appending("/\(item)"))
+    }
+    
+    func equals(_ other: FSPath) -> Bool {
+        self.string == other.string
+    }
+    
 //    var justPath: String {
 //        var components = self.string.components(separatedBy: "/")
 //        components.removeLast()

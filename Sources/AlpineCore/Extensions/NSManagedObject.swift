@@ -21,7 +21,7 @@ public extension NSManagedObject {
                 try context.save()
             }
         } catch {
-            print("Failure to save context: \(error)")
+            assertionFailure("Failure to save context: \(error)")
         }
     }
     
@@ -48,7 +48,7 @@ public extension NSManagedObject {
                 try context.save()
             }
         } catch {
-            print("Failure to delete object: \(error)")
+            assertionFailure("Failure to delete object: \(error)")
         }
     }
     

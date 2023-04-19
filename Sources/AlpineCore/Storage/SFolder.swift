@@ -39,4 +39,8 @@ public extension SItem {
     var fsPath: FSPath {
         PathString(self.path!)
     }
+    
+    func fsPath(appending item: String) -> FSPath {
+        self.fsPath.appending(item: item)
+    }
 }

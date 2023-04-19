@@ -22,17 +22,16 @@ public class FileSystem {
         case presets
     }
     
-    static public var documentsDirectory: URL {
+}
+
+public extension FileSystem { //MARK: NEW
+    
+    static var documentsDirectory: URL {
         let urls = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
         return URL(string: urls[0])!
     }
     
-    static public func getDirectoryContents(in folder: SFolder) -> [String]? {
-        return getDirectoryContents(in: folder.fsPath)
-    }
-    
-    
-    static public func getDirectoryContents(in path: FSPath) -> [String]? {
+    static func getDirectoryContents(in path: FSPath) -> [String]? {
         do {
             let path = documentsDirectory.absoluteString.appending("/\(path.string)")
             return try FileManager.default.contentsOfDirectory(atPath: path)
@@ -44,7 +43,7 @@ public class FileSystem {
         return nil
     }
     
-    static public func findOrCreateDirectoryPath(for path: FSPath) -> FSPath {
+    static func findOrCreateDirectoryPath(for path: FSPath) -> FSPath {
         let path = documentsDirectory.absoluteString.appending("/\(path.string)")
         if !FileManager.default.fileExists(atPath: path) {
             do {
@@ -55,6 +54,21 @@ public class FileSystem {
         }
         return path.fsPath
     }
+    
+    static func directoryExists(at path: FSPath) -> Bool {
+        let path = documentsDirectory.absoluteString.appending("/\(path.string)")
+        return FileManager.default.fileExists(atPath: path)
+    }
+}
+
+public extension FileSystem { //MARK: SITems
+    
+    static func getDirectoryContents(in folder: SFolder) -> [String]? {
+        return getDirectoryContents(in: folder.fsPath)
+    }
+}
+
+extension FileSystem { //MARK: OLD
     
     static public func createNewFilePath(in path: String, for fileName: String) -> String? {
         let filePath = path.appending("/\(fileName)")
@@ -213,3 +227,4 @@ extension FileManager {
         }
     }
 }
+
