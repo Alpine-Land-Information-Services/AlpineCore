@@ -11,6 +11,15 @@ extension NSManagedObject: Nameable {}
 
 public extension NSManagedObject {
     
+    func cdValue(for key: String) -> Any? {
+        self.managedObjectContext?.performAndWait {
+            return value(forKey: key)
+        }
+    }
+}
+
+public extension NSManagedObject {
+    
     func save(in context: NSManagedObjectContext? = nil) {
         guard let context = context ?? self.managedObjectContext else {
             assertionFailure()
