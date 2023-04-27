@@ -55,7 +55,7 @@ public extension FileSystem { //MARK: NEW
         return path.fsPath
     }
     
-    static func directoryExists(at path: FSPath) -> Bool {
+    static func exists(at path: FSPath) -> Bool {
         let path = documentsDirectory.absoluteString.appending("/\(path.string)")
         return FileManager.default.fileExists(atPath: path)
     }

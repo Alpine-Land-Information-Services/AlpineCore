@@ -7,9 +7,7 @@
 
 import Foundation
 
-public protocol FSPath: LosslessStringConvertible {}
-
-public struct PathString: FSPath {
+public struct FSPath: LosslessStringConvertible {
     
     public var description: String
 
@@ -18,10 +16,32 @@ public struct PathString: FSPath {
     }
 }
 
+extension FSPath: Codable {
+    
+    enum CodingKeys: String, CodingKey {
+        case path
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(description, forKey: .path)
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        description = try values.decode(String.self, forKey: .path)
+    }
+}
+
 public extension FSPath {
     
     var string: String {
         String(self)
+    }
+    
+    var removeLast: FSPath {
+        let components = self.string.components(separatedBy: "/")
+        return components.dropLast().joined(separator: "/").fsPath
     }
 
     var fileName: String {
@@ -33,17 +53,11 @@ public extension FSPath {
     }
     
     func appending(item: String) -> FSPath {
-        PathString(self.string.appending("/\(item)"))
+        FSPath(self.string.appending("/\(item)"))
     }
     
     func equals(_ other: FSPath) -> Bool {
         self.string == other.string
     }
-    
-//    var justPath: String {
-//        var components = self.string.components(separatedBy: "/")
-//        components.removeLast()
-//        return Array(components).joined(separator: "/")
-//    }
 }
 

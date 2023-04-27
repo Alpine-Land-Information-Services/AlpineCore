@@ -17,6 +17,6 @@ public extension String {
     }
     
     var fsPath: FSPath {
-        PathString(self)
+        FSPath(self)
     }
 }

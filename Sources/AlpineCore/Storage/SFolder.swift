@@ -37,7 +37,7 @@ public extension SFolder {
 public extension SItem {
     
     var fsPath: FSPath {
-        PathString(self.path!)
+        FSPath(self.path!)
     }
     
     func fsPath(appending item: String) -> FSPath {
