@@ -10,7 +10,7 @@ import CoreData
 public extension SFolder {
     
     static func findOrCreate(for path: FSPath, in context: NSManagedObjectContext = StorageDB.main) -> SFolder {
-        let predicate = NSPredicate(format: "path = %@", path.string)
+        let predicate = NSPredicate(format: "path = %@", path.rawValue)
         if let folder = SFolder.findObject(by: predicate, in: context) {
             _ = FS.findOrCreateDirectoryPath(for: path)
             return folder
@@ -25,7 +25,7 @@ public extension SFolder {
             FS.recreateDirectory(at: path, isDirectory: true)
             let new = NSManagedObject(entity: NSEntityDescription.entity(forEntityName: SFolder.entityName, in: context)!, insertInto: context) as! SFolder
             new.guid = UUID()
-            new.path = path.string
+            new.path = path.rawValue
             
             new.save()
             
@@ -37,7 +37,7 @@ public extension SFolder {
 public extension SItem {
     
     var fsPath: FSPath {
-        FSPath(self.path!)
+        FSPath(rawValue: self.path!)
     }
     
     func fsPath(appending item: String) -> FSPath {

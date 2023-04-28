@@ -17,6 +17,6 @@ public extension String {
     }
     
     var fsPath: FSPath {
-        FSPath(self)
+        FSPath(rawValue: self)
     }
 }

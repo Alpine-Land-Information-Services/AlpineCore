@@ -33,7 +33,7 @@ public extension FileSystem { //MARK: NEW
     
     static func getDirectoryContents(in path: FSPath) -> [String]? {
         do {
-            let path = documentsDirectory.absoluteString.appending("/\(path.string)")
+            let path = documentsDirectory.absoluteString.appending("/\(path.rawValue)")
             return try FileManager.default.contentsOfDirectory(atPath: path)
         }
         catch {
@@ -44,7 +44,7 @@ public extension FileSystem { //MARK: NEW
     }
     
     static func findOrCreateDirectoryPath(for path: FSPath) -> FSPath {
-        let path = documentsDirectory.absoluteString.appending("/\(path.string)")
+        let path = documentsDirectory.absoluteString.appending("/\(path.rawValue)")
         if !FileManager.default.fileExists(atPath: path) {
             do {
                 try FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: true)
@@ -56,7 +56,7 @@ public extension FileSystem { //MARK: NEW
     }
     
     static func exists(at path: FSPath) -> Bool {
-        let path = documentsDirectory.absoluteString.appending("/\(path.string)")
+        let path = documentsDirectory.absoluteString.appending("/\(path.rawValue)")
         return FileManager.default.fileExists(atPath: path)
     }
 }
@@ -178,8 +178,8 @@ extension FileSystem { //MARK: OLD
     }
     
     static func recreateDirectory(at path: FSPath, isDirectory: Bool) {
-        if fileExists(at: path.string) {
-            _ = deleteFile(at: path.string, isDirectory: isDirectory)
+        if fileExists(at: path.rawValue) {
+            _ = deleteFile(at: path.rawValue, isDirectory: isDirectory)
         }
         _ = findOrCreateDirectoryPath(for: path)
     }

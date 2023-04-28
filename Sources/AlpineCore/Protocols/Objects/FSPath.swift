@@ -7,12 +7,12 @@
 
 import Foundation
 
-public struct FSPath: LosslessStringConvertible {
+public struct FSPath: RawRepresentable {
     
-    public var description: String
+    public var rawValue: String
 
-    public init(_ description: String) {
-        self.description = description
+    public init(rawValue: String) {
+        self.rawValue = rawValue
     }
 }
 
@@ -23,41 +23,43 @@ extension FSPath: Codable {
     }
     
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(description, forKey: .path)
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
     }
     
     public init(from decoder: Decoder) throws {
-        let values = try decoder.container(keyedBy: CodingKeys.self)
-        description = try values.decode(String.self, forKey: .path)
+        let container = try decoder.singleValueContainer()
+        rawValue = try container.decode(String.self)
     }
 }
 
 public extension FSPath {
     
-    var string: String {
-        String(self)
+    var fileName: String {
+        self.rawValue.components(separatedBy: "/").last!
     }
-    
+}
+
+public extension FSPath {
+
     var removeLast: FSPath {
-        let components = self.string.components(separatedBy: "/")
+        let components = self.rawValue.components(separatedBy: "/")
         return components.dropLast().joined(separator: "/").fsPath
     }
 
-    var fileName: String {
-        self.string.components(separatedBy: "/").last!
-    }
-    
     var fullPath: FSPath {
-        return FS.documentsDirectory.absoluteString.appending("/\(self.string)").fsPath
+        return FS.documentsDirectory.absoluteString.appending("/\(self.rawValue)").fsPath
     }
+}
+
+public extension FSPath {
     
     func appending(item: String) -> FSPath {
-        FSPath(self.string.appending("/\(item)"))
+        FSPath(rawValue: self.rawValue.appending("/\(item)"))
     }
     
     func equals(_ other: FSPath) -> Bool {
-        self.string == other.string
+        self.rawValue == other.rawValue
     }
 }
 
