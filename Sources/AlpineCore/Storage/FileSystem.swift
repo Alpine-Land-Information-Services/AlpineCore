@@ -28,7 +28,9 @@ public extension FileSystem { //MARK: NEW
     
     static var documentsDirectory: URL {
         let urls = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
-        return URL(string: urls[0])!
+        return URL(string: urls[0])
+        ??
+        URL(string: "/Users/jenya/Library/Developer/CoreSimulator/Devices/8FE8FE32-8BF7-4A22-B975-55851D2E44AA/data/Containers/Data/Application/3303E29B-C936-438A-A1EF-539494B81BD7/Documents/")! // FOR PREVIEW USE ONLY
     }
     
     static func getDirectoryContents(in path: FSPath) -> [String]? {
