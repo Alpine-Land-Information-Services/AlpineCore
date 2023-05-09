@@ -6,7 +6,7 @@
 //
 
 import CoreData
-import Zip
+//import Zip
 
 public class DownloadManager {
 

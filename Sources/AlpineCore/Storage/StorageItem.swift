@@ -6,7 +6,7 @@
 //
 
 import CoreData
-import Zip
+//import Zip
 
 public extension SItem {
     
@@ -108,7 +108,7 @@ public extension SFolder {
         }
         
         do {
-            try Zip.unzipFile(url, destination: destination, overwrite: true, password: nil)
+//            try Zip.unzipFile(url, destination: destination, overwrite: true, password: nil)
 
 //            switch file.deleteItem() {
 //            case .success(()):
