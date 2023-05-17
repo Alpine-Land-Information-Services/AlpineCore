@@ -261,3 +261,17 @@ public extension NSManagedObject {
         return result
     }
 }
+
+public extension NSManagedObject {
+    
+    static func findObjects<Object: NSManagedObject>(by predicate: NSPredicate?, in context: NSManagedObjectContext) async throws -> [Object] {
+        try await context.perform {
+            let request = NSFetchRequest<Object>(entityName: Object.entityName)
+            if let predicate {
+                request.predicate = predicate
+            }
+            request.returnsObjectsAsFaults = false
+            return try context.fetch(request)
+        }
+    }
+}
