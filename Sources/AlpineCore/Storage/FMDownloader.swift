@@ -8,23 +8,17 @@
 import CoreData
 //import Zip
 
-public class DownloadManager {
+//public class DownloadManager {
+//
+//    public enum DownloadType: String {
+//        case preset
+//        case custom
+//        case unknown
+//    }
+//
 
-    public enum DownloadType: String {
-        case preset
-        case custom
-        case unknown
-    }
-
-    public struct DownloadTask {
-        var info: Any?
-        var type: DownloadType?
-
-        var downloadStart: (_ file: SFile, _ info: Any?) -> ()
-        var downloadEnd: (_ file: SFile, _ info: Any?) -> ()
-    }
-
-    static public let shared = DownloadManager()
+//
+//    static public let shared = DownloadManager()
 //
 //    var downloadTasks = [FileDownloader]()
 //
@@ -62,7 +56,7 @@ public class DownloadManager {
 //            }
 //        }
 //    }
-}
+//}
 //
 //class FolderDownloader {
 //

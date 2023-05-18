@@ -24,6 +24,7 @@ public class FileSystem {
     
 }
 
+
 public extension FileSystem { //MARK: NEW
     
     static var documentsDirectory: URL {
@@ -63,16 +64,9 @@ public extension FileSystem { //MARK: NEW
     }
 }
 
-public extension FileSystem { //MARK: SITems
+public extension FileSystem { //MARK: OLD
     
-    static func getDirectoryContents(in folder: SFolder) -> [String]? {
-        return getDirectoryContents(in: folder.fsPath)
-    }
-}
-
-extension FileSystem { //MARK: OLD
-    
-    static public func createNewFilePath(in path: String, for fileName: String) -> String? {
+    static func createNewFilePath(in path: String, for fileName: String) -> String? {
         let filePath = path.appending("/\(fileName)")
         
         if !FileManager.default.fileExists(atPath: filePath) {
@@ -83,7 +77,7 @@ extension FileSystem { //MARK: OLD
         }
     }
     
-    static public func getOrCreateInnerDirectoryPath(in parent: Folder, for folder: String) -> String {
+    static func getOrCreateInnerDirectoryPath(in parent: Folder, for folder: String) -> String {
         let path = getOrCreateDirectoryPath(for: parent).appending("/\(folder.capitalized)")
         
         if !FileManager.default.fileExists(atPath: path) {
@@ -96,7 +90,7 @@ extension FileSystem { //MARK: OLD
         return path
     }
     
-    static public func getOrCreateDirectoryPath(for folder: String) -> String {
+    static func getOrCreateDirectoryPath(for folder: String) -> String {
         let path = documentsDirectory.absoluteString.appending("/\(folder.capitalized)")
         if !FileManager.default.fileExists(atPath: path) {
             do {
@@ -113,7 +107,7 @@ extension FileSystem { //MARK: OLD
         return FileManager.default.fileExists(atPath: path)
     }
     
-    static public func getOrCreateDirectoryPath(for folder: Folder) -> String {
+    static func getOrCreateDirectoryPath(for folder: Folder) -> String {
         let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
         let path = paths[0].appending("/\(folder.rawValue.capitalized)")
         
@@ -127,7 +121,7 @@ extension FileSystem { //MARK: OLD
         return path
     }
     
-    static public func getFilePath(for file: String, in directory: String) -> String? {
+    static func getFilePath(for file: String, in directory: String) -> String? {
         let filePath = (getOrCreateDirectoryPath(for: directory) as NSString).appendingPathComponent("\(file)")
         if FileManager.default.fileExists(atPath: filePath) {
             return filePath
@@ -135,7 +129,7 @@ extension FileSystem { //MARK: OLD
         return nil
     }
     
-    static public func getFilePath(for file: String, in directory: Folder) -> String? {
+    static func getFilePath(for file: String, in directory: Folder) -> String? {
         let filePath = (getOrCreateDirectoryPath(for: directory) as NSString).appendingPathComponent("\(file)")
         if FileManager.default.fileExists(atPath: filePath) {
             return filePath
@@ -143,7 +137,7 @@ extension FileSystem { //MARK: OLD
         return nil
     }
     
-    static public func getDirectoryContents(at path: String) -> [String]? {
+    static func getDirectoryContents(at path: String) -> [String]? {
         do {
             return try FileManager.default.contentsOfDirectory(atPath: path)
         }
@@ -154,7 +148,7 @@ extension FileSystem { //MARK: OLD
         return nil
     }
     
-    static public func getFileSize(_ file: String, at path: String) -> Int? {
+    static func getFileSize(_ file: String, at path: String) -> Int? {
         guard let att = try? FileManager.default.attributesOfItem(atPath: path.appending("/\(file)")) else {
             return nil
         }
@@ -201,7 +195,7 @@ extension FileSystem { //MARK: OLD
     }
 }
 
-extension FileSystem { //MARK: Custom Files
+public extension FileSystem { //MARK: Custom Files
     
     static func getCustomFilesList(in folder: Folder) -> [String] {
         do {
@@ -215,7 +209,7 @@ extension FileSystem { //MARK: Custom Files
     }
 }
 
-extension FileManager {
+public extension FileManager {
     
     func clearTmpDirectory() {
         do {

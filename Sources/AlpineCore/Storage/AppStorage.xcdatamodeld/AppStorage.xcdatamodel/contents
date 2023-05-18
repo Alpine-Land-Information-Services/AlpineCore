@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21513" systemVersion="21G526" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
-    <entity name="SFile" representedClassName="SFile" parentEntity="SItem" syncable="YES" codeGenerationType="class">
-        <relationship name="folder" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SFolder" inverseName="files" inverseEntity="SFolder"/>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21754" systemVersion="22D68" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="SFile_" representedClassName="SFile_" parentEntity="SItem_" syncable="YES" codeGenerationType="class">
+        <relationship name="folder" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SFolder_" inverseName="files" inverseEntity="SFolder_"/>
     </entity>
-    <entity name="SFolder" representedClassName="SFolder" parentEntity="SItem" syncable="YES" codeGenerationType="class">
-        <relationship name="children" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="SFolder" inverseName="children" inverseEntity="SFolder"/>
-        <relationship name="files" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="SFile" inverseName="folder" inverseEntity="SFile"/>
-        <relationship name="parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SFolder" inverseName="parent" inverseEntity="SFolder"/>
+    <entity name="SFolder_" representedClassName="SFolder_" parentEntity="SItem_" syncable="YES" codeGenerationType="class">
+        <relationship name="children" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="SFolder_" inverseName="children" inverseEntity="SFolder_"/>
+        <relationship name="files" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="SFile_" inverseName="folder" inverseEntity="SFile_"/>
+        <relationship name="parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SFolder_" inverseName="parent" inverseEntity="SFolder_"/>
     </entity>
-    <entity name="SItem" representedClassName="SItem" syncable="YES" codeGenerationType="class">
+    <entity name="SItem_" representedClassName="SItem_" syncable="YES" codeGenerationType="class">
         <attribute name="dateAdded" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="dateModified" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="guid" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
