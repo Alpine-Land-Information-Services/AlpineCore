@@ -23,7 +23,7 @@ public extension Nameable {
     }
     
     static var entityDisplayName: String {
-        entityName.separated
+        entityName
     }
     
     var entityName: String {
