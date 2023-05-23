@@ -13,14 +13,38 @@ public extension CDObject {
         let predicate = NSPredicate(format: "a_guid = %@", id as CVarArg)
         return try Object.find(by: predicate, in: context)
     }
+    
+    static func deleteAllLocal(in context: NSManagedObjectContext) throws {
+        let predicate = NSPredicate(format: "a_deleted = TRUE AND a_syncDate = nil")
+        let objects = try Self.findMultiple(by: predicate, in: context)
+
+        for object in objects {
+            context.delete(object)
+        }
+    }
 }
 
 public extension CDObject {
     
-    func trash() throws {
+    func trash(_ value: Bool) throws {
         try managedObjectContext?.performAndWait {
-            setValue(true, forKey: "a_deleted")
+            setValue(true, forKey: "a_changed")
+            setValue(value, forKey: "a_deleted")
             try managedObjectContext?.forceSave()
+        }
+    }
+    
+    func isLocalDeleted() throws -> Bool {
+        guard let context = managedObjectContext else {
+            return false
+        }
+        
+        return context.performAndWait {
+            if value(forKey: "a_deleted") as! Bool && value(forKey: "a_syncDate") == nil {
+                context.delete(self)
+                return true
+            }
+            return false
         }
     }
 }

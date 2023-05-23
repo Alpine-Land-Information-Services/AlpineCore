@@ -279,6 +279,28 @@ public extension NSManagedObject {
         }
     }
     
+        static func findMultiple<Object: NSManagedObject>(by predicate: NSPredicate?, in context: NSManagedObjectContext) throws -> [Object] {
+            try context.performAndWait {
+                let request = NSFetchRequest<Object>(entityName: String(describing: Object.self))
+                if let predicate {
+                    request.predicate = predicate
+                }
+                request.returnsObjectsAsFaults = false
+                return try context.fetch(request)
+            }
+        }
+    
+    static func findMultiple(by predicate: NSPredicate?, in context: NSManagedObjectContext) throws -> [NSManagedObject] {
+        try context.performAndWait {
+            let request = NSFetchRequest<Self>(entityName: Self.entityName)
+            if let predicate {
+                request.predicate = predicate
+            }
+            request.returnsObjectsAsFaults = false
+            return try context.fetch(request)
+        }
+    }
+    
     static func findObjects<Object: NSManagedObject>(by predicate: NSPredicate?, in context: NSManagedObjectContext) async throws -> [Object] {
         try await context.perform {
             let request = NSFetchRequest<Object>(entityName: Object.entityName)

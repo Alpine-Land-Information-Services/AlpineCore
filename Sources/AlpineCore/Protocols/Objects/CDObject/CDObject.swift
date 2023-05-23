@@ -10,6 +10,8 @@ import CoreData
 public protocol CDObject where Self: NSManagedObject {
     
     var guid: UUID { get }
+    
+    static var displayName: String { get }
 }
 
 public extension CDObject {
@@ -21,6 +23,12 @@ public extension CDObject {
         
         assertionFailure("CDObject has no managedObjectContext!")
         return UUID(uuidString: "00000000-FA0E-0000-0000-000000000000")!
+    }
+    
+    var deleted: Bool {
+        managedObjectContext!.performAndWait {
+            value(forKey: "a_deleted") as! Bool
+        }
     }
     
     static var type: CDObject.Type {
