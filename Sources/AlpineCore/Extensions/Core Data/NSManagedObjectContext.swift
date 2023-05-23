@@ -22,8 +22,12 @@ public extension NSManagedObjectContext {
     func forceSave() throws {
         try self.performAndWait {
             try self.save()
-            while let parent = self.parent {
-                try parent.save()
+            var parentContext = self.parent
+            while let parent = parentContext {
+                try parent.performAndWait {
+                    try parent.save()
+                }
+                parentContext = parent.parent
             }
         }
     }
