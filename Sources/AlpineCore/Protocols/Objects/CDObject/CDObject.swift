@@ -12,6 +12,7 @@ public protocol CDObject where Self: NSManagedObject {
     var guid: UUID { get }
     
     static var displayName: String { get }
+    var displayName: String { get }
 }
 
 public extension CDObject {
@@ -30,6 +31,8 @@ public extension CDObject {
             value(forKey: "a_deleted") as! Bool
         }
     }
+    
+    var displayName: String { Self.displayName }
     
     static var type: CDObject.Type {
         self as CDObject.Type
@@ -70,6 +73,6 @@ public extension CDObject {
     }
     
     func printSelf() {
-        print(" - object: \(self.entityDisplayName) ID: \(self.objectID.uriRepresentation().lastPathComponent) \(self.guid)")
+        print(" - object: \(self.displayName) ID: \(self.objectID.uriRepresentation().lastPathComponent) \(self.guid)")
     }
 }
