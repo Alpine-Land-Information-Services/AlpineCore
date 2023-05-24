@@ -12,7 +12,6 @@ public protocol CDObject where Self: NSManagedObject {
     var guid: UUID { get }
     
     static var displayName: String { get }
-    var displayName: String { get }
 }
 
 public extension CDObject {
@@ -33,10 +32,23 @@ public extension CDObject {
     }
     
     var displayName: String { Self.displayName }
+}
+
+public extension CDObject {
+    
+    func printSelf() {
+        print(" - object: \(self.displayName) ID: \(self.objectID.uriRepresentation().lastPathComponent) \(self.guid)")
+    }
+}
+
+public extension CDObject {
     
     static var type: CDObject.Type {
         self as CDObject.Type
     }
+}
+
+public extension CDObject {
     
     static func createObject(in context: NSManagedObjectContext) -> Self {
         return Self(entity: NSEntityDescription.entity(forEntityName: Self.entityName, in: context)!, insertInto: context)
@@ -70,9 +82,5 @@ public extension CDObject {
             
             return result
         }
-    }
-    
-    func printSelf() {
-        print(" - object: \(self.displayName) ID: \(self.objectID.uriRepresentation().lastPathComponent) \(self.guid)")
     }
 }

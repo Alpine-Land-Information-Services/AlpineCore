@@ -96,7 +96,7 @@ public extension NSManagedObject {
     }
     
     static func all(entityName: String? = nil, in context: NSManagedObjectContext) -> [NSManagedObject] {
-        let request = NSFetchRequest<NSManagedObject>(entityName: entityName ?? Self.entityName)
+        let request = NSFetchRequest<NSManagedObject>(entityName: entityName ?? Self.entityNameOLD)
         request.returnsObjectsAsFaults = false
         var result: [NSManagedObject] = []
         context.performAndWait {
@@ -122,7 +122,7 @@ public extension NSManagedObject {
     
     static func findByGUID(entityName: String? = nil, _ guid: String?, in context: NSManagedObjectContext) -> Self? {
         guard guid != nil else { return nil }
-        let request = NSFetchRequest<NSManagedObject>(entityName: entityName ?? Self.entityName)
+        let request = NSFetchRequest<NSManagedObject>(entityName: entityName ?? Self.entityNameOLD)
         request.predicate = NSPredicate(format: "guid = %@", UUID(uuidString: guid!)! as CVarArg)
         request.returnsObjectsAsFaults = false
         request.fetchLimit = 1
@@ -139,7 +139,7 @@ public extension NSManagedObject {
     
     static func findByName(entityName: String? = nil,_ name: String, in context: NSManagedObjectContext) -> Self? {
         guard !name.isEmpty else { return nil }
-        let request = NSFetchRequest<NSManagedObject>(entityName: entityName ?? Self.entityName)
+        let request = NSFetchRequest<NSManagedObject>(entityName: entityName ?? Self.entityNameOLD)
         request.predicate = NSPredicate(format: "name = %@", name)
         request.returnsObjectsAsFaults = false
         request.fetchLimit = 1
@@ -155,7 +155,7 @@ public extension NSManagedObject {
     }
     
     static func findPredicate(with predicate: NSPredicate, fetchLimit: Int, in context: NSManagedObjectContext) -> [NSManagedObject] {
-        let request = NSFetchRequest<NSManagedObject>(entityName: Self.entityName)
+        let request = NSFetchRequest<NSManagedObject>(entityName: Self.entityNameOLD)
         request.predicate = predicate
         request.returnsObjectsAsFaults = false
         request.fetchLimit = fetchLimit
@@ -171,7 +171,7 @@ public extension NSManagedObject {
     }
     
     static func clearData(entityName: String? = nil, predicate: NSPredicate? = nil, in context: NSManagedObjectContext) {
-        let fetch = NSFetchRequest<NSFetchRequestResult>(entityName: entityName ?? Self.entityName)
+        let fetch = NSFetchRequest<NSFetchRequestResult>(entityName: entityName ?? Self.entityNameOLD)
         fetch.predicate = predicate
         let request = NSBatchDeleteRequest(fetchRequest: fetch)
         context.performAndWait {
@@ -184,7 +184,7 @@ public extension NSManagedObject {
     }
     
     static func deleteData(entityName: String? = nil, predicate: NSPredicate? = nil, in context: NSManagedObjectContext) {
-        let request = NSFetchRequest<NSManagedObject>(entityName: entityName ?? Self.entityName)
+        let request = NSFetchRequest<NSManagedObject>(entityName: entityName ?? Self.entityNameOLD)
         request.predicate = predicate
         request.returnsObjectsAsFaults = true
         var objects: [NSManagedObject] = []
@@ -201,7 +201,7 @@ public extension NSManagedObject {
     }
     
     static func count(entityName: String? = nil, predicate: NSPredicate? = nil, in context: NSManagedObjectContext) -> Int {
-        let request = NSFetchRequest<NSFetchRequestResult>(entityName: entityName ?? Self.entityName)
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: entityName ?? Self.entityNameOLD)
         request.predicate = predicate
         var result = 0
         request.returnsObjectsAsFaults = true
@@ -216,7 +216,7 @@ public extension NSManagedObject {
     }
     
     static func hasAnyEntities(entityName: String? = nil, in context: NSManagedObjectContext) -> Bool {
-        let request = NSFetchRequest<NSFetchRequestResult>(entityName: entityName ?? Self.entityName)
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: entityName ?? Self.entityNameOLD)
         var result = false
         request.fetchLimit = 1
         request.returnsObjectsAsFaults = true
@@ -231,7 +231,7 @@ public extension NSManagedObject {
     }
     
     static func findObjects(by predicate: NSPredicate?, in context: NSManagedObjectContext) -> [NSManagedObject] {
-        let request = NSFetchRequest<NSManagedObject>(entityName: Self.entityName)
+        let request = NSFetchRequest<NSManagedObject>(entityName: Self.entityNameOLD)
         if let predicate {
             request.predicate = predicate
         }
@@ -248,7 +248,7 @@ public extension NSManagedObject {
     }
     
     static func findObject(for entity: String? = nil, by predicate: NSPredicate, in context: NSManagedObjectContext) -> Self? {
-        let request = NSFetchRequest<NSManagedObject>(entityName: entity ?? Self.entityName)
+        let request = NSFetchRequest<NSManagedObject>(entityName: entity ?? Self.entityNameOLD)
         request.predicate = predicate
         request.returnsObjectsAsFaults = false
         request.fetchLimit = 1
@@ -266,9 +266,16 @@ public extension NSManagedObject {
 
 public extension NSManagedObject {
     
-    static func find<Object: NSManagedObject>(by predicate: NSPredicate?, in context: NSManagedObjectContext) throws -> Object? {
+    static var entityName: String {
+        return String(describing: Self.self)
+    }
+}
+
+public extension NSManagedObject {
+    
+    static func find(by predicate: NSPredicate?, in context: NSManagedObjectContext) throws -> NSManagedObject? {
         try context.performAndWait {
-            let request = NSFetchRequest<Object>(entityName: Object.entityName)
+            let request = NSFetchRequest<Self>(entityName: Self.entityName)
             if let predicate {
                 request.predicate = predicate
             }
@@ -279,20 +286,9 @@ public extension NSManagedObject {
         }
     }
     
-        static func findMultiple<Object: NSManagedObject>(by predicate: NSPredicate?, in context: NSManagedObjectContext) throws -> [Object] {
-            try context.performAndWait {
-                let request = NSFetchRequest<Object>(entityName: String(describing: Object.self))
-                if let predicate {
-                    request.predicate = predicate
-                }
-                request.returnsObjectsAsFaults = false
-                return try context.fetch(request)
-            }
-        }
-    
     static func findMultiple(by predicate: NSPredicate?, in context: NSManagedObjectContext) throws -> [NSManagedObject] {
         try context.performAndWait {
-            let request = NSFetchRequest<Self>(entityName: Self.entityName)
+            let request = NSFetchRequest<Self>(entityName: Self.entityNameOLD)
             if let predicate {
                 request.predicate = predicate
             }
@@ -300,10 +296,13 @@ public extension NSManagedObject {
             return try context.fetch(request)
         }
     }
+}
+
+public extension NSManagedObject {
     
-    static func findObjects<Object: NSManagedObject>(by predicate: NSPredicate?, in context: NSManagedObjectContext) async throws -> [Object] {
+    static func findObjects(by predicate: NSPredicate?, in context: NSManagedObjectContext) async throws -> [NSManagedObject] {
         try await context.perform {
-            let request = NSFetchRequest<Object>(entityName: Object.entityName)
+            let request = NSFetchRequest<Self>(entityName: Self.entityName)
             if let predicate {
                 request.predicate = predicate
             }
@@ -326,27 +325,70 @@ public extension NSManagedObject {
             }
         }
     }
+}
+
+
+public extension NSManagedObject {
     
-//    static func findObjects<Object: NSManagedObject>(by predicate: NSPredicate?, in context: NSManagedObjectContext) async throws -> [Object] {
-//        return try await withCheckedThrowingContinuation { continuation in
-//            context.perform {
-//                do {
-//                    let fetchRequest = NSFetchRequest<Object>(entityName: Object.entityName)
-//                    fetchRequest.predicate = predicate
-//                    
-//                    let asyncFetchRequest = try NSAsynchronousFetchRequest(fetchRequest: fetchRequest) { result in
-//                        guard let entities = result.finalResult else {
-//                            continuation.resume(throwing: NSError(domain: "entityFetch", code: 1, userInfo: nil))
-//                            return
-//                        }
-//                        continuation.resume(returning: entities)
-//                    }
-//                    
-//                    try context.execute(asyncFetchRequest)
-//                } catch {
-//                    continuation.resume(throwing: error)
-//                }
+//    static func find<Object: CDObject>(by predicate: NSPredicate?, in context: NSManagedObjectContext) throws -> Object? {
+//        try context.performAndWait {
+//            let request = NSFetchRequest<Object>(entityName: Object.entityName)
+//            if let predicate {
+//                request.predicate = predicate
 //            }
+//            request.returnsObjectsAsFaults = false
+//            request.fetchLimit = 1
+//
+//            return try context.fetch(request).first
 //        }
 //    }
+    
+//    static func findMultiple<Object: CDObject>(by predicate: NSPredicate?, in context: NSManagedObjectContext) throws -> [Object] {
+//        try context.performAndWait {
+//            let request = NSFetchRequest<Object>(entityName: Object.entityName)
+//            if let predicate {
+//                request.predicate = predicate
+//            }
+//            request.returnsObjectsAsFaults = false
+//            return try context.fetch(request)
+//        }
+//    }
+    
+//    static func findObjects<Object: CDObject>(by predicate: NSPredicate?, in context: NSManagedObjectContext) async throws -> [Object] {
+//        try await context.perform {
+//            let request = NSFetchRequest<Object>(entityName: Object.entityName)
+//            if let predicate {
+//                request.predicate = predicate
+//            }
+//            request.returnsObjectsAsFaults = false
+//            return try context.fetch(request)
+//        }
+//    }
+    
+
+    
+    //    static func findObjects<Object: NSManagedObject>(by predicate: NSPredicate?, in context: NSManagedObjectContext) async throws -> [Object] {
+    //        return try await withCheckedThrowingContinuation { continuation in
+    //            context.perform {
+    //                do {
+    //                    let fetchRequest = NSFetchRequest<Object>(entityName: Object.entityName)
+    //                    fetchRequest.predicate = predicate
+    //
+    //                    let asyncFetchRequest = try NSAsynchronousFetchRequest(fetchRequest: fetchRequest) { result in
+    //                        guard let entities = result.finalResult else {
+    //                            continuation.resume(throwing: NSError(domain: "entityFetch", code: 1, userInfo: nil))
+    //                            return
+    //                        }
+    //                        continuation.resume(returning: entities)
+    //                    }
+    //
+    //                    try context.execute(asyncFetchRequest)
+    //                } catch {
+    //                    continuation.resume(throwing: error)
+    //                }
+    //            }
+    //        }
+    //    }
 }
+
+

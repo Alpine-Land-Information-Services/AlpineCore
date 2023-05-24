@@ -18,7 +18,7 @@ public protocol Nameable {
 
 public extension Nameable {
     
-    static var entityName: String {
+    static var entityNameOLD: String {
         String(describing: Self.self)
     }
     

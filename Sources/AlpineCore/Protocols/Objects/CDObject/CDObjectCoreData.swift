@@ -11,7 +11,7 @@ public extension CDObject {
     
     static func find<Object: CDObject>(by id: UUID, in context: NSManagedObjectContext) throws -> Object? {
         let predicate = NSPredicate(format: "a_guid = %@", id as CVarArg)
-        return try Object.find(by: predicate, in: context)
+        return try Self.find(by: predicate, in: context) as? Object
     }
     
     static func deleteAllLocal(in context: NSManagedObjectContext) throws {
@@ -21,6 +21,18 @@ public extension CDObject {
         for object in objects {
             context.delete(object)
         }
+    }
+}
+
+public extension CDObject {
+    
+    static func getNotExportedCount(in context: NSManagedObjectContext) async throws -> [UUID] {
+        let predicate = NSPredicate(format: "a_changed = TRUE")
+        guard let objects = try await Self.findObjects(by: predicate, in: context) as? [Self] else {
+            return []
+        }
+        
+        return objects.compactMap({$0.guid})
     }
 }
 
