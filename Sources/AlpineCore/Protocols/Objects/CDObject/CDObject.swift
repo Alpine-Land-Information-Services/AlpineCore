@@ -17,7 +17,7 @@ public protocol CDObject where Self: NSManagedObject {
 public extension CDObject {
     
     var guid: UUID {
-        if let guid = (self.managedObjectContext?.performAndWait { value(forKey: "guid") as? UUID }) {
+        if let guid = (self.managedObjectContext?.performAndWait { value(forKey: "a_guid") as? UUID }) {
             return guid
         }
         
