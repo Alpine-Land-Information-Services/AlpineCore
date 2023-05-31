@@ -42,7 +42,7 @@ public extension CDObject {
         try managedObjectContext?.performAndWait {
             setValue(true, forKey: "a_changed")
             setValue(value, forKey: "a_deleted")
-            try managedObjectContext?.forceSave()
+            try managedObjectContext?.persistentSave()
         }
     }
     

@@ -158,6 +158,8 @@ public extension NSManagedObject {
         context.performAndWait {
             do {
                 try context.execute(request)
+                try context.save()
+                context.refreshAllObjects()
             } catch {
                 print(error)
             }

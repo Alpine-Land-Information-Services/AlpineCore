@@ -19,7 +19,7 @@ public extension NSManagedObjectContext {
         }
     }
     
-    func forceSave() throws {
+    func persistentSave() throws {
         try self.performAndWait {
             try self.save()
             var parentContext = self.parent
