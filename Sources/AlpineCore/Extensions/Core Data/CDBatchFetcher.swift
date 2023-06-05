@@ -19,6 +19,7 @@ public class CDBatchFetcher {
         fetchRequest.predicate = predicate
         fetchRequest.fetchBatchSize = batchSize
         fetchRequest.fetchLimit = batchSize
+        fetchRequest.returnsObjectsAsFaults = false
         
         self.isModifying = isModifying
     }
