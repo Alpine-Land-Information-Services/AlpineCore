@@ -31,4 +31,10 @@ public extension NSManagedObjectContext {
             }
         }
     }
+    
+    func safeRefresh() {
+        performAndWait {
+            refreshAllObjects()
+        }
+    }
 }

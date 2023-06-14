@@ -14,4 +14,12 @@ public extension NSManagedObject { //MARK: Fetch
         request.predicate = predicate
         return try context.count(for: request)
     }
+    
+    static func batchDelete(using predicate: NSPredicate?, in context: NSManagedObjectContext) throws {
+        let fetch = NSFetchRequest<NSFetchRequestResult>(entityName: Self.entityName)
+        fetch.predicate = predicate
+        let request = NSBatchDeleteRequest(fetchRequest: fetch)
+        try context.execute(request)
+        context.refreshAllObjects()
+    }
 }
