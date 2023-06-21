@@ -46,6 +46,7 @@ public extension FileSystem { //MARK: NEW
         return nil
     }
     
+    @discardableResult
     static func findOrCreateDirectoryPath(for path: FSPath) -> FSPath {
         let path = documentsDirectory.absoluteString.appending("/\(path.rawValue)")
         if !FileManager.default.fileExists(atPath: path) {
@@ -175,11 +176,12 @@ public extension FileSystem { //MARK: OLD
     
     static func recreateDirectory(at path: FSPath, isDirectory: Bool) {
         if fileExists(at: path.rawValue) {
-            _ = deleteFile(at: path.rawValue, isDirectory: isDirectory)
+            deleteFile(at: path.rawValue, isDirectory: isDirectory)
         }
-        _ = findOrCreateDirectoryPath(for: path)
+        findOrCreateDirectoryPath(for: path)
     }
     
+    @discardableResult
     static func deleteFile(at path: String, isDirectory: Bool) -> Result<Void, Error> {
         do {
             let url = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false).appendingPathComponent(path, isDirectory: isDirectory)
