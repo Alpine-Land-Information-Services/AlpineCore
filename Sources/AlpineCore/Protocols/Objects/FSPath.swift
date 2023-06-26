@@ -50,6 +50,10 @@ public extension FSPath {
     var fullPath: FSPath {
         return FS.documentsDirectory.absoluteString.appending("/\(self.rawValue)").fsPath
     }
+    
+    var url: URL {
+        URL(string: self.fullPath.rawValue)!
+    }
 }
 
 public extension FSPath {
