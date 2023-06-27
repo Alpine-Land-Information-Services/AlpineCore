@@ -12,9 +12,24 @@ public extension Decodable {
     static func getFromDefaults(key: String) -> Data? {
         UserDefaults.standard.object(forKey: key) as? Data
     }
+    
+    static func load<Object: Decodable>(from path: FSPath) throws -> Object? {
+        guard FS.exists(at: path) else { return nil }
+        
+        let jsonString = try String.init(contentsOfFile: path.fullPath.rawValue)
+        guard let data = jsonString.data(using: .utf8) else { return nil }
+        return try JSONDecoder().decode(Object.self, from: data)
+    }
 }
 
 public extension Encodable {
+    
+    func save(to path: FSPath) throws {
+        let data = try JSONEncoder().encode(self)
+        if let json = data.prettyJson {
+            try json.write(toFile: path.fullPath.rawValue, atomically: true, encoding: .utf8)
+        }
+    }
     
     func saveToDefaults(key: String) {
         if let encoded = try? JSONEncoder().encode(self) {

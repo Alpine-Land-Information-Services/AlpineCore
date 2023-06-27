@@ -52,7 +52,7 @@ public extension FSPath {
     }
     
     var url: URL {
-        URL(string: self.fullPath.rawValue)!
+        FS.documentsDirectory.appendingPathComponent(self.rawValue)
     }
 }
 
