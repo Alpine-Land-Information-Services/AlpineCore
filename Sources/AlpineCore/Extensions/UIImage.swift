@@ -17,4 +17,24 @@ public extension UIImage {
         UIGraphicsEndImageContext()
         return bitmapImage
     }
+    
+    func alpha(_ value: CGFloat) -> UIImage {
+        UIGraphicsBeginImageContextWithOptions(self.size, false, self.scale)
+        defer { UIGraphicsEndImageContext() }
+
+        let context = UIGraphicsGetCurrentContext()!
+        let cgImage = self.cgImage!
+
+        let area = CGRect(x: 0, y: 0, width: self.size.width, height: self.size.height)
+
+        context.scaleBy(x: 1, y: -1)
+        context.translateBy(x: 0, y: -area.size.height)
+
+        context.setBlendMode(.multiply)
+        context.setAlpha(value)
+
+        context.draw(cgImage, in: area)
+
+        return UIGraphicsGetImageFromCurrentImageContext()!
+    }
 }
