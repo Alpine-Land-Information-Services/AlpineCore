@@ -15,11 +15,20 @@ public extension NSManagedObject { //MARK: Fetch
         return try context.count(for: request)
     }
     
-    static func batchDelete(using predicate: NSPredicate?, in context: NSManagedObjectContext) throws {
+    static func batchDelete(using predicate: NSPredicate?, refreshContext: Bool = false, in context: NSManagedObjectContext) throws {
         let fetch = NSFetchRequest<NSFetchRequestResult>(entityName: Self.entityName)
         fetch.predicate = predicate
         let request = NSBatchDeleteRequest(fetchRequest: fetch)
         try context.execute(request)
-        context.refreshAllObjects()
+        if refreshContext {
+            context.refreshAllObjects()
+        }
+    }
+    
+    static func batchDelete(for predicate: NSPredicate, in context: NSManagedObjectContext) throws {
+        let fetch = NSFetchRequest<NSFetchRequestResult>(entityName: Self.entityName)
+        fetch.predicate = predicate
+        let request = NSBatchDeleteRequest(fetchRequest: fetch)
+        try context.execute(request)
     }
 }

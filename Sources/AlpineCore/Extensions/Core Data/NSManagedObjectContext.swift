@@ -19,10 +19,18 @@ public extension NSManagedObjectContext {
         }
     }
     
+    func saveChanges() throws {
+        try performAndWait {
+            if hasChanges {
+                try save()
+            }
+        }
+    }
+    
     func persistentSave() throws {
-        try self.performAndWait {
-            try self.save()
-            var parentContext = self.parent
+        try performAndWait {
+            try save()
+            var parentContext = parent
             while let parent = parentContext {
                 try parent.performAndWait {
                     try parent.save()

@@ -16,7 +16,7 @@ public extension CDObject {
     
     static func deleteAllLocal(in context: NSManagedObjectContext) throws {
         let predicate = NSPredicate(format: "a_deleted = TRUE AND a_syncDate = nil")
-        try Self.batchDelete(using: predicate, in: context)
+        try Self.batchDelete(using: predicate, refreshContext: true, in: context)
     }
 }
 
