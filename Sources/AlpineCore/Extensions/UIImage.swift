@@ -93,4 +93,23 @@ public extension UIImage {
 
         return newImage
     }
+    
+    func resized(to size: CGSize) -> UIImage? {
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { (context) in
+            self.draw(in: CGRect(origin: .zero, size: size))
+        }
+    }
+    
+    func resized(withMaximumSideLength maxLength: CGFloat) -> UIImage? {
+        let scale: CGFloat
+        if size.width > size.height {
+            scale = maxLength / size.width
+        } else {
+            scale = maxLength / size.height
+        }
+        
+        let newSize = CGSize(width: size.width * scale, height: size.height * scale)
+        return resized(to: newSize)
+    }
 }
