@@ -9,6 +9,10 @@ import CoreData
 
 public extension NSManagedObject { //MARK: Fetch
     
+    enum CDError: Error {
+        case noBatchDeleteResults
+    }
+    
     static func getCount(using predicate: NSPredicate?, in context: NSManagedObjectContext) throws -> Int {
         let request = NSFetchRequest<Self>(entityName: Self.entityName)
         request.predicate = predicate
@@ -25,10 +29,20 @@ public extension NSManagedObject { //MARK: Fetch
         }
     }
     
-    static func batchDelete(for predicate: NSPredicate, in context: NSManagedObjectContext) throws {
+    static func batchDelete(for predicate: NSPredicate?, in context: NSManagedObjectContext, update updateContext: NSManagedObjectContext? = nil) throws {
         let fetch = NSFetchRequest<NSFetchRequestResult>(entityName: Self.entityName)
         fetch.predicate = predicate
         let request = NSBatchDeleteRequest(fetchRequest: fetch)
-        try context.execute(request)
+        request.resultType = .resultTypeObjectIDs
+        let result = try context.execute(request) as? NSBatchDeleteResult
+        
+        if let updateContext {
+            guard let objectIDArray = result?.result as? [NSManagedObjectID] else {
+                throw CDError.noBatchDeleteResults
+            }
+            for id in objectIDArray {
+                updateContext.delete(updateContext.object(with: id))
+            }
+        }
     }
 }
