@@ -24,4 +24,10 @@ public extension Date {
         
         return "\(strMin):\(strSec)"
     }
+    
+    var startOfNextDay: Date {
+        let calendar = Calendar.current
+        guard let nextDay = calendar.date(byAdding: .day, value: 1, to: self) else { return Date() }
+        return calendar.startOfDay(for: nextDay)
+    }
 }
