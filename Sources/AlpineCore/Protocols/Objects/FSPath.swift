@@ -58,7 +58,7 @@ public extension FSPath {
 
 public extension FSPath {
     
-    func appending(item: String) -> FSPath {
+    func appending(_ item: String) -> FSPath {
         FSPath(rawValue: self.rawValue.appending("/\(item)"))
     }
     
