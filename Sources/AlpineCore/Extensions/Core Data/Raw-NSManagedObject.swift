@@ -13,11 +13,27 @@ public extension NSManagedObject { //MARK: Fetch
         case noBatchDeleteResults
     }
     
+    
+    static func findObject(with predicate: NSPredicate, in context: NSManagedObjectContext, asFault: Bool = true) throws -> Self? {
+        let request = NSFetchRequest<Self>(entityName: Self.entityName)
+        request.predicate = predicate
+        request.returnsObjectsAsFaults = asFault
+        request.fetchLimit = 1
+        
+        return try context.fetch(request).first
+    }
+}
+
+public extension NSManagedObject {
+    
     static func getCount(using predicate: NSPredicate?, in context: NSManagedObjectContext) throws -> Int {
         let request = NSFetchRequest<Self>(entityName: Self.entityName)
         request.predicate = predicate
         return try context.count(for: request)
     }
+}
+
+public extension NSManagedObject {
     
     static func batchDelete(using predicate: NSPredicate?, refreshContext: Bool = false, in context: NSManagedObjectContext) throws {
         let fetch = NSFetchRequest<NSFetchRequestResult>(entityName: Self.entityName)
