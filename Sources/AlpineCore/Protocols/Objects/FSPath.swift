@@ -41,6 +41,11 @@ public extension FSPath {
 }
 
 public extension FSPath {
+    
+    var removeExtension: FSPath {
+        let components = self.rawValue.components(separatedBy: ".")
+        return components.dropLast().joined(separator: ".").fsPath
+    }
 
     var removeLast: FSPath {
         let components = self.rawValue.components(separatedBy: "/")
@@ -52,7 +57,7 @@ public extension FSPath {
     }
     
     var url: URL {
-        FS.documentsDirectory.appendingPathComponent(self.rawValue)
+        FS.documentsDirectory.appendingPathComponent("/\(self.rawValue)")
     }
 }
 

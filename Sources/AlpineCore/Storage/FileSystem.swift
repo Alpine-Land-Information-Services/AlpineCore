@@ -48,15 +48,15 @@ public extension FileSystem { //MARK: NEW
     
     @discardableResult
     static func findOrCreateDirectoryPath(for path: FSPath) -> FSPath {
-        let path = documentsDirectory.absoluteString.appending("/\(path.rawValue)")
-        if !FileManager.default.fileExists(atPath: path) {
+        let fullPath = documentsDirectory.absoluteString.appending("/\(path.rawValue)")
+        if !FileManager.default.fileExists(atPath: fullPath) {
             do {
-                try FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: true)
+                try FileManager.default.createDirectory(atPath: fullPath, withIntermediateDirectories: true)
             } catch {
                 assertionFailure("Create Directory Error")
             }
         }
-        return path.fsPath
+        return path
     }
     
     static func exists(at path: FSPath) -> Bool {
@@ -189,7 +189,6 @@ public extension FileSystem { //MARK: OLD
             try FileManager.default.removeItem(at: url)
         }
         catch {
-            print(error)
             return .failure(FSError.error(error))
         }
         
