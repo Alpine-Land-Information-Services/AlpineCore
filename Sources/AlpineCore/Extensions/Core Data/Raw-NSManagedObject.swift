@@ -14,7 +14,7 @@ public extension NSManagedObject { //MARK: Fetch
     }
     
     
-    static func findObject(with predicate: NSPredicate, in context: NSManagedObjectContext, asFault: Bool = true) throws -> Self? {
+    static func findObject(with predicate: NSPredicate?, in context: NSManagedObjectContext, asFault: Bool = true) throws -> Self? {
         let request = NSFetchRequest<Self>(entityName: Self.entityName)
         request.predicate = predicate
         request.returnsObjectsAsFaults = asFault
