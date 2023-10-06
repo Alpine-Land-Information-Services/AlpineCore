@@ -35,6 +35,13 @@ public extension NSManagedObject {
 
 public extension NSManagedObject {
     
+    static func batchDelete(with predicate: NSPredicate?, in context: NSManagedObjectContext) throws {
+        let fetch = NSFetchRequest<NSFetchRequestResult>(entityName: Self.entityName)
+        fetch.predicate = predicate
+        let request = NSBatchDeleteRequest(fetchRequest: fetch)
+        try context.execute(request)
+    }
+    
     static func batchDelete(using predicate: NSPredicate?, refreshContext: Bool = false, in context: NSManagedObjectContext) throws {
         let fetch = NSFetchRequest<NSFetchRequestResult>(entityName: Self.entityName)
         fetch.predicate = predicate
