@@ -57,7 +57,11 @@ public extension FSPath {
     }
     
     var url: URL {
-        FS.documentsDirectory.appendingPathComponent("/\(self.rawValue)")
+        if #available(iOS 16.0, *) {
+            FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appending(path: self.rawValue)
+        } else {
+            FS.documentsDirectory.appendingPathComponent("/\(self.rawValue)")
+        }
     }
 }
 
