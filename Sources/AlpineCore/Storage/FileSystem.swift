@@ -22,16 +22,19 @@ public class FileSystem {
         case presets
     }
     
+    private static var documentsDirectoryURL: URL?
 }
 
 
 public extension FileSystem { //MARK: NEW
     
     static var documentsDirectory: URL {
-        let urls = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
-        return URL(string: urls[0])
-        ??
-        URL(string: "/Users/jenya/Library/Developer/CoreSimulator/Devices/8FE8FE32-8BF7-4A22-B975-55851D2E44AA/data/Containers/Data/Application/3303E29B-C936-438A-A1EF-539494B81BD7/Documents/")! // FOR PREVIEW USE ONLY
+        if let documentsDirectoryURL {
+            return documentsDirectoryURL
+        }
+        documentsDirectoryURL = URL(string: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
+        return documentsDirectoryURL
+        ?? URL(string: "/Users/jenya/Library/Developer/CoreSimulator/Devices/8FE8FE32-8BF7-4A22-B975-55851D2E44AA/data/Containers/Data/Application/3303E29B-C936-438A-A1EF-539494B81BD7/Documents/")! // FOR PREVIEW USE ONLY
     }
     
     static func getDirectoryContents(in path: FSPath) -> [String]? {
