@@ -22,6 +22,14 @@ public extension NSManagedObject { //MARK: Fetch
         
         return try context.fetch(request).first
     }
+    
+    static func findObjects(with predicate: NSPredicate?, in context: NSManagedObjectContext, asFault: Bool = true) throws -> [NSManagedObject] {
+        let request = NSFetchRequest<NSManagedObject>(entityName: Self.entityName)
+        request.predicate = predicate
+        request.returnsObjectsAsFaults = asFault
+        
+        return try context.fetch(request)
+    }
 }
 
 public extension NSManagedObject {
