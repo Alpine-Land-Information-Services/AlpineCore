@@ -52,4 +52,12 @@ public extension Date {
     func elapsed(_ component: Calendar.Component) -> Int {
         Calendar.current.dateComponents([component], from: self, to: Date()).hour ?? 0
     }
+    
+    func isPast(_ date: Date) -> Bool {
+        return self < date
+    }
+    
+    func add(_ component: Calendar.Component, value: Int) -> Date {
+        return Calendar.current.date(byAdding: component, value: value, to: self) ?? self
+    }
 }
