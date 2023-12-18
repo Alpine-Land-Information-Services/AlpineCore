@@ -22,7 +22,27 @@ public class FileSystem {
         case presets
     }
     
+    public enum PathType: String {
+        case documents
+        case group
+    }
+    
     private static var documentsDirectoryURL: URL?
+    
+    public static var atlasGroupURL: URL {
+        FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.alpinelis.atlas")!
+    }
+    
+    public static var appDoucumentsURL: URL {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    }
+}
+
+public extension FileSystem { //MARK: NEW NEW
+    
+    static func createDirectory(at url: URL) throws {
+        try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+    }
 }
 
 

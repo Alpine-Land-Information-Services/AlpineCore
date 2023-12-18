@@ -52,10 +52,31 @@ public extension FSPath {
         return components.dropLast().joined(separator: "/").fsPath
     }
 
+    @available(*, deprecated, message: "use fullPath()")
     var fullPath: FSPath {
         return FS.documentsDirectory.absoluteString.appending("/\(self.rawValue)").fsPath
     }
     
+    func fullPath(in type: FS.PathType) -> FSPath {
+        switch type {
+        case .documents:
+            return FS.appDoucumentsURL.path.appending("/\(rawValue)").fsPath
+        case .group:
+            return FS.atlasGroupURL.path.appending("/\(rawValue)").fsPath
+        }
+    }
+    
+    @available(iOS 16.0, *)
+    func url(in type: FS.PathType) -> URL {
+        switch type {
+        case .documents:
+            return FS.appDoucumentsURL.appending(path: rawValue)
+        case .group:
+            return FS.atlasGroupURL.appending(path: rawValue)
+        }
+    }
+    
+    @available(*, deprecated, message: "use url()")
     var url: URL {
         if #available(iOS 16.0, *) {
             FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appending(path: self.rawValue)
