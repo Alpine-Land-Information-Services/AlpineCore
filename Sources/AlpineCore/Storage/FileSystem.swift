@@ -27,6 +27,13 @@ public class FileSystem {
         case group
     }
     
+    public enum LayerDirectoryType: String, Codable {
+        case project
+        case shared
+        case cloud
+        case myFolder
+    }
+    
     private static var documentsDirectoryURL: URL?
     
     public static var atlasGroupURL: URL {
@@ -42,6 +49,10 @@ public extension FileSystem { //MARK: NEW NEW
     
     static func createDirectory(at url: URL) throws {
         try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+    }
+    
+    static func directoryContents(at path: String) throws -> [String] {
+        try FileManager.default.contentsOfDirectory(atPath: path)
     }
 }
 
