@@ -54,6 +54,11 @@ public extension FileSystem { //MARK: NEW NEW
     static func directoryContents(at path: String) throws -> [String] {
         try FileManager.default.contentsOfDirectory(atPath: path)
     }
+    
+    @available(iOS 16.0, *)
+    static func fileExists(at url: URL) -> Bool {
+        return FileManager.default.fileExists(atPath: url.path(percentEncoded: false))
+    }
 }
 
 
