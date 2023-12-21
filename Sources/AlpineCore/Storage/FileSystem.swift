@@ -27,13 +27,6 @@ public class FileSystem {
         case group
     }
     
-    public enum LayerDirectoryType: String, Codable {
-        case project
-        case shared
-        case cloud
-        case myFolder
-    }
-    
     private static var documentsDirectoryURL: URL?
     
     public static var atlasGroupURL: URL {
