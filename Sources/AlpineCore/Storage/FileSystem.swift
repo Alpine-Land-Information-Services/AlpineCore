@@ -9,6 +9,20 @@ import Foundation
 
 public typealias FS = FileSystem
 
+public class CoreError: AlpineError {
+    
+    var type: CoreErrorType
+    
+    public init(_ message: String, type: CoreErrorType, file: String = #file, function: String = #function, line: Int = #line) {
+        self.type = type
+        super.init(message, file: file, function: function, line: line)
+    }
+}
+
+public enum CoreErrorType: String {
+    case fileSystem = "File System"
+}
+
 public class FileSystem {
     
     public enum FSError: Error {
@@ -35,6 +49,19 @@ public class FileSystem {
     
     public static var appDoucumentsURL: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    }
+    
+    @available(iOS 16.0, *)
+    public static func move(at sourceURL: URL, destinationURL: URL, overrideIfExists: Bool = true) throws {
+        if FileManager.default.fileExists(atPath: destinationURL.path(percentEncoded: false)) {
+            if overrideIfExists {
+                try FileManager.default.removeItem(at: destinationURL)
+            }
+            else {
+                throw CoreError("Cannot move file, it already exists.", type: .fileSystem)
+            }
+            try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
+        }
     }
 }
 
