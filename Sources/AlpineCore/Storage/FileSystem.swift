@@ -58,10 +58,23 @@ public class FileSystem {
                 try FileManager.default.removeItem(at: destinationURL)
             }
             else {
-                throw CoreError("Cannot move file, it already exists.", type: .fileSystem)
+                throw CoreError("Cannot move file, it already exists at destination.", type: .fileSystem)
             }
         }
         try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
+    }
+    
+    @available(iOS 16.0, *)
+    public static func copy(at sourceURL: URL, destinationURL: URL, overrideIfExists: Bool = true) throws {
+        if FileManager.default.fileExists(atPath: destinationURL.path(percentEncoded: false)) {
+            if overrideIfExists {
+                try FileManager.default.removeItem(at: destinationURL)
+            }
+            else {
+                throw CoreError("Cannot copy file, it already exists at destination.", type: .fileSystem)
+            }
+        }
+        try FileManager.default.copyItem(at: sourceURL, to: destinationURL)
     }
 }
 
