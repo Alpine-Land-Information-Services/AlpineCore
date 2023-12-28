@@ -60,8 +60,8 @@ public class FileSystem {
             else {
                 throw CoreError("Cannot move file, it already exists.", type: .fileSystem)
             }
-            try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
         }
+        try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
     }
 }
 
