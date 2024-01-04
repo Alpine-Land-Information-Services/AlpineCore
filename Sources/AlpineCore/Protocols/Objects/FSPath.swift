@@ -38,6 +38,45 @@ public extension FSPath {
     var fileName: String {
         self.rawValue.components(separatedBy: "/").last!
     }
+    
+    var rawFolder: String {
+        if rawValue.last == "/" {
+            return rawValue
+        }
+        return rawValue.appending("/")
+    }
+    
+    var rawFile: String {
+        if rawValue.last == "/" {
+            var modified = rawValue
+            modified.removeLast()
+            
+            return modified
+        }
+        return rawValue
+    }
+}
+
+@available(iOS 16.0, *)
+public extension FSPath {
+    
+    func fullPath(in type: FS.PathType) -> FSPath {
+        switch type {
+        case .documents:
+            return FS.appDoucumentsURL.path.appending("/\(rawValue)").fsPath
+        case .group:
+            return FS.atlasGroupURL.path.appending("/\(rawValue)").fsPath
+        }
+    }
+    
+    func url(in type: FS.PathType) -> URL {
+        switch type {
+        case .documents:
+            return FS.appDoucumentsURL.appending(path: rawValue)
+        case .group:
+            return FS.atlasGroupURL.appending(path: rawValue)
+        }
+    }
 }
 
 public extension FSPath {
@@ -57,25 +96,6 @@ public extension FSPath {
         return FS.documentsDirectory.absoluteString.appending("/\(self.rawValue)").fsPath
     }
     
-    func fullPath(in type: FS.PathType) -> FSPath {
-        switch type {
-        case .documents:
-            return FS.appDoucumentsURL.path.appending("/\(rawValue)").fsPath
-        case .group:
-            return FS.atlasGroupURL.path.appending("/\(rawValue)").fsPath
-        }
-    }
-    
-    @available(iOS 16.0, *)
-    func url(in type: FS.PathType) -> URL {
-        switch type {
-        case .documents:
-            return FS.appDoucumentsURL.appending(path: rawValue)
-        case .group:
-            return FS.atlasGroupURL.appending(path: rawValue)
-        }
-    }
-    
     @available(*, deprecated, message: "use url()")
     var url: URL {
         if #available(iOS 16.0, *) {
@@ -89,7 +109,7 @@ public extension FSPath {
 public extension FSPath {
     
     func appending(_ item: String) -> FSPath {
-        FSPath(rawValue: self.rawValue.appending("/\(item)"))
+        FSPath(rawValue: self.rawValue.appending("/").appending(item))
     }
     
     func equals(_ other: FSPath) -> Bool {

@@ -21,6 +21,7 @@ public class CoreError: AlpineError {
 
 public enum CoreErrorType: String {
     case fileSystem = "File System"
+    case json = "JSON"
 }
 
 public class FileSystem {
@@ -42,17 +43,20 @@ public class FileSystem {
     }
     
     private static var documentsDirectoryURL: URL?
+}
+
+@available(iOS 16.0, *)
+public extension FileSystem {
     
-    public static var atlasGroupURL: URL {
+    static var atlasGroupURL: URL {
         FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.alpinelis.atlas")!
     }
     
-    public static var appDoucumentsURL: URL {
+    static var appDoucumentsURL: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
     
-    @available(iOS 16.0, *)
-    public static func move(at sourceURL: URL, destinationURL: URL, overrideIfExists: Bool = true) throws {
+    static func move(at sourceURL: URL, destinationURL: URL, overrideIfExists: Bool = true) throws {
         if FileManager.default.fileExists(atPath: destinationURL.path(percentEncoded: false)) {
             if overrideIfExists {
                 try FileManager.default.removeItem(at: destinationURL)
@@ -64,8 +68,7 @@ public class FileSystem {
         try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
     }
     
-    @available(iOS 16.0, *)
-    public static func copy(at sourceURL: URL, destinationURL: URL, overrideIfExists: Bool = true) throws {
+    static func copy(at sourceURL: URL, destinationURL: URL, overrideIfExists: Bool = true) throws {
         if FileManager.default.fileExists(atPath: destinationURL.path(percentEncoded: false)) {
             if overrideIfExists {
                 try FileManager.default.removeItem(at: destinationURL)
@@ -76,24 +79,49 @@ public class FileSystem {
         }
         try FileManager.default.copyItem(at: sourceURL, to: destinationURL)
     }
-}
-
-public extension FileSystem { //MARK: NEW NEW
+    
+    static func createDirectory(for path: FSPath, in pathType: FS.PathType) throws {
+        try FileManager.default.createDirectory(at: getURL(for: pathType).appending(path: path.rawValue), withIntermediateDirectories: true)
+    }
     
     static func createDirectory(at url: URL) throws {
         try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
     }
     
+    static func getURL(for pathType: FS.PathType) -> URL {
+        switch pathType {
+        case .documents:
+            return appDoucumentsURL
+        case .group:
+            return atlasGroupURL
+        }
+    }
+    
+    static func getProjectRootURL(for pathType: FS.PathType) -> URL {
+        switch pathType {
+        case .documents:
+            return appDoucumentsURL.appending(path: "Atlas/Users/")
+        case .group:
+            return atlasGroupURL.appending(path: "Users/")
+        }
+    }
+}
+
+@available(iOS 16.0, *)
+public extension FileSystem {
+    
     static func directoryContents(at path: String) throws -> [String] {
         try FileManager.default.contentsOfDirectory(atPath: path)
     }
     
-    @available(iOS 16.0, *)
     static func fileExists(at url: URL) -> Bool {
         return FileManager.default.fileExists(atPath: url.path(percentEncoded: false))
     }
+    
+    static func fileExists(at path: FSPath, in pathType: FS.PathType) -> Bool {
+        return fileExists(at: getURL(for: pathType).appending(path: path.rawValue))
+    }
 }
-
 
 public extension FileSystem { //MARK: NEW
     
