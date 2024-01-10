@@ -112,4 +112,18 @@ public extension UIImage {
         let newSize = CGSize(width: size.width * scale, height: size.height * scale)
         return resized(to: newSize)
     }
+    
+    func inversed(cgResult: Bool = false) -> UIImage? {
+        guard let cgImage = self.cgImage else { return nil }
+        let coreImage = CoreImage.CIImage(cgImage: cgImage)
+        guard let filter = CIFilter(name: "CIColorInvert") else { return nil }
+        filter.setValue(coreImage, forKey: kCIInputImageKey)
+        guard let result = filter.value(forKey: kCIOutputImageKey) as? UIKit.CIImage
+        else { return nil }
+        if cgResult {
+            guard let img = CIContext(options: nil).createCGImage(result, from: result.extent) else { return nil }
+            return UIImage(cgImage: img)
+        }
+        return UIImage(ciImage: result)
+    }
 }
