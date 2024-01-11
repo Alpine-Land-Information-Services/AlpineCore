@@ -96,15 +96,6 @@ public extension FileSystem {
             return atlasGroupURL
         }
     }
-    
-    static func getProjectRootURL(for pathType: FS.PathType) -> URL {
-        switch pathType {
-        case .documents:
-            return appDoucumentsURL.appending(path: "Atlas/Users/")
-        case .group:
-            return atlasGroupURL.appending(path: "Users/")
-        }
-    }
 }
 
 @available(iOS 16.0, *)
