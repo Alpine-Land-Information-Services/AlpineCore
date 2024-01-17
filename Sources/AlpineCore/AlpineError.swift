@@ -20,4 +20,8 @@ open class AlpineError: Error {
         self.function = function
         self.line = line
     }
+    
+    open func getType() -> String {
+        "\(String(describing: Self.self))"
+    }
 }
