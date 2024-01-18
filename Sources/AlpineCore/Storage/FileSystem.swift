@@ -17,6 +17,10 @@ public class CoreError: AlpineError {
         self.type = type
         super.init(message, file: file, function: function, line: line)
     }
+    
+    public override func getType() -> String {
+        "\(String(describing: Self.self))-\(type.rawValue)"
+    }
 }
 
 public enum CoreErrorType: String {
