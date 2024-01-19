@@ -14,12 +14,15 @@ public class CoreUser {
     @Attribute(.unique)
     public var id: String
     
-    @Relationship(deleteRule: .cascade)
+    @Relationship(deleteRule: .cascade, inverse: \AppError.user)
     var errors: [AppError] = []
-    
-//    var bools = [String: AnyHashable]()
+        
+    @Relationship(deleteRule: .cascade)
+    var tips: UserTips?
     
     public init(id: String) {
         self.id = id
+        
+        tips = UserTips()
     }
 }

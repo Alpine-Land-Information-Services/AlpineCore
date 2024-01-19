@@ -22,12 +22,6 @@ public class CoreAppControl {
     
     private init() {}
    
-    static func makeAlert(_ alert: CoreAlert) {
-        DispatchQueue.main.async {
-            AlertManager.shared.presentAlert(alert)
-        }
-    }
-    
     private func getErrorText(error: Error) -> (String, String) {
         if let err = error as? AlpineError {
             return (err.getType(), err.message)
@@ -44,6 +38,30 @@ public class CoreAppControl {
                 let (title, message) = getErrorText(error: error)
                 Core.makeAlert(CoreAlert(title: title, message: message, buttons: nil))
             }
+        }
+    }
+    
+    public static func reset() {
+        CoreAppControl.shared = CoreAppControl()
+    }
+}
+
+public extension CoreAppControl { // Alerts
+    
+    static var user: CoreUser {
+        Core.shared.user
+    }
+    
+    static func makeAlert(_ alert: CoreAlert) {
+        DispatchQueue.main.async {
+            AlertManager.shared.presentAlert(alert)
+        }
+    }
+    
+    static func makeSimpleAlert(title: String?, message: String?) {
+        DispatchQueue.main.async {
+            let alert = CoreAlert(title: title, message: message, buttons: nil)
+            AlertManager.shared.presentAlert(alert)
         }
     }
 }

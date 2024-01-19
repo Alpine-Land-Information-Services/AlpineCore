@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 @Model
-public class AppError {
+public class AppError: Hashable {
     
     var guid = UUID()
     var date = Date()
@@ -19,6 +19,8 @@ public class AppError {
     var message: String?
     var additionalInfo: String?
     var typeName: String?
+    
+    var user: CoreUser?
     
     public init(error: Error, additionalText: String? = nil) {
         if let err = error as? AlpineError {
