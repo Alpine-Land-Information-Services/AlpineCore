@@ -19,13 +19,13 @@ public class CoreError: AlpineError {
     }
     
     public override func getType() -> String {
-        "\(String(describing: Self.self))-\(type.rawValue)"
+        "\(type.rawValue)"
     }
 }
 
 public enum CoreErrorType: String {
-    case fileSystem = "File System"
-    case json = "JSON"
+    case fileSystem = "File System Error"
+    case json = "JSON Error"
 }
 
 public class FileSystem {

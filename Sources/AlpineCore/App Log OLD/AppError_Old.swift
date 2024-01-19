@@ -5,8 +5,8 @@
 //  Created by Jenya Lebid on 4/17/23.
 //
 
-import CoreData
-
+//import CoreData
+//
 //public func makeError(onAction: String, log: String, description: String?, showToUser: Bool = true) {
 //    AppError.add(onAction: onAction, log: log, description: description)
 //}
