@@ -14,13 +14,20 @@ struct ErrorLogView: View {
     
     var body: some View {
         List {
-            Text("Make Me!")
+            VStack {
+                TextAreaBlock(title: "Description", text: .constant(error.content), height: 240, changed: .constant(false))
+                if let info = error.additionalInfo {
+                    TextAreaBlock(title: "Additional Information", text: .constant(info), height: 200, changed: .constant(false))
+                }
+            }
         }
-        .navigationTitle(error.typeName ?? "Unknown Error")
+        .navigationTitle(error.title)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Text(error.date.toString(format: "MMM d, h:mm a"))
+                    .font(.footnote)
+            }
+        }
     }
 }
-
-//#Preview {
-//    ErrorLogView()
-//}

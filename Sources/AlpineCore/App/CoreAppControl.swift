@@ -64,4 +64,8 @@ public extension CoreAppControl { // Alerts
             AlertManager.shared.presentAlert(alert)
         }
     }
+    
+    static func makeError(error: Error, additionalInfo: String? = nil, showToUser: Bool = true) {
+        Self.shared.makeError(error: error, additionalInfo: additionalInfo, showToUser: showToUser)
+    }
 }

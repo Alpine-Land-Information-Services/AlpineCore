@@ -41,4 +41,12 @@ public class AppError: Hashable {
         try? context.save()
         return err
     }
+    
+    public var title: String {
+        typeName ?? "Unknown error"
+    }
+    
+    public var content: String {
+        message ?? "No error description"
+    }
 }

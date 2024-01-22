@@ -15,7 +15,7 @@ public struct ErrorLogListView: View {
     @Query private var errors: [AppError]
     
     public init(userID: String) {
-        _errors = Query(filter: #Predicate<AppError> { $0.user?.id == userID }, sort: \.date)
+        _errors = Query(filter: #Predicate<AppError> { $0.user?.id == userID }, sort: \.date, order: .reverse)
     }
     
     public var body: some View {
@@ -25,7 +25,7 @@ public struct ErrorLogListView: View {
                     ErrorLogView(error: error)
                 } label: {
                     HStack {
-                        Text(error.typeName ?? "Unknown Error")
+                        Text(error.title)
                         Spacer()
                         Text(error.date.toString(format: "MM-dd-yy HH:mm"))
                             .font(.caption)
@@ -52,7 +52,7 @@ struct ErrorListSelectView: View {
     @State var multiSelection = Set<AppError>()
     
     public init(userID: String, selectedError: Binding<AppError?>) {
-        _errors = Query(filter: #Predicate<AppError> { $0.user?.id == userID }, sort: \.date)
+        _errors = Query(filter: #Predicate<AppError> { $0.user?.id == userID }, sort: \.date, order: .reverse)
         _selectedError = selectedError
     }
     
@@ -61,7 +61,7 @@ struct ErrorListSelectView: View {
             Section {
                 ForEach(errors, id: \.self) { error in
                     HStack {
-                        Text(error.typeName ?? "Unknown Error")
+                        Text(error.title)
                         Spacer()
                         Text(error.date.toString(format: "MM-dd-yy HH:mm"))
                             .font(.caption)

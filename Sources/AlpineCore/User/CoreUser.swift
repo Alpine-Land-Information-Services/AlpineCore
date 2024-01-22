@@ -22,7 +22,6 @@ public class CoreUser {
     
     public init(id: String) {
         self.id = id
-        
-        tips = UserTips()
+        self.tips = UserTips()
     }
 }

@@ -12,8 +12,8 @@ actor AppErrorActor: ModelActor {
     
     let modelContainer: ModelContainer
     let modelExecutor: ModelExecutor
-
-    init(modelContainer: ModelContainer/* = ConnectManager.shared.modelContainer*/) {
+    
+    init(modelContainer: ModelContainer) {
         self.modelContainer = modelContainer
         let context = ModelContext(modelContainer)
         modelExecutor = DefaultSerialModelExecutor(modelContext: context)
