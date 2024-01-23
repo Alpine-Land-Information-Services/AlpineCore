@@ -18,7 +18,7 @@ public class CoreUser {
     var errors: [AppError] = []
         
     @Relationship(deleteRule: .cascade)
-    var tips: UserTips?
+    var tips: UserTips
     
     public init(id: String) {
         self.id = id
