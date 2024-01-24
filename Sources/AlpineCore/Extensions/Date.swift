@@ -22,12 +22,12 @@ public extension Date {
 
 public extension Date {
     
-    func toString(format: String = "yyyy-MM-dd") -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .short
-        formatter.dateFormat = format
-        return formatter.string(from: self)
-    }
+//    func toString(format: String = "yyyy-MM-dd") -> String {
+//        let formatter = DateFormatter()
+//        formatter.dateStyle = .short
+//        formatter.dateFormat = format
+//        return formatter.string(from: self)
+//    }
     
     func passedTime(from date: Date, to endDate: Date = Date()) -> String {
         let difference = Calendar.current.dateComponents([.minute, .second], from: date, to: endDate)

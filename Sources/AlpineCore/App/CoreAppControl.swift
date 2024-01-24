@@ -5,13 +5,14 @@
 //  Created by Jenya Lebid on 1/18/24.
 //
 
-import Foundation
-import Observation
+import SwiftUI
 import SwiftData
+
 import PopupKit
 
 public typealias Core = CoreAppControl
 public typealias CoreAlert = SceneAlert
+public typealias CoreAlertButton = AlertButton
 
 @Observable
 public class CoreAppControl {
@@ -67,5 +68,12 @@ public extension CoreAppControl { // Alerts
     
     static func makeError(error: Error, additionalInfo: String? = nil, showToUser: Bool = true) {
         Self.shared.makeError(error: error, additionalInfo: additionalInfo, showToUser: showToUser)
+    }
+}
+
+public extension CoreAppControl {
+    
+    static func presentSheet<Content: View>(style: UIModalPresentationStyle = .automatic, @ViewBuilder _ content: @escaping () -> Content) {
+        PKSheetManager.shared.presentSheet(style: style, content)
     }
 }

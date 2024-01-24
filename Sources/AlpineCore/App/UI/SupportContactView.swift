@@ -27,8 +27,7 @@ public struct SupportContactView: View {
     @State private var supportComment = ""
     
     @State private var associatedError: AppError?
-    
-    @ObservedObject var supportTicketSender: SupportTicketSender
+    @StateObject private var supportTicketSender = SupportTicketSender()
     
     var userID: String
     
@@ -40,7 +39,6 @@ public struct SupportContactView: View {
         if let associatedError {
             self.associatedError = associatedError
         }
-        supportTicketSender = SupportTicketSender()
     }
     
     public var body: some View {
@@ -57,8 +55,11 @@ public struct SupportContactView: View {
         .navigationBarTitleDisplayMode(.inline)
         .overlay {
             if supportTicketSender.spinner {
-                Rectangle().fill(Color.black).opacity(0.5).ignoresSafeArea()
-                ProgressView("Sending...").foregroundColor(Color.white).progressViewStyle(CircularProgressViewStyle(tint: .white))
+                ZStack {
+                    Rectangle().fill(Color.black).opacity(0.5).ignoresSafeArea()
+                    ProgressView("Sending...").foregroundColor(Color.white).progressViewStyle(CircularProgressViewStyle(tint: .white))
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
     }
@@ -111,9 +112,10 @@ public struct SupportContactView: View {
     var send: some View {
         Section {
             Button {
+                supportTicketSender.spinner = true
+                
                 let reportTitle = "\(supportType.rawValue)"
                 var reportText = ""
-                supportTicketSender.spinner = true
                 switch supportType {
                 case .feedback, .featureRequest:
                     reportText = "\(supportComment)"
@@ -132,9 +134,6 @@ public struct SupportContactView: View {
                         
                         \(associatedError.content)
                         \(associatedError.additionalInfo != nil ? "\n[Additional Info]\n\(associatedError.additionalInfo!)" : "")
-                        
-                        <--- User Description --->
-                        \(supportComment)
                         """
                     }
                     reportText.append("<--- User Description --->\n\(supportComment)")

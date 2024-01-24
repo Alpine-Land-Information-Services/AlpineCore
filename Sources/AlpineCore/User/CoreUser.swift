@@ -19,7 +19,7 @@ public class CoreUser {
         
     @Relationship(deleteRule: .cascade)
     var tips: UserTips
-    
+        
     public init(id: String) {
         self.id = id
         self.tips = UserTips()
