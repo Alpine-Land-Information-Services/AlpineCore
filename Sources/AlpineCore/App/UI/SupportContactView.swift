@@ -10,7 +10,7 @@ import AlpineUI
 
 public struct SupportContactView: View {
     
-    enum SupportType: String, CaseIterable {
+    public enum SupportType: String, CaseIterable {
         case feedback = "Feedback"
         case featureRequest = "Feature Request"
         case bug = "Bug Report"
@@ -26,12 +26,21 @@ public struct SupportContactView: View {
     @State private var supportType: SupportType = .feedback
     @State private var supportComment = ""
     
-    @State private var assosiatedError: AppError?
+    @State private var associatedError: AppError?
+    
+    @ObservedObject var supportTicketSender: SupportTicketSender
     
     var userID: String
     
-    public init(userID: String) {
+    public init(userID: String, supportType: SupportType? = nil, associatedError: AppError? = nil) {
         self.userID = userID
+        if let supportType {
+            self.supportType = supportType
+        }    
+        if let associatedError {
+            self.associatedError = associatedError
+        }
+        supportTicketSender = SupportTicketSender()
     }
     
     public var body: some View {
@@ -46,6 +55,12 @@ public struct SupportContactView: View {
         }
         .navigationTitle("Alpine Support")
         .navigationBarTitleDisplayMode(.inline)
+        .overlay {
+            if supportTicketSender.spinner {
+                Rectangle().fill(Color.black).opacity(0.5).ignoresSafeArea()
+                ProgressView("Sending...").foregroundColor(Color.white).progressViewStyle(CircularProgressViewStyle(tint: .white))
+            }
+        }
     }
     
     var supportPicker: some View {
@@ -96,7 +111,35 @@ public struct SupportContactView: View {
     var send: some View {
         Section {
             Button {
-                Core.makeSimpleAlert(title: "Support Ticket Sent", message: "Your queue number is 9999 \n\n Estimated Response time: 3 years.")
+                let reportTitle = "\(supportType.rawValue)"
+                var reportText = ""
+                supportTicketSender.spinner = true
+                switch supportType {
+                case .feedback, .featureRequest:
+                    reportText = "\(supportComment)"
+                case .bug:
+                    if let associatedError {
+                        reportText = """
+                        \(associatedError.title)
+                        
+                        <--- Bug Severity --->
+                        \(issueLevel.rawValue)
+                        
+                        <--- Associated Error --->
+                        [file] \(associatedError.file ?? "")
+                        [function] \(associatedError.function ?? "")
+                        [line] \(associatedError.line != nil ? String(associatedError.line!) : "")
+                        
+                        \(associatedError.content)
+                        \(associatedError.additionalInfo != nil ? "\n[Additional Info]\n\(associatedError.additionalInfo!)" : "")
+                        
+                        <--- User Description --->
+                        \(supportComment)
+                        """
+                    }
+                    reportText.append("<--- User Description --->\n\(supportComment)")
+                }
+                supportTicketSender.sendGitReport(title: reportTitle, message: reportText, email: userID)
             } label: {
                 Text("Send")
                     .font(.title3)
@@ -109,14 +152,14 @@ public struct SupportContactView: View {
     var error: some View {
         Section {
             NavigationLink {
-                ErrorListSelectView(userID: userID, selectedError: $assosiatedError)
+                ErrorListSelectView(userID: userID, selectedError: $associatedError)
             } label: {
-                ListLabelBlock(label: "Assosiated Error") {
-                    Text(assosiatedError?.typeName ?? "Not Selected")
+                ListLabelBlock(label: "Associated Error") {
+                    Text(associatedError?.typeName ?? "Not Selected")
                 }
             }
         } footer: {
-            Text("Please select an assosiated error to which this report is corresponds to, if one exists.")
+            Text("Please select an associated error to which this report is corresponds to, if one exists.")
         }
     }
 }

@@ -31,7 +31,6 @@ public struct ErrorLogListView: View {
                             .font(.caption)
                     }
                 }
-
             }
         }
         .navigationTitle("Error Log")

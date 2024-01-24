@@ -25,8 +25,17 @@ struct ErrorLogView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Text(error.date.toString(format: "MMM d, h:mm a"))
-                    .font(.footnote)
+                if let userID = error.user?.id {
+                    NavigationLink(destination: SupportContactView(userID: userID, 
+                                                                   supportType: SupportContactView.SupportType.bug,
+                                                                   associatedError: error)) {
+                        Label("Report", systemImage: "ladybug")
+                            .labelStyle(.titleAndIcon)
+                            .foregroundColor(.orange)
+                    }
+                }
+//                Text(error.date.toString(format: "MMM d, h:mm a"))
+//                    .font(.footnote)
             }
         }
     }

@@ -23,7 +23,11 @@ actor AppErrorActor: ModelActor {
         let err = AppError.add(error: error, additionalInfo: additionalInfo, in: modelContext)
         let user = modelContext.model(for: userId) as? CoreUser
         user?.errors.append(err)
-        try? save()
+        do {
+            try save()
+        } catch {
+            Core.makeSimpleAlert(title: "DEV: error saving error", message: error.log())
+        }
     }
     
     func save() throws {
