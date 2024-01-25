@@ -134,6 +134,7 @@ public struct SupportContactView: View {
                         
                         \(associatedError.content)
                         \(associatedError.additionalInfo != nil ? "\n[Additional Info]\n\(associatedError.additionalInfo!)" : "")
+                        
                         """
                     }
                     reportText.append("<--- User Description --->\n\(supportComment)")
