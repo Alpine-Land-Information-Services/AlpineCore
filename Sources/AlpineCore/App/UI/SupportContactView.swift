@@ -34,10 +34,10 @@ public struct SupportContactView: View {
     public init(userID: String, supportType: SupportType? = nil, associatedError: AppError? = nil) {
         self.userID = userID
         if let supportType {
-            self.supportType = supportType
-        }    
+            _supportType = State(initialValue: supportType)
+        }
         if let associatedError {
-            self.associatedError = associatedError
+            _associatedError = State(initialValue: associatedError)
         }
     }
     
