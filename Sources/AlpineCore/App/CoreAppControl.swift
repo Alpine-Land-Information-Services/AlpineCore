@@ -18,8 +18,11 @@ public typealias CoreAlertButton = AlertButton
 public class CoreAppControl {
     
     public static var shared = CoreAppControl()
+    
     public var modelContainer: ModelContainer?
+    
     public var user: CoreUser! // IN MAIN CONTEXT
+    public var app: CoreApp! // IN MAIN CONTEXT
     
     private init() {}
    

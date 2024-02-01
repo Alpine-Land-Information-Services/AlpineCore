@@ -19,9 +19,16 @@ public class CoreUser {
         
     @Relationship(deleteRule: .cascade)
     var tips: UserTips
-        
+    
+    @Relationship(deleteRule: .cascade)
+    public var apps: [CoreApp] = []
+            
     public init(id: String) {
         self.id = id
         self.tips = UserTips()
     }
+}
+
+extension CoreUser {
+    
 }
