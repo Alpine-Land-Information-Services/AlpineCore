@@ -6,6 +6,7 @@
 //
 
 import SwiftData
+import CoreData
 
 @Model
 public class CoreApp {
@@ -18,6 +19,11 @@ public class CoreApp {
     
     @Transient
     public var sync: () -> Void = {}
+    
+    @Transient
+    public var tutorialObjectFetcher: (() -> NSManagedObject?)!
+    
+    public var inTutorial = true
     
     public init(_ name: String, version: String?) {
         self.name = name
