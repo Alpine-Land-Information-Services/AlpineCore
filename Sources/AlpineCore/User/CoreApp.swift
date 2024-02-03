@@ -21,7 +21,7 @@ public class CoreApp {
     public var sync: () -> Void = {}
     
     @Transient
-    public var tutorialObjectFetcher: (() -> NSManagedObject?)!
+    public var tutorialObjectFetcher: (() -> (NSManagedObject?, NSManagedObject?))!
     
     public var inTutorial = true
     
