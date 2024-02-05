@@ -37,7 +37,7 @@ public extension CDObject {
 public extension CDObject {
     
     func printSelf() {
-        print(" - object: \(self.displayName) ID: \(self.objectID.uriRepresentation().lastPathComponent) \(self.guid)")
+        print(" - object: \(self.displayName)\tID: \(self.objectID.uriRepresentation().lastPathComponent)\t\(self.guid)")
     }
 }
 
