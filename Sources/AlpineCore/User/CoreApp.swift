@@ -13,7 +13,6 @@ public class CoreApp {
 
     public var isInitialized = false
     
-    @Attribute(.unique)
     public var name: String
     public var version: String?
     

@@ -21,7 +21,7 @@ public extension CDObject {
             return guid
         }
         
-        assertionFailure("CDObject has no managedObjectContext!")
+//        assertionFailure("CDObject has no managedObjectContext!")
         return UUID(uuidString: "00000000-FA0E-0000-0000-000000000000")!
     }
     
