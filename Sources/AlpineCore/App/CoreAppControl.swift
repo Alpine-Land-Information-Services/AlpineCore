@@ -50,6 +50,13 @@ public class CoreAppControl {
     }
 }
 
+public extension CoreAppControl {
+    
+    static func quit() {
+        exit(0)
+    }
+}
+
 public extension CoreAppControl { // Alerts
     
     static var user: CoreUser {
