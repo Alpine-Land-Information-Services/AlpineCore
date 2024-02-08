@@ -86,4 +86,8 @@ public extension CoreAppControl {
     static func presentSheet<Content: View>(style: UIModalPresentationStyle = .automatic, @ViewBuilder _ content: @escaping () -> Content) {
         PKSheetManager.shared.presentSheet(style: style, content)
     }
+    
+    static func makePopout(systemImage: String, message: String) {
+        PKPopoutManager.shared.makePopout(systemImage: systemImage, message: message)
+    }
 }
