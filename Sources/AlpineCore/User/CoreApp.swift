@@ -5,6 +5,7 @@
 //  Created by Jenya Lebid on 2/1/24.
 //
 
+import SwiftUI
 import SwiftData
 import CoreData
 
@@ -15,6 +16,9 @@ public class CoreApp {
     
     public var name: String
     public var version: String?
+    
+    public var uiAlignmnet: String = "trailing"
+    public var buttonsSize = "compact"
     
     @Transient
     public var sync: () -> Void = {}
@@ -37,6 +41,36 @@ public extension CoreApp {
             return name + " " + version
         }
         return name
+    }
+}
+
+public extension CoreApp {
+    
+    var panelAlignment: Alignment {
+        get {
+            switch uiAlignmnet {
+            case "trailing":
+                return .trailing
+            default:
+                return .leading
+            }
+        }
+        set {
+            switch newValue {
+            case .trailing:
+                uiAlignmnet = "trailing"
+            default:
+                uiAlignmnet = "leading"
+            }
+        }
+    }
+    
+    var largeButtons: Bool {
+        buttonsSize == "large"
+    }
+    
+    var leftUI: Bool {
+        uiAlignmnet == "trailing"
     }
 }
 
