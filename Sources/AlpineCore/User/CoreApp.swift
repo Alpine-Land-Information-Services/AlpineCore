@@ -26,11 +26,18 @@ public class CoreApp {
     @Transient
     public var tutorialObjectFetcher: (() -> (NSManagedObject?, NSManagedObject?))!
     
+    @Relationship(deleteRule: .cascade)
+    public var ui: CoreAppUI?
+    @Relationship(deleteRule: .cascade)
+    public var tips: CoreTips?
+    
     public var inTutorial = true
     
     public init(_ name: String, version: String?) {
         self.name = name
         self.version = version
+        
+        ui = CoreAppUI()
     }
 }
 
