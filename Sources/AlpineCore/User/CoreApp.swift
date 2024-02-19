@@ -25,6 +25,8 @@ public class CoreApp {
     
     @Transient
     public var tutorialObjectFetcher: (() -> (NSManagedObject?, NSManagedObject?))!
+    @Transient
+    public var tutorialObjectRemover: () -> Void = {}
     
     @Relationship(deleteRule: .cascade)
     public var ui: CoreAppUI?
