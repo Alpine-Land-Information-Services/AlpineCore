@@ -15,7 +15,8 @@ public struct ErrorLogListView: View {
     @Query private var errors: [AppError]
     
     public init(userID: String) {
-        _errors = Query(filter: #Predicate<AppError> { $0.user?.id == userID }, sort: \.date, order: .reverse)
+        let id = Core.shared.app.persistentModelID
+        _errors = Query(filter: #Predicate<AppError> { $0.user?.id == userID && $0.app?.persistentModelID == id }, sort: \.date, order: .reverse)
     }
     
     public var body: some View {
@@ -51,7 +52,8 @@ struct ErrorListSelectView: View {
     @State var multiSelection = Set<AppError>()
     
     public init(userID: String, selectedError: Binding<AppError?>) {
-        _errors = Query(filter: #Predicate<AppError> { $0.user?.id == userID }, sort: \.date, order: .reverse)
+        let id = Core.shared.app.persistentModelID
+        _errors = Query(filter: #Predicate<AppError> { $0.user?.id == userID && $0.app?.persistentModelID == id }, sort: \.date, order: .reverse)
         _selectedError = selectedError
     }
     

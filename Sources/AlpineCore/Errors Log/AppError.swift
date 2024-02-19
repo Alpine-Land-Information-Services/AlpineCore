@@ -22,6 +22,8 @@ public class AppError: Hashable {
     
     var user: CoreUser?
     
+    var app: CoreApp?
+    
     public init(error: Error, additionalText: String? = nil) {
         if let err = error as? AlpineError {
             self.typeName = err.getType()
@@ -33,6 +35,7 @@ public class AppError: Hashable {
             self.message = error.log()
         }
         self.additionalInfo = additionalText
+        self.app = Core.shared.app
     }
     
     public static func add(error: Error, additionalInfo: String? = nil, in context: ModelContext) -> AppError {
