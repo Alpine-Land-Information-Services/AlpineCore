@@ -13,24 +13,17 @@ public class CoreAppUI {
     
     public var isCompassPresented = true
     
-    public var floatingSidebar = true
-    public var isFloatingSidebarPresented = true
+    public var landscapeSidebarOverlay = false
+    public var floatingNavigation = false
+    public var floatingNavigationAlignment = "topLeading"
     
-    private var compassAlignmentValue = "topTrailing"
+    public var compassAlignment = "topTrailing"
+    public var borderedButtonStyle = true
     
     public init() {}
 }
 
 public extension CoreAppUI {
-    
-    var compassAlignment: Alignment {
-        get {
-            alignment(from: compassAlignmentValue)
-        }
-        set {
-            compassAlignmentValue = text(from: newValue)
-        }
-    }
     
     func alignment(from text: String) -> Alignment {
         switch text {
