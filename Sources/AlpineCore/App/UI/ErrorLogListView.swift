@@ -21,15 +21,20 @@ public struct ErrorLogListView: View {
     
     public var body: some View {
         List {
-            ForEach(errors) { error in
-                NavigationLink {
-                    ErrorLogView(error: error)
-                } label: {
-                    HStack {
-                        Text(error.title)
-                        Spacer()
-                        Text(error.date.toString(format: "MM-dd-yy HH:mm"))
-                            .font(.caption)
+            if errors.isEmpty {
+                ContentUnavailableView("No Errors Recorded", systemImage: "hand.thumbsup")
+            }
+            else {
+                ForEach(errors) { error in
+                    NavigationLink {
+                        ErrorLogView(error: error)
+                    } label: {
+                        HStack {
+                            Text(error.title)
+                            Spacer()
+                            Text(error.date.toString(format: "MM-dd-yy HH:mm"))
+                                .font(.caption)
+                        }
                     }
                 }
             }
