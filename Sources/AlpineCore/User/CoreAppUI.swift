@@ -11,7 +11,7 @@ import SwiftData
 @Model
 public class CoreAppUI {
     
-    public var isCompassPresented = true
+    public var isCompassPresented = false
     
     public var landscapeSidebarOverlay = false
     public var floatingNavigation = false

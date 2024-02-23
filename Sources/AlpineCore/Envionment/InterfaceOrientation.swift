@@ -25,16 +25,26 @@ struct UIOrientationInfoKey: EnvironmentKey {
     static let defaultValue: UIOrientation = .unknown
 }
 
+struct UISafeAreaSize: EnvironmentKey {
+    static let defaultValue: CGSize = .zero
+}
+
 public extension EnvironmentValues {
     var uiOrientation: UIOrientation {
         get { self[UIOrientationInfoKey.self] }
         set { self[UIOrientationInfoKey.self] = newValue }
+    }
+    
+    var uiSafeArea: CGSize {
+        get { self[UISafeAreaSize.self] }
+        set { self[UISafeAreaSize.self] = newValue }
     }
 }
 
 struct InterfaceOrientation: ViewModifier {
     
     @State private var uiOrientation: UIOrientation = .unknown
+    @State private var size: CGSize = .zero
 
     func body(content: Content) -> some View {
         content
@@ -44,15 +54,17 @@ struct InterfaceOrientation: ViewModifier {
                         .fill(.clear)
                         .onAppear {
                             getOrientation(from: geometry)
+                            size = geometry.size
                         }
-                        .onChange(of: geometry.size) { _, _ in
+                        .onChange(of: geometry.size) { _, newValue in
                             getOrientation(from: geometry)
+                            size = newValue
                         }
                 }
-                .ignoresSafeArea()
                 .ignoresSafeArea(.keyboard)
             }
             .environment(\.uiOrientation, uiOrientation)
+            .environment(\.uiSafeArea, size)
     }
     
     private func getOrientation(from geometry: GeometryProxy) {
