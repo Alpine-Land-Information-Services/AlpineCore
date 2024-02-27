@@ -9,6 +9,6 @@ import Foundation
 
 extension Error {
     public func log() -> String {
-        "\(self)"
+        "\(self.localizedDescription)"
     }
 }
