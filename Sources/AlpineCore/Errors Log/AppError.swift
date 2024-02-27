@@ -35,7 +35,6 @@ public class AppError: Hashable {
             self.message = error.log()
         }
         self.additionalInfo = additionalText
-//        self.app = Core.shared.app // App Is in Main 
     }
     
     public static func add(error: Error, additionalInfo: String? = nil, in context: ModelContext) -> AppError {
