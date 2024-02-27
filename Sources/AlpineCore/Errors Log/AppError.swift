@@ -41,6 +41,11 @@ public class AppError: Hashable {
     public static func add(error: Error, additionalInfo: String? = nil, in context: ModelContext) -> AppError {
         let err = AppError(error: error, additionalText: additionalInfo)
         context.insert(err)
+        if let app = Core.shared.app {
+            if let contextualApp = context.model(for: app.persistentModelID) as? CoreApp {
+                err.app = contextualApp
+            }
+        }
         try? context.save()
         return err
     }
