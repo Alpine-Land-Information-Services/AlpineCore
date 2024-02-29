@@ -26,7 +26,7 @@ actor AppErrorActor: ModelActor {
         do {
             try save()
         } catch {
-            Core.makeSimpleAlert(title: "DEV: error saving error", message: error.log())
+            Core.makeSimpleAlert(title: "Log Creation Error", message: error.log())
         }
     }
     
