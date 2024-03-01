@@ -31,6 +31,10 @@ public extension CDObject {
         }
     }
     
+    var deleted_no_context: Bool {
+        value(forKey: "a_deleted") as! Bool
+    }
+    
     var displayName: String { Self.displayName }
 }
 
