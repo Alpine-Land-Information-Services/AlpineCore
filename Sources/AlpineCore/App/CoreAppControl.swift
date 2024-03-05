@@ -24,6 +24,8 @@ public class CoreAppControl {
     public var user: CoreUser! // IN MAIN CONTEXT
     public var app: CoreApp! // IN MAIN CONTEXT
     
+    public var defaults = CoreDefaults()
+    
     private init() {}
    
     private func getErrorText(error: Error) -> (String, String) {

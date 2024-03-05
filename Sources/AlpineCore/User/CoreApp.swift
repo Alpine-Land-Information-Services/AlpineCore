@@ -17,21 +17,17 @@ public class CoreApp {
     public var name: String
     public var version: String?
     
-    public var uiAlignmnet: String = "trailing"
-    public var buttonsSize = "compact"
-    
     @Transient
     public var sync: () -> Void = {}
-    
     @Transient
     public var tutorialObjectFetcher: (() -> (NSManagedObject?, NSManagedObject?))!
     @Transient
     public var tutorialObjectRemover: () -> Void = {}
     
     @Relationship(deleteRule: .cascade)
-    public var ui: CoreAppUI?
+    public var ui: CoreAppUI
     @Relationship(deleteRule: .cascade)
-    public var tips: CoreTips?
+    public var tips: CoreTips
     
     public var inTutorial = true
     
@@ -40,6 +36,7 @@ public class CoreApp {
         self.version = version
         
         ui = CoreAppUI()
+        tips = CoreTips()
     }
 }
 
@@ -50,36 +47,6 @@ public extension CoreApp {
             return name + " " + version
         }
         return name
-    }
-}
-
-public extension CoreApp {
-    
-    var panelAlignment: Alignment {
-        get {
-            switch uiAlignmnet {
-            case "trailing":
-                return .trailing
-            default:
-                return .leading
-            }
-        }
-        set {
-            switch newValue {
-            case .trailing:
-                uiAlignmnet = "trailing"
-            default:
-                uiAlignmnet = "leading"
-            }
-        }
-    }
-    
-    var largeButtons: Bool {
-        buttonsSize == "large"
-    }
-    
-    var leftUI: Bool {
-        uiAlignmnet == "trailing"
     }
 }
 

@@ -24,7 +24,3 @@ public class CoreUser {
         self.id = id
     }
 }
-
-extension CoreUser {
-    
-}
