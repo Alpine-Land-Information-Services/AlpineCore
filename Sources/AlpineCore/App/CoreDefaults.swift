@@ -91,4 +91,14 @@ public extension CoreDefaults {
             setValue(newValue, for: "last_user")
         }
     }
+    
+    var backyardToken: Data? {
+        get {
+            value(for: "backyard_token") as? Data
+
+        }
+        set {
+            setValue(newValue, for: "backyard_token")
+        }
+    }
 }
