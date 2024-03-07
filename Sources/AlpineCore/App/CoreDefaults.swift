@@ -51,6 +51,12 @@ public class CoreDefaults {
     public func value(for key: String) -> Any? {
         data[key]
     }
+    
+    public func resetWithCode(_ code: String) {
+        data = Self.makeData()
+        resetCode = code
+        UserDefaults().synchronize()
+    }
 }
 
 public extension CoreDefaults {
@@ -99,6 +105,16 @@ public extension CoreDefaults {
         }
         set {
             setValue(newValue, for: "backyard_token")
+        }
+    }
+    
+    var resetCode: String? {
+        get {
+            value(for: "reset_code") as? String
+
+        }
+        set {
+            setValue(newValue, for: "reset_code")
         }
     }
 }
