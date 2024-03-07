@@ -166,7 +166,7 @@ public extension NSManagedObject {
         }
     }
     
-    static func deleteData(entityName: String? = nil, predicate: NSPredicate? = nil, in context: NSManagedObjectContext) {
+    static func deleteData(entityName: String? = nil, predicate: NSPredicate? = nil, in context: NSManagedObjectContext) -> Bool {
         let request = NSFetchRequest<NSManagedObject>(entityName: entityName ?? Self.entityName)
         request.predicate = predicate
         request.returnsObjectsAsFaults = true
@@ -181,6 +181,7 @@ public extension NSManagedObject {
                 print(error)
             }
         }
+        return !objects.isEmpty
     }
     
     static func count(entityName: String? = nil, predicate: NSPredicate? = nil, in context: NSManagedObjectContext) -> Int {
