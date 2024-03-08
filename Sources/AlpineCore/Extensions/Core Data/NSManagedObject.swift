@@ -166,6 +166,7 @@ public extension NSManagedObject {
         }
     }
     
+    @discardableResult
     static func deleteData(entityName: String? = nil, predicate: NSPredicate? = nil, in context: NSManagedObjectContext) -> Bool {
         let request = NSFetchRequest<NSManagedObject>(entityName: entityName ?? Self.entityName)
         request.predicate = predicate
