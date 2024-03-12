@@ -23,7 +23,11 @@ public class CoreAppUI {
     public var sidebarAlignmnet: String = "trailing"
     public var buttonsSize = "compact"
     
-    public init() {}
+    public var toolbar: CoreUIToolbar?
+    
+    public init() {
+        
+    }
 }
 
 public extension CoreAppUI {

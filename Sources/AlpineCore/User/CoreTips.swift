@@ -12,6 +12,7 @@ import SwiftData
 public class CoreTips {
     
     var compassMoveAnywhere = true
+    public var editToolbar = true
     
     public init () {}
 }
