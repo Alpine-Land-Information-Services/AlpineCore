@@ -61,6 +61,15 @@ public class CoreDefaults {
 
 public extension CoreDefaults {
     
+    var layerReinit: Bool {
+        get {
+            value(for: "layer_reinit") as? Bool ?? false
+        }
+        set {
+            setValue(newValue, for: "layer_reinit")
+        }
+    }
+    
     var isInitialized: Bool {
         get {
             value(for: "is_initialized") as? Bool ?? false

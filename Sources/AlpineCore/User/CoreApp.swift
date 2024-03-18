@@ -30,6 +30,7 @@ public class CoreApp {
     public var tips: CoreTips
     
     public var inTutorial = true
+    public var isSandbox = false
     
     public init(_ name: String, version: String?) {
         self.name = name
