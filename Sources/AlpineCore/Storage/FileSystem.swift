@@ -56,7 +56,7 @@ public extension FileSystem {
         FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.alpinelis.atlas")!
     }
     
-    static var appDoucumentsURL: URL {
+    static var appDocumentsURL: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
     
@@ -95,7 +95,7 @@ public extension FileSystem {
     static func getURL(for pathType: FS.PathType) -> URL {
         switch pathType {
         case .documents:
-            return appDoucumentsURL
+            return appDocumentsURL
         case .group:
             return atlasGroupURL
         }

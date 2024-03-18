@@ -64,7 +64,7 @@ public extension FSPath {
     func fullPath(in type: FS.PathType) -> FSPath {
         switch type {
         case .documents:
-            return FS.appDoucumentsURL.path.appending("/\(rawValue)").fsPath
+            return FS.appDocumentsURL.path.appending("/\(rawValue)").fsPath
         case .group:
             return FS.atlasGroupURL.path.appending("/\(rawValue)").fsPath
         }
@@ -73,7 +73,7 @@ public extension FSPath {
     func url(in type: FS.PathType) -> URL {
         switch type {
         case .documents:
-            return FS.appDoucumentsURL.appending(path: rawValue)
+            return FS.appDocumentsURL.appending(path: rawValue)
         case .group:
             return FS.atlasGroupURL.appending(path: rawValue)
         }
