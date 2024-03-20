@@ -61,6 +61,8 @@ public extension FileSystem {
     }
     
     static func move(at sourceURL: URL, destinationURL: URL, overrideIfExists: Bool = true) throws {
+        try FileManager.default.createDirectory(at: destinationURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        
         if FileManager.default.fileExists(atPath: destinationURL.path(percentEncoded: false)) {
             if overrideIfExists {
                 try FileManager.default.removeItem(at: destinationURL)
