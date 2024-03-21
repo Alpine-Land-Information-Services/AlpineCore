@@ -32,9 +32,10 @@ public class CoreApp {
     public var inTutorial = true
     public var isSandbox = false
     
-    public init(_ name: String, version: String?) {
+    public init(_ name: String, version: String?, isSandbox: Bool = false) {
         self.name = name
         self.version = version
+        self.isSandbox = isSandbox
         
         ui = CoreAppUI()
         tips = CoreTips()
