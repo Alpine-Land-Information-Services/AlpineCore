@@ -29,6 +29,9 @@ public class CoreApp {
     @Relationship(deleteRule: .cascade)
     public var tips: CoreTips
     
+    @Relationship(deleteRule: .cascade, inverse: \CoreAppBackup.app)
+    public var backups: [CoreAppBackup] = []
+    
     public var inTutorial = true
     public var isSandbox = false
     
