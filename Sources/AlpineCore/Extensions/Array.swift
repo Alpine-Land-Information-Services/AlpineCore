@@ -21,6 +21,13 @@ public extension Array where Element: Equatable {
             self.remove(at: index)
         }
     }
+    
+    @inlinable
+    mutating func append(_ newElement: Element?) {
+        if let newElement {
+            append(newElement)
+        }
+    }
 }
 
 
