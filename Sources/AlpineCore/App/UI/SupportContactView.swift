@@ -155,7 +155,7 @@ public struct SupportContactView: View {
                 ErrorListSelectView(userID: userID, selectedError: $associatedError)
             } label: {
                 ListLabelBlock(label: "Associated Error") {
-                    Text(associatedError?.typeName ?? "Not Selected")
+                    Text(associatedError?.title ?? "Not Selected")
                 }
             }
         } footer: {
@@ -163,5 +163,3 @@ public struct SupportContactView: View {
         }
     }
 }
-
-
