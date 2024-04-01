@@ -16,6 +16,7 @@ struct ErrorLogView: View {
         List {
             VStack {
                 TextAreaBlock(title: "Description", text: .constant(error.content), height: 240, changed: .constant(false))
+                    .disabled(true)
                 if let info = error.additionalInfo {
                     TextAreaBlock(title: "Additional Information", text: .constant(info), height: 200, changed: .constant(false))
                 }
