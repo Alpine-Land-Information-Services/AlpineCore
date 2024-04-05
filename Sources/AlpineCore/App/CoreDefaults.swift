@@ -79,6 +79,15 @@ public extension CoreDefaults {
         }
     }
     
+    var isSandboxInitialized: Bool {
+        get {
+            value(for: "is_sanbox_initialized") as? Bool ?? false
+        }
+        set {
+            setValue(newValue, for: "is_sanbox_initialized")
+        }
+    }
+    
     var appBuild: String? {
         get {
             value(for: "last_app_build") as? String

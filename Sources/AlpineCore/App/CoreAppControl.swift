@@ -50,6 +50,24 @@ public class CoreAppControl {
     public static func reset() {
         CoreAppControl.shared = CoreAppControl()
     }
+    
+    public func setInitialized(to value: Bool, sandbox: Bool) {
+        switch sandbox {
+        case true:
+            defaults.isSandboxInitialized = value
+        case false:
+            defaults.isInitialized = value
+        }
+    }
+    
+    public func isInitialized(sandbox: Bool) -> Bool {
+        switch sandbox {
+        case true:
+            defaults.isSandboxInitialized
+        case false:
+            defaults.isInitialized
+        }
+    }
 }
 
 public extension CoreAppControl {
