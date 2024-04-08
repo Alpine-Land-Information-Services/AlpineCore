@@ -33,4 +33,3 @@ public enum ToolbarAction: String, CaseIterable, Codable {
     case measureTool
     case openLayer
 }
-

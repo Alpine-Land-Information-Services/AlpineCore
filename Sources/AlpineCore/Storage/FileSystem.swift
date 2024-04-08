@@ -28,7 +28,10 @@ public enum CoreErrorType: String {
     case json = "JSON Error"
 }
 
+
 public class FileSystem {
+    
+    static var shared = FileSystem()
     
     public enum FSError: Error {
         case error(_: Error)
@@ -46,7 +49,11 @@ public class FileSystem {
         case group
     }
     
-    private static var documentsDirectoryURL: URL?
+    private var documentsDirectoryURL: URL?
+    
+    init() {
+        documentsDirectoryURL = URL(string: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
+    }
 }
 
 @available(iOS 16.0, *)
@@ -123,11 +130,7 @@ public extension FileSystem {
 public extension FileSystem { //MARK: NEW
     
     static var documentsDirectory: URL {
-        if let documentsDirectoryURL {
-            return documentsDirectoryURL
-        }
-        documentsDirectoryURL = URL(string: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
-        return documentsDirectoryURL
+        return FS.shared.documentsDirectoryURL
         ?? URL(string: "/Users/jenya/Library/Developer/CoreSimulator/Devices/8FE8FE32-8BF7-4A22-B975-55851D2E44AA/data/Containers/Data/Application/3303E29B-C936-438A-A1EF-539494B81BD7/Documents/")! // FOR PREVIEW USE ONLY
     }
     
@@ -321,4 +324,3 @@ public extension FileManager {
         }
     }
 }
-

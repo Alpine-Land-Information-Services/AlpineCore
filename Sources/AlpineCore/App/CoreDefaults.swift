@@ -81,10 +81,10 @@ public extension CoreDefaults {
     
     var isSandboxInitialized: Bool {
         get {
-            value(for: "is_sanbox_initialized") as? Bool ?? false
+            value(for: "is_sandbox_initialized") as? Bool ?? false
         }
         set {
-            setValue(newValue, for: "is_sanbox_initialized")
+            setValue(newValue, for: "is_sandbox_initialized")
         }
     }
     
