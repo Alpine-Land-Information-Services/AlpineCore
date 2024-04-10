@@ -32,7 +32,7 @@ public class AppError: Hashable {
             self.line = err.line
             self.message = err.message
         } else {
-            self.message = error.log()
+            self.message = "\(error)"
         }
         self.additionalInfo = additionalText
     }
