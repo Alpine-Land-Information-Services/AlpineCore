@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 
 import PopupKit
+import AlpineUI
 
 public typealias Core = CoreAppControl
 public typealias CoreAlert = SceneAlert
@@ -19,39 +20,49 @@ public class CoreAppControl {
     
     public static var shared = CoreAppControl()
     
-    public var modelContainer: ModelContainer?
+    public let modelContainer: ModelContainer = {
+        let schema = Schema([CoreUser.self])
+        let storeURL = URL.documentsDirectory.appending(path: "Core App Data.sqlite")
+        let modelConfiguration = ModelConfiguration("Core App Data", schema: schema, groupContainer: .none)
+        do {
+            let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
+            return container
+        }
+        catch {
+            fatalError("Could not create ModelContainer: \(error)")
+        }
+    }()
+    
+    private var actor: CoreAppActor
     
     public var user: CoreUser! // IN MAIN CONTEXT
     public var app: CoreApp! // IN MAIN CONTEXT
     
     public var defaults = CoreDefaults()
     
-    private init() {}
-   
-    private func getErrorText(error: Error) -> (String, String) {
-        if let err = error as? AlpineError {
-            return (err.getType(), err.message)
-        }
-        return ("System Error", error.log())
+    private init() {
+        actor = CoreAppActor(modelContainer: modelContainer)
+    }
+}
+
+public extension CoreAppControl {
+    
+    static var user: CoreUser {
+        Core.shared.user
     }
     
-    public func makeError(error: Error, additionalInfo: String? = nil, showToUser: Bool = true) {
-        guard let modelContainer else { return }
-        Task {
-            let actor = AppErrorActor(modelContainer: modelContainer)
-            await actor.makeError(error: error, additionalInfo: additionalInfo, userId: user.persistentModelID)
-            if showToUser {
-                let (title, message) = getErrorText(error: error)
-                Core.makeAlert(CoreAlert(title: title, message: message, buttons: nil))
-            }
-        }
+    static func quit() {
+        exit(0)
     }
+}
+
+public extension CoreAppControl { //MARK: Init
     
-    public static func reset() {
+    static func reset() {
         CoreAppControl.shared = CoreAppControl()
     }
     
-    public func setInitialized(to value: Bool, sandbox: Bool) {
+    func setInitialized(to value: Bool, sandbox: Bool) {
         switch sandbox {
         case true:
             defaults.isSandboxInitialized = value
@@ -60,7 +71,7 @@ public class CoreAppControl {
         }
     }
     
-    public func isInitialized(sandbox: Bool) -> Bool {
+    func isInitialized(sandbox: Bool) -> Bool {
         switch sandbox {
         case true:
             defaults.isSandboxInitialized
@@ -70,18 +81,63 @@ public class CoreAppControl {
     }
 }
 
-public extension CoreAppControl {
+extension CoreAppControl { //MARK: Events
     
-    static func quit() {
-        exit(0)
+    public static func makeEvent(_ event: String, type: AppEventType) {
+        Core.shared.makeEvent(event, type: type)
+    }
+    
+    private func makeEvent(_ event: String, type: AppEventType) {
+        Task(priority: .utility) {
+            await actor.createEvent(event, type: type, userID: user?.persistentModelID)
+        }
     }
 }
 
-public extension CoreAppControl { // Alerts
+extension CoreAppControl { //MARK: Errors
     
-    static var user: CoreUser {
-        Core.shared.user
+    public static func makeError(error: Error, additionalInfo: String? = nil, showToUser: Bool = true) {
+        Self.shared.makeError(error: error, additionalInfo: additionalInfo, showToUser: showToUser)
     }
+    
+    public func makeError(error: Error, additionalInfo: String? = nil, showToUser: Bool = true) {
+        Task {
+            let errorID = await actor.createError(error: error, additionalInfo: additionalInfo, userId: user.persistentModelID)
+            
+            if showToUser {
+                DispatchQueue.main.async { [self] in
+                    let (title, message) = getErrorText(error: error)
+                    let reportButton = CoreAlertButton(title: "Report", style: .default) {
+                        if let error = self.modelContainer.mainContext.model(for: errorID) as? AppError {
+                            Core.presentSheet {
+                                NavigationStack {
+                                    SupportContactView(userID: error.user?.id ?? "_NO_USER_ID_", supportType: .bug, associatedError: error)
+                                        .toolbar(content: {
+                                            DismissButton()
+                                        })
+                                }
+                            }
+                        }
+                        else {
+                            Core.makeSimpleAlert(title: "Something Went Wrong", message: "Could not find error by specified ID to send.")
+                        }
+
+                    }
+                    Core.makeAlert(CoreAlert(title: title, message: message, buttons: [.ok, reportButton]))
+                }
+            }
+        }
+    }
+    
+    private func getErrorText(error: Error) -> (String, String) {
+        if let err = error as? AlpineError {
+            return (err.getType(), err.message)
+        }
+        return ("System Error", error.log())
+    }
+}
+
+public extension CoreAppControl { //MARK: Alerts
     
     static func makeAlert(_ alert: CoreAlert) {
         DispatchQueue.main.async {
@@ -95,13 +151,9 @@ public extension CoreAppControl { // Alerts
             AlertManager.shared.presentAlert(alert)
         }
     }
-    
-    static func makeError(error: Error, additionalInfo: String? = nil, showToUser: Bool = true) {
-        Self.shared.makeError(error: error, additionalInfo: additionalInfo, showToUser: showToUser)
-    }
 }
 
-public extension CoreAppControl {
+public extension CoreAppControl { //MARK: Sheets
     
     static func presentSheet<Content: View>(style: UIModalPresentationStyle = .automatic, @ViewBuilder _ content: @escaping () -> Content) {
         PKSheetManager.shared.presentSheet(style: style, content)

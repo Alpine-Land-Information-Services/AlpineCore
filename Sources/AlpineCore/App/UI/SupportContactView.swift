@@ -31,6 +31,8 @@ public struct SupportContactView: View {
     
     var userID: String
     
+    var isManual: Bool
+    
     public init(userID: String, supportType: SupportType? = nil, associatedError: AppError? = nil) {
         self.userID = userID
         if let supportType {
@@ -39,19 +41,24 @@ public struct SupportContactView: View {
         if let associatedError {
             _associatedError = State(initialValue: associatedError)
         }
+        
+        isManual = associatedError == nil
     }
     
     public var body: some View {
         List {
-            supportPicker
+            if isManual {
+                supportPicker
+            }
             if supportType == .bug {
                 issueType
-                error
+                if isManual {
+                    error
+                }
             }
             comments
-            send
         }
-        .navigationTitle("Alpine Support")
+        .navigationTitle(isManual ? "Alpine Support" : "Report Error")
         .navigationBarTitleDisplayMode(.inline)
         .overlay {
             if supportTicketSender.spinner {
@@ -72,6 +79,7 @@ public struct SupportContactView: View {
                         .tag(type.rawValue)
                 }
             }
+            .disabled(!isManual)
         } footer: {
             Text("Select an option which best describes your inquiry.")
         }
@@ -93,7 +101,7 @@ public struct SupportContactView: View {
     var comments: some View {
         Section {
             TextEditor(text: $supportComment)
-                .frame(height: 300)
+                .frame(height: 240)
         } header: {
             Group {
                 switch supportType {
@@ -102,51 +110,52 @@ public struct SupportContactView: View {
                 case .featureRequest:
                     Text("What would you like to see in future versions?")
                 case .bug:
-                    Text("Describe the Issue:")
+                    Text("Please describe the process by which you encountered the issue with as much detail as possible:")
                 }
             }
             .textCase(.none)
+        } footer: {
+            send
         }
     }
     
     var send: some View {
-        Section {
-            Button {
-                supportTicketSender.spinner = true
-                
-                let reportTitle = "\(supportType.rawValue)"
-                var reportText = ""
-                switch supportType {
-                case .feedback, .featureRequest:
-                    reportText = "\(supportComment)"
-                case .bug:
-                    if let associatedError {
-                        reportText = """
-                        \(associatedError.title)
-                        
-                        <--- Bug Severity --->
-                        \(issueLevel.rawValue)
-                        
-                        <--- Associated Error --->
-                        [file] \(associatedError.file ?? "")
-                        [function] \(associatedError.function ?? "")
-                        [line] \(associatedError.line != nil ? String(associatedError.line!) : "")
-                        
-                        \(associatedError.content)
-                        \(associatedError.additionalInfo != nil ? "\n[Additional Info]\n\(associatedError.additionalInfo!)" : "")
-                        
-                        """
-                    }
-                    reportText.append("<--- User Description --->\n\(supportComment)")
+        Button {
+            supportTicketSender.spinner = true
+            
+            let reportTitle = "\(supportType.rawValue)"
+            var reportText = ""
+            switch supportType {
+            case .feedback, .featureRequest:
+                reportText = "\(supportComment)"
+            case .bug:
+                if let associatedError {
+                    reportText = """
+                    \(associatedError.title)
+                    
+                    <--- Bug Severity --->
+                    \(issueLevel.rawValue)
+                    
+                    <--- Associated Error --->
+                    [file] \(associatedError.file ?? "")
+                    [function] \(associatedError.function ?? "")
+                    [line] \(associatedError.line != nil ? String(associatedError.line!) : "")
+                    
+                    \(associatedError.content)
+                    \(associatedError.additionalInfo != nil ? "\n[Additional Info]\n\(associatedError.additionalInfo!)" : "")
+                    
+                    """
                 }
-                supportTicketSender.sendGitReport(title: reportTitle, message: reportText, email: userID)
-            } label: {
-                Text("Send")
-                    .font(.title3)
-                    .frame(maxWidth: .infinity)
+                reportText.append("<--- User Description --->\n\(supportComment)")
             }
-            .buttonStyle(.borderedProminent)
+            supportTicketSender.sendGitReport(title: reportTitle, message: reportText, email: userID)
+        } label: {
+            Text("Send")
+                .font(.title3)
+                .frame(maxWidth: .infinity)
         }
+        .buttonStyle(.borderedProminent)
+        .padding()
     }
     
     var error: some View {
@@ -159,7 +168,7 @@ public struct SupportContactView: View {
                 }
             }
         } footer: {
-            Text("Please select an associated error to which this report is corresponds to, if one exists.")
+            Text("Select an error to which this report is corresponds to, if one exists.")
         }
     }
 }

@@ -13,18 +13,18 @@ public class AppError: Hashable {
     
     var guid = UUID()
     var date = Date()
+    
     var file: String?
     var function: String?
     var line: Int?
     var message: String?
+    
     var additionalInfo: String?
     var typeName: String?
     
     var user: CoreUser?
-    
-    var app: CoreApp?
-    
-    public init(error: Error, additionalText: String? = nil) {
+
+    private init(error: Error, additionalText: String? = nil) {
         if let err = error as? AlpineError {
             self.typeName = err.getType()
             self.file = err.file
@@ -34,19 +34,16 @@ public class AppError: Hashable {
         } else {
             self.message = "\(error)"
         }
+        
         self.additionalInfo = additionalText
     }
     
-    public static func add(error: Error, additionalInfo: String? = nil, in context: ModelContext) -> AppError {
-        let err = AppError(error: error, additionalText: additionalInfo)
-        context.insert(err)
-        if let app = Core.shared.app {
-            if let contextualApp = context.model(for: app.persistentModelID) as? CoreApp {
-                err.app = contextualApp
-            }
-        }
+    public static func create(error: Error, additionalInfo: String? = nil, in context: ModelContext) -> AppError {
+        let error = AppError(error: error, additionalText: additionalInfo)
+        context.insert(error)
         try? context.save()
-        return err
+        
+        return error
     }
     
     public var title: String {

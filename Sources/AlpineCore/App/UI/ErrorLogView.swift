@@ -30,9 +30,9 @@ struct ErrorLogView: View {
                     NavigationLink(destination: SupportContactView(userID: userID, 
                                                                    supportType: SupportContactView.SupportType.bug,
                                                                    associatedError: error)) {
-                        Label("Report", systemImage: "ladybug")
-                            .labelStyle(.titleAndIcon)
-                            .foregroundColor(.orange)
+                        Text("Report Error")
+                            .font(.headline)
+                            .foregroundStyle(.green)
                     }
                 }
 //                Text(error.date.toString(format: "MMM d, h:mm a"))

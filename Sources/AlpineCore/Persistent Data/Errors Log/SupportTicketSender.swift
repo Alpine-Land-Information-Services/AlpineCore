@@ -39,12 +39,11 @@ public class SupportTicketSender: ObservableObject {
                                message: message,
                                email: email) { result in
             switch result {
-            case .success(let data):
-                self.resultText = "Was sent.\nIssue #\(data["number"] as? Int ?? 0) created."
+            case .success(_):
+                Core.makeSimpleAlert(title: "Thank You", message: "Your inquiry was sent.")
             case .failure(let error):
-                self.resultText = "Failed to send.\n\(error.message)"
+                Core.makeSimpleAlert(title: "Something Went Wrong", message: error.message)
             }
-            Core.makeSimpleAlert(title: "Support Ticket", message: self.resultText)
         }
     }
 }
