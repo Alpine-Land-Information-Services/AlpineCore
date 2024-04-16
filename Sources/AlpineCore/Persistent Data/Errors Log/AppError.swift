@@ -23,6 +23,7 @@ public class AppError: Hashable {
     var typeName: String?
     
     var user: CoreUser?
+    var events: [AppEventLog]?
 
     private init(error: Error, additionalText: String? = nil) {
         if let err = error as? AlpineError {

@@ -137,16 +137,27 @@ public struct SupportContactView: View {
                     \(issueLevel.rawValue)
                     
                     <--- Associated Error --->
-                    [file] \(associatedError.file ?? "")
-                    [function] \(associatedError.function ?? "")
-                    [line] \(associatedError.line != nil ? String(associatedError.line!) : "")
+                    [file] \(associatedError.file ?? "Unknown")
+                    [function] \(associatedError.function ?? "Unknown")
+                    [line] \(associatedError.line != nil ? String(associatedError.line!) : "Unknown")
                     
                     \(associatedError.content)
-                    \(associatedError.additionalInfo != nil ? "\n[Additional Info]\n\(associatedError.additionalInfo!)" : "")
+                    
+                    \((associatedError.additionalInfo != nil && associatedError.additionalInfo != "") ? "[Additional Info]\n\(associatedError.additionalInfo!)" : "")
                     
                     """
+                    if !supportComment.isEmpty {
+                        reportText.append("<--- User Description --->\n\(supportComment)")
+                    }
+                    
+                    if let events = associatedError.events?.sorted(by: { $0.timestamp > $1.timestamp }) {
+                        var errorEvents = "\n\n<--- Events --->"
+                        for event in events {
+                            errorEvents.append(event.toErrorText())
+                        }
+                        reportText.append(errorEvents)
+                    }
                 }
-                reportText.append("<--- User Description --->\n\(supportComment)")
             }
             supportTicketSender.sendGitReport(title: reportTitle, message: reportText, email: userID)
         } label: {

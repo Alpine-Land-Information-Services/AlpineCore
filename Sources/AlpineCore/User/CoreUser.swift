@@ -18,7 +18,10 @@ public class CoreUser {
     var errors: [AppError] = []
     
     @Relationship(deleteRule: .cascade, inverse: \AppEventLog.user)
-    var eventLog: [AppEventLog] = []
+    var crashes: [AppEventLog] = []
+    
+    @Relationship(deleteRule: .cascade, inverse: \AppCrashLog.user)
+    var eventLog: [AppCrashLog] = []
         
     @Relationship(deleteRule: .cascade)
     public var apps: [CoreApp] = []

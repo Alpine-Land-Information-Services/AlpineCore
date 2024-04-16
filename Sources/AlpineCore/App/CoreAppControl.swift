@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import OSLog
 
 import PopupKit
 import AlpineUI
@@ -42,6 +43,24 @@ public class CoreAppControl {
     
     private init() {
         actor = CoreAppActor(modelContainer: modelContainer)
+        NotificationCenter.default.addObserver(self, selector: #selector(appWillTerminate), name: UIApplication.willTerminateNotification, object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    @objc
+    private func appWillTerminate() {
+        defaults.isAppActive = false
+    }
+    
+    func checkForCrash() {
+        if defaults.isAppActive {
+            promptToCreateCrashLog()
+        }
+        
+        defaults.isAppActive = true
     }
 }
 
@@ -57,6 +76,11 @@ public extension CoreAppControl {
 }
 
 public extension CoreAppControl { //MARK: Init
+    
+    func assignUser(_ user: CoreUser) {
+        self.user = user
+        checkForCrash()
+    }
     
     static func reset() {
         CoreAppControl.shared = CoreAppControl()
@@ -81,14 +105,41 @@ public extension CoreAppControl { //MARK: Init
     }
 }
 
+extension CoreAppControl { //MARK: Crashes
+    
+    func promptToCreateCrashLog() {
+        let doNot = CoreAlertButton(title: "Do Not Send", style: .cancel, action: {})
+        let ok = CoreAlertButton(title: "Okay", style: .default) {
+            self.createCrashLog()
+        }
+        let alert = CoreAlert(title: "Application Crash", message: "We detected a crash during last usage. Report will be sent to the developer to help resolve this issue as soon as possible.", buttons: [doNot, ok])
+        
+        Core.makeAlert(alert)
+    }
+    
+    private func createCrashLog() {
+        guard let user else { return }
+        
+        Task {
+            await actor.createCrashLog(userID: user.persistentModelID)
+        }
+    }
+}
+
 extension CoreAppControl { //MARK: Events
     
-    public static func makeEvent(_ event: String, type: AppEventType) {
+    public static func makeEvent(_ event: String, type: AppEventType, log: ((_ logger: Logger) -> Void)? = nil) {
         Core.shared.makeEvent(event, type: type)
+        
+        if let log {
+            guard let subSystem = Bundle.main.bundleIdentifier else { return }
+            let logger = Logger(subsystem: subSystem, category: type.rawValue)
+            log(logger)
+        }
     }
     
     private func makeEvent(_ event: String, type: AppEventType) {
-        Task(priority: .utility) {
+        Task(priority: .background) {
             await actor.createEvent(event, type: type, userID: user?.persistentModelID)
         }
     }

@@ -21,4 +21,8 @@ public class AppEventLog {
         self.event = event
         self.type = type
     }
+    
+    func toErrorText() -> String {
+        "\nAt \(timestamp.toString(format: "HH:mm:ss, MM.d")) ---- \(event) ---- \(type.rawValue)"
+    }
 }

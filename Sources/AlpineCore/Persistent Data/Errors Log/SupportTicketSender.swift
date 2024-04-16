@@ -46,4 +46,24 @@ public class SupportTicketSender: ObservableObject {
             }
         }
     }
+    
+    func sendBackgroundReport(title: String, message: String, email: String, didSend: @escaping (_: Bool) -> Void) {
+        guard !Self.owner.isEmpty, !Self.repository.isEmpty, !Self.token.isEmpty else {
+            return
+        }
+        
+        GitReport().sendReport(owner: Self.owner,
+                               repository: Self.repository,
+                               token: Self.token,
+                               title: title,
+                               message: message,
+                               email: email) { result in
+            switch result {
+            case .success(_):
+                didSend(true)
+            case .failure(let error):
+                didSend(false)
+            }
+        }
+    }
 }
