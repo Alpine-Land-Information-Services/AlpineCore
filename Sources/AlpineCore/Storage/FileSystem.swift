@@ -9,26 +9,6 @@ import Foundation
 
 public typealias FS = FileSystem
 
-public class CoreError: AlpineError {
-    
-    var type: CoreErrorType
-    
-    public init(_ message: String, type: CoreErrorType, file: String = #file, function: String = #function, line: Int = #line) {
-        self.type = type
-        super.init(message, file: file, function: function, line: line)
-    }
-    
-    public override func getType() -> String {
-        "\(type.rawValue)"
-    }
-}
-
-public enum CoreErrorType: String {
-    case fileSystem = "File System Error"
-    case json = "JSON Error"
-}
-
-
 public class FileSystem {
     
     static var shared = FileSystem()

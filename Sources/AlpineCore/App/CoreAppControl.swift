@@ -28,8 +28,7 @@ public class CoreAppControl {
         do {
             let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
             return container
-        }
-        catch {
+        } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
@@ -168,11 +167,9 @@ extension CoreAppControl { //MARK: Errors
                                         })
                                 }
                             }
-                        }
-                        else {
+                        } else {
                             Core.makeSimpleAlert(title: "Something Went Wrong", message: "Could not find error by specified ID to send.")
                         }
-
                     }
                     Core.makeAlert(CoreAlert(title: title, message: message, buttons: [.ok, reportButton]))
                 }
