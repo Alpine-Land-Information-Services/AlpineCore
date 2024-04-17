@@ -142,6 +142,12 @@ extension CoreAppControl { //MARK: Events
             await actor.createEvent(event, type: type, userID: user?.persistentModelID)
         }
     }
+    
+    public static func log(_ message: String, strType: String? = nil, type: AppEventType = .logging, level: OSLogType = .info) {
+        guard let subSystem = Bundle.main.bundleIdentifier else { return }
+        let logger = Logger(subsystem: subSystem, category: strType ?? type.rawValue)
+        logger.log(level: level, "\(message)")
+    }
 }
 
 extension CoreAppControl { //MARK: Errors
