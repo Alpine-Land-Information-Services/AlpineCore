@@ -17,6 +17,7 @@ actor CoreAppActor: ModelActor {
         self.modelContainer = modelContainer
         let context = ModelContext(modelContainer)
         modelExecutor = DefaultSerialModelExecutor(modelContext: context)
+    
     }
     
     func save() throws {
@@ -26,8 +27,8 @@ actor CoreAppActor: ModelActor {
 
 extension CoreAppActor { //MARK: Events
     
-    func createEvent(_ event: String, type: AppEventType, userID: PersistentIdentifier?) {
-        let event = AppEventLog(event, type: type)
+    func createEvent(_ event: String, type: AppEventType, hidden: Bool, userID: PersistentIdentifier?) {
+        let event = AppEventLog(event, hidden: hidden, type: type)
         modelContext.insert(event)
         
         if let userID {
@@ -36,6 +37,28 @@ extension CoreAppActor { //MARK: Events
         }
 
         try? save()
+    }
+    
+    func clearOldEvents() throws {
+        for event in try getOldEvents() {
+            modelContext.delete(event)
+        }
+        
+        try modelContext.save()
+    }
+    
+    func getRecentEvents() throws -> [AppEventLog] {
+        let fifteenMinAgo = Date().addingTimeInterval(-900)
+        
+        let descriptor = FetchDescriptor(predicate: #Predicate<AppEventLog> { $0.timestamp >= fifteenMinAgo })
+        return try modelContext.fetch(descriptor)
+    }
+    
+    func getOldEvents() throws -> [AppEventLog] {
+        let fiveDaysAgo = Date().addingTimeInterval(-432000)
+        
+        let descriptor = FetchDescriptor(predicate: #Predicate<AppEventLog> { $0.timestamp >= fiveDaysAgo })
+        return try modelContext.fetch(descriptor)
     }
 }
 
@@ -52,10 +75,15 @@ extension CoreAppActor { //MARK: Errors
         return error.persistentModelID
     }
     
-    func getRecentEvents() throws -> [AppEventLog] {
-        let oneHourAgo = Date().addingTimeInterval(-3600)
-        
-        let descriptor = FetchDescriptor(predicate: #Predicate<AppEventLog> { $0.timestamp >= oneHourAgo })
+    func attemptSendPendingErrors() throws {
+        for error in try getPendingErrors() {
+            error.send()
+            Core.makeEvent("error log uploaded", type: .log)
+        }
+    }
+    
+    private func getPendingErrors() throws -> [AppError] {
+        let descriptor = FetchDescriptor(predicate: #Predicate<AppError> { $0.report != nil })
         return try modelContext.fetch(descriptor)
     }
 }
@@ -74,4 +102,17 @@ extension CoreAppActor { //MARK: Crashes
         try? save()        
     }
     
+    func attemptSendPendingCrashes() throws {
+        for crash in try getNotReportedCrashes() {
+            crash.send()
+            Core.makeEvent("crash log uploaded", type: .log)
+        }
+        
+        try save()
+    }
+    
+    private func getNotReportedCrashes() throws -> [AppCrashLog] {
+        let descriptor = FetchDescriptor(predicate: #Predicate<AppCrashLog> { $0.reportDate == nil })
+        return try modelContext.fetch(descriptor)
+    }
 }

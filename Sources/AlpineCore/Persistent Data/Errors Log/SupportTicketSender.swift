@@ -42,7 +42,8 @@ public class SupportTicketSender: ObservableObject {
             case .success(_):
                 Core.makeSimpleAlert(title: "Thank You", message: "Your inquiry was sent.")
             case .failure(let error):
-                Core.makeSimpleAlert(title: "Something Went Wrong", message: error.message)
+                Core.makeSimpleAlert(title: "Something Went Wrong", message: "Please try again later.")
+                Core.shared.makeError(error: error, showToUser: false)
             }
         }
     }
@@ -61,9 +62,16 @@ public class SupportTicketSender: ObservableObject {
             switch result {
             case .success(_):
                 didSend(true)
-            case .failure(let error):
+            case .failure(_):
                 didSend(false)
             }
         }
+    }
+    
+    func markToSendError(_ error: AppError, comments: String, issueLevel: AppError.IssueLevel, repeatable: Bool) -> String {
+        let report = error.createReport(issueLevel: issueLevel, comments: comments, repeatable: repeatable)
+        Core.makeSimpleAlert(title: "Report Submitted", message: "Thank you, your report has been submitted.")
+        
+        return report
     }
 }

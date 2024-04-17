@@ -8,8 +8,8 @@
 import Foundation
 
 public enum AppEventType: String, Codable {
-    case logging = "Logging"
-    case buttonTap = "Button Tap"
+    case log = "Log"
+    case userAction = "User Action"
     case system = "System"
     case atlas = "Atlas"
 }

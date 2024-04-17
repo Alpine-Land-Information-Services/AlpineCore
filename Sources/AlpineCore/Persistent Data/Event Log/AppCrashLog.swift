@@ -35,7 +35,6 @@ public extension AppCrashLog {
         let sender = SupportTicketSender()
         var text = """
         Crash at \(timestamp.toString(format: "HH:mm:ss, MM.d"))
-        App Version: \(appVersion)
         
         """
     

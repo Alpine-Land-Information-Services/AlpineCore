@@ -12,32 +12,64 @@ struct ErrorLogView: View {
     
     var error: AppError
     
+    
     var body: some View {
         List {
-            VStack {
-                TextAreaBlock(title: "Description", text: .constant(error.content), height: 240, changed: .constant(false))
-                    .disabled(true)
-                if let info = error.additionalInfo {
-                    TextAreaBlock(title: "Additional Information", text: .constant(info), height: 200, changed: .constant(false))
+            Section {
+                Text(error.content)
+            } header: {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Timestamp: ")
+                        Text(error.date.toString(format: "MM-dd-yy HH:mm"))
+                    }
+                    .font(.callout)
+                    .padding(.bottom)
+                    Text("Description:")
+                        .font(.caption)
+                }
+                .textCase(.none)
+            }
+            if let info = error.additionalInfo, !info.isEmpty {
+                Section {
+                    Text(info)
+                } header: {
+                    Text("Additional Information:")
+                        .font(.caption)
+                        .textCase(.none)
                 }
             }
         }
         .navigationTitle(error.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                if let userID = error.user?.id {
-                    NavigationLink(destination: SupportContactView(userID: userID, 
-                                                                   supportType: SupportContactView.SupportType.bug,
-                                                                   associatedError: error)) {
-                        Text("Report Error")
-                            .font(.headline)
-                            .foregroundStyle(.green)
-                    }
+            ToolbarItem(placement: .topBarTrailing) {
+                if let dateSent = error.dateSent {
+                    Text("Sent on \(dateSent.toString(format: "MMM d"))")
+                        .font(.caption)
                 }
-//                Text(error.date.toString(format: "MMM d, h:mm a"))
-//                    .font(.footnote)
+                else if error.report != nil {
+                    Text("Submited")
+                        .font(.caption)
+                }
+                else {
+                    reportButton
+                }
             }
+        }
+    }
+    
+    @ViewBuilder
+    var reportButton: some View {
+        if let userID = error.user?.id {
+            NavigationLink {
+                SupportContactView(userID: userID, supportType: SupportContactView.SupportType.bug, associatedError: error)
+            } label: {
+                Text("Report")
+                    .font(.headline)
+                    .foregroundStyle(.green)
+            }
+            .buttonStyle(.bordered)
         }
     }
 }

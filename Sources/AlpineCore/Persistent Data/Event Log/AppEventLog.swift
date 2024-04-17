@@ -15,10 +15,13 @@ public class AppEventLog {
     var type: AppEventType
     var event: String
     
+    var hidden: Bool?
+    
     var user: CoreUser?
     
-    init(_ event: String, type: AppEventType) {
+    init(_ event: String, hidden: Bool, type: AppEventType) {
         self.event = event
+        self.hidden = hidden
         self.type = type
     }
     

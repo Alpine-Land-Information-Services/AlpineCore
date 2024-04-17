@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+
 import AlpineUI
 
 public struct SupportContactView: View {
@@ -16,18 +17,18 @@ public struct SupportContactView: View {
         case bug = "Bug Report"
     }
     
-    enum IssueLevel: String, CaseIterable {
-        case nonUrgent = "Not Urgent"
-        case medium = "Unable to Complete Task"
-        case broken = "Application not Usable"
-    }
+    @State private var issueLevel: AppError.IssueLevel = .nonUrgent
+    @State private var repeatable = false
     
-    @State private var issueLevel: IssueLevel = .nonUrgent
     @State private var supportType: SupportType = .feedback
     @State private var supportComment = ""
     
     @State private var associatedError: AppError?
     @StateObject private var supportTicketSender = SupportTicketSender()
+    
+    @Environment(\.dismiss) var dismiss
+    
+    var network = NetworkTracker.shared
     
     var userID: String
     
@@ -52,6 +53,7 @@ public struct SupportContactView: View {
             }
             if supportType == .bug {
                 issueType
+                isRepeatable
                 if isManual {
                     error
                 }
@@ -87,14 +89,22 @@ public struct SupportContactView: View {
     
     var issueType: some View {
         Section {
-            ListPickerBlock(title: "Bug Severity", style: .menu, value: $issueLevel) {
-                ForEach(IssueLevel.allCases, id: \.self) { level in
+            ListPickerBlock(title: "Issue Severity", style: .menu, value: $issueLevel) {
+                ForEach(AppError.IssueLevel.allCases, id: \.self) { level in
                     Text(level.rawValue)
                         .tag(level.rawValue)
                 }
             }
         } footer: {
             Text("Select an option which best describes the affect of bug to continue use the application.")
+        }
+    }
+    
+    var isRepeatable: some View {
+        Section {
+            ListToggleBlock(title: "Able To Replicate", isOn: $repeatable)
+        } footer: {
+            Text("Are you able to replicate the issue? If so, please describe the steps below.")
         }
     }
     
@@ -121,47 +131,51 @@ public struct SupportContactView: View {
     
     var send: some View {
         Button {
-            supportTicketSender.spinner = true
-            
             let reportTitle = "\(supportType.rawValue)"
             var reportText = ""
             switch supportType {
             case .feedback, .featureRequest:
                 reportText = "\(supportComment)"
             case .bug:
-                if let associatedError {
+                if associatedError == nil {
                     reportText = """
-                    \(associatedError.title)
+                    \(reportTitle)
                     
                     <--- Bug Severity --->
                     \(issueLevel.rawValue)
                     
-                    <--- Associated Error --->
-                    [file] \(associatedError.file ?? "Unknown")
-                    [function] \(associatedError.function ?? "Unknown")
-                    [line] \(associatedError.line != nil ? String(associatedError.line!) : "Unknown")
+                    ASSOCIATED ERROR NOT PROVIDED
                     
-                    \(associatedError.content)
-                    
-                    \((associatedError.additionalInfo != nil && associatedError.additionalInfo != "") ? "[Additional Info]\n\(associatedError.additionalInfo!)" : "")
-                    
+                    <--- User Description --->
+                    \(supportComment.isEmpty ? "Not Provided" : supportComment)
                     """
-                    if !supportComment.isEmpty {
-                        reportText.append("<--- User Description --->\n\(supportComment)")
-                    }
-                    
-                    if let events = associatedError.events?.sorted(by: { $0.timestamp > $1.timestamp }) {
-                        var errorEvents = "\n\n<--- Events --->"
-                        for event in events {
-                            errorEvents.append(event.toErrorText())
-                        }
-                        reportText.append(errorEvents)
-                    }
                 }
             }
-            supportTicketSender.sendGitReport(title: reportTitle, message: reportText, email: userID)
+            if let associatedError {
+                let report = supportTicketSender.markToSendError(associatedError, comments: supportComment, issueLevel: issueLevel, repeatable: repeatable)
+                if network.isConnected {
+                    supportTicketSender.sendBackgroundReport(title: reportTitle, message: report, email: userID) { sent in
+                        if sent {
+                            associatedError.markSent()
+                        }
+                        DispatchQueue.main.async {
+                            dismiss()
+                        }
+                    }
+                }
+                else {
+                    dismiss()
+                }
+            }
+            else {
+                network.connectedAction {
+                    supportTicketSender.spinner = true
+                    supportTicketSender.sendGitReport(title: reportTitle, message: reportText, email: userID)
+                    dismiss()
+                }
+            }
         } label: {
-            Text("Send")
+            Text(associatedError == nil ? "Send" : "Submit")
                 .font(.title3)
                 .frame(maxWidth: .infinity)
         }

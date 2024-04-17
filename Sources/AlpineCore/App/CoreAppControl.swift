@@ -33,7 +33,7 @@ public class CoreAppControl {
         }
     }()
     
-    private var actor: CoreAppActor
+    var actor: CoreAppActor
     
     public var user: CoreUser! // IN MAIN CONTEXT
     public var app: CoreApp! // IN MAIN CONTEXT
@@ -42,6 +42,8 @@ public class CoreAppControl {
     
     private init() {
         actor = CoreAppActor(modelContainer: modelContainer)
+        NetworkTracker.shared.start()
+        
         NotificationCenter.default.addObserver(self, selector: #selector(appWillTerminate), name: UIApplication.willTerminateNotification, object: nil)
     }
     
@@ -55,11 +57,28 @@ public class CoreAppControl {
     }
     
     func checkForCrash() {
+        #if !DEBUG
         if defaults.isAppActive {
             promptToCreateCrashLog()
         }
+        #endif
         
         defaults.isAppActive = true
+    }
+    
+    func sendPendingLogs() {
+        guard NetworkTracker.shared.isConnected else { return }
+        
+        Task(priority: .background) {
+            try? await actor.attemptSendPendingCrashes()
+            try? await actor.attemptSendPendingErrors()
+        }
+    }
+    
+    func clearOldEvents() {
+        Task(priority: .background) {
+            try? await actor.clearOldEvents()
+        }
     }
 }
 
@@ -70,8 +89,10 @@ public extension CoreAppControl {
     }
     
     static func quit() {
+        Core.shared.defaults.isAppActive = false
         exit(0)
     }
+    
 }
 
 public extension CoreAppControl { //MARK: Init
@@ -79,6 +100,9 @@ public extension CoreAppControl { //MARK: Init
     func assignUser(_ user: CoreUser) {
         self.user = user
         checkForCrash()
+        
+        clearOldEvents()
+        sendPendingLogs()
     }
     
     static func reset() {
@@ -107,7 +131,7 @@ public extension CoreAppControl { //MARK: Init
 extension CoreAppControl { //MARK: Crashes
     
     func promptToCreateCrashLog() {
-        let doNot = CoreAlertButton(title: "Do Not Send", style: .cancel, action: {})
+        let doNot = CoreAlertButton(title: "Do Not Send", action: {})
         let ok = CoreAlertButton(title: "Okay", style: .default) {
             self.createCrashLog()
         }
@@ -127,8 +151,8 @@ extension CoreAppControl { //MARK: Crashes
 
 extension CoreAppControl { //MARK: Events
     
-    public static func makeEvent(_ event: String, type: AppEventType, log: ((_ logger: Logger) -> Void)? = nil) {
-        Core.shared.makeEvent(event, type: type)
+    public static func makeEvent(_ event: String, type: AppEventType, hidden: Bool = false, log: ((_ logger: Logger) -> Void)? = nil) {
+        Core.shared.makeEvent(event, hidden: hidden, type: type)
         
         if let log {
             guard let subSystem = Bundle.main.bundleIdentifier else { return }
@@ -137,13 +161,13 @@ extension CoreAppControl { //MARK: Events
         }
     }
     
-    private func makeEvent(_ event: String, type: AppEventType) {
+    private func makeEvent(_ event: String, hidden: Bool, type: AppEventType) {
         Task(priority: .background) {
-            await actor.createEvent(event, type: type, userID: user?.persistentModelID)
+            await actor.createEvent(event, type: type, hidden: hidden, userID: user?.persistentModelID)
         }
     }
     
-    public static func log(_ message: String, strType: String? = nil, type: AppEventType = .logging, level: OSLogType = .info) {
+    public static func log(_ message: String, strType: String? = nil, type: AppEventType = .log, level: OSLogType = .info) {
         guard let subSystem = Bundle.main.bundleIdentifier else { return }
         let logger = Logger(subsystem: subSystem, category: strType ?? type.rawValue)
         logger.log(level: level, "\(message)")
