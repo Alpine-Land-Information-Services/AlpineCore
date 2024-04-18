@@ -72,6 +72,7 @@ public class CoreAppControl {
         Task(priority: .background) {
             try? await actor.attemptSendPendingCrashes()
             try? await actor.attemptSendPendingErrors()
+            try? await actor.attemptSendEventPackages()
         }
     }
     
@@ -151,8 +152,9 @@ extension CoreAppControl { //MARK: Crashes
 
 extension CoreAppControl { //MARK: Events
     
-    public static func makeEvent(_ event: String, type: AppEventType, hidden: Bool = false, log: ((_ logger: Logger) -> Void)? = nil) {
-        Core.shared.makeEvent(event, hidden: hidden, type: type)
+    public static func makeEvent(_ event: String, type: AppEventType, hidden: Bool? = nil, secret: Bool = false, log: ((_ logger: Logger) -> Void)? = nil) {
+        let isHidden = hidden ?? type.isDefaultHidden
+        Core.shared.makeEvent(event, hidden: isHidden, secrect: secret, type: type)
         
         if let log {
             guard let subSystem = Bundle.main.bundleIdentifier else { return }
@@ -161,9 +163,9 @@ extension CoreAppControl { //MARK: Events
         }
     }
     
-    private func makeEvent(_ event: String, hidden: Bool, type: AppEventType) {
+    private func makeEvent(_ event: String, hidden: Bool, secrect: Bool, type: AppEventType) {
         Task(priority: .background) {
-            await actor.createEvent(event, type: type, hidden: hidden, userID: user?.persistentModelID)
+            await actor.createEvent(event, type: type, hidden: hidden, secret: secrect, userID: user?.persistentModelID)
         }
     }
     
@@ -171,6 +173,15 @@ extension CoreAppControl { //MARK: Events
         guard let subSystem = Bundle.main.bundleIdentifier else { return }
         let logger = Logger(subsystem: subSystem, category: strType ?? type.rawValue)
         logger.log(level: level, "\(message)")
+    }
+    
+    func createEventPack(interval: Double) {
+        Core.makeEvent("submitted events", type: .userAction)
+
+        Core.makeSimpleAlert(title: "Events Submitted", message: "Thank you, your event logs will be sent to developer.")
+        Task(priority: .background) {
+            try? await actor.createEventPackage(interval: interval, userID: user.persistentModelID)
+        }
     }
 }
 

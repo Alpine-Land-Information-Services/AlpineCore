@@ -22,9 +22,14 @@ public class CoreUser {
     
     @Relationship(deleteRule: .cascade, inverse: \AppCrashLog.user)
     var eventLog: [AppCrashLog] = []
+    
+    @Relationship(deleteRule: .cascade, inverse: \EventPackage.user)
+    var eventPackages: [EventPackage] = []
         
     @Relationship(deleteRule: .cascade)
     public var apps: [CoreApp] = []
+    
+    public var app: CoreApp?
             
     public init(id: String) {
         self.id = id

@@ -16,12 +16,34 @@ public struct AppLogsView: View {
         case crashes = "Crashes"
     }
     
-    @State private var currentTab = TabSelection.events
+    static func hiddenPredicate(userID: String) -> Predicate<AppEventLog> {
+        #if DEBUG
+        #Predicate<AppEventLog> { $0.user?.id == userID }
+        #else
+        #Predicate<AppEventLog> { $0.user?.id == userID && $0.secret == false }
+        #endif
+    }
     
+    static func visiblePredicate(userID: String) -> Predicate<AppEventLog> {
+        #if DEBUG
+        #Predicate<AppEventLog> { $0.user?.id == userID && $0.hidden == false }
+        #else
+        #Predicate<AppEventLog> { $0.user?.id == userID && $0.secret == false && $0.hidden == false }
+        #endif
+    }
+    
+    @State private var showHidden = false
+    
+    @State private var currentTab = TabSelection.events
+    @State private var predicate: Predicate<AppEventLog>
+    
+    @Environment(CoreAppControl.self) var control
+
     var userID: String
     
     public init(userID: String) {
         self.userID = userID
+        _predicate = State(wrappedValue: Self.visiblePredicate(userID: userID))
     }
     
     public var body: some View {
@@ -29,7 +51,7 @@ public struct AppLogsView: View {
             Section {
                 switch currentTab {
                 case .events:
-                    EventLogListView(userID: userID)
+                    EventLogListView(userID: userID, predicate: predicate)
                 case .errors:
                     ErrorLogListView(userID: userID)
                 case .crashes:
@@ -48,5 +70,33 @@ public struct AppLogsView: View {
         }
         .navigationTitle("Application Logs")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if currentTab == .events {
+                Menu {
+                    hiddenButton
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                }
+                Menu("Send") {
+                    Text("Choose a timeframe to send logs to the developer.")
+                    Button("Last 15 Minutes") {
+                        control.createEventPack(interval: -900)
+                    }
+                    Button("Last Hour") {
+                        control.createEventPack(interval: -3600)
+                    }
+                    Button("Last Day") {
+                        control.createEventPack(interval: -86400)
+                    }
+                }
+            }
+        }
+    }
+    
+    var hiddenButton: some View {
+        Button(showHidden ? "Hide Hidden" : "Show Hidden") {
+            showHidden.toggle()
+            predicate = showHidden ? Self.hiddenPredicate(userID: userID) : Self.visiblePredicate(userID: userID)
+        }
     }
 }

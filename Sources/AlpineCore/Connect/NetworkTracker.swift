@@ -117,6 +117,13 @@ public class NetworkTracker {
 
 public extension NetworkTracker {
     
+    static var isConnected: Bool {
+        NetworkTracker.shared.isConnected
+    }
+}
+
+public extension NetworkTracker {
+    
     func connectedAction(action: () -> Void) {
         guard isConnected else {
             Core.makeSimpleAlert(title: "Offline", message: "Network connection is required for this action.")

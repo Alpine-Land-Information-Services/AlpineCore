@@ -16,16 +16,18 @@ public class AppEventLog {
     var event: String
     
     var hidden: Bool?
+    var secret: Bool?
     
     var user: CoreUser?
     
-    init(_ event: String, hidden: Bool, type: AppEventType) {
+    init(_ event: String, hidden: Bool, secret: Bool, type: AppEventType) {
         self.event = event
         self.hidden = hidden
+        self.secret = secret
         self.type = type
     }
     
     func toErrorText() -> String {
-        "\nAt \(timestamp.toString(format: "HH:mm:ss, MM.d")) ---- \(event) ---- \(type.rawValue)"
+        "\nAt \(timestamp.toString(format: "HH:mm:ss, MM.d")) ---- \(type.rawValue)\n\(event)"
     }
 }

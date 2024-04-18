@@ -27,8 +27,8 @@ actor CoreAppActor: ModelActor {
 
 extension CoreAppActor { //MARK: Events
     
-    func createEvent(_ event: String, type: AppEventType, hidden: Bool, userID: PersistentIdentifier?) {
-        let event = AppEventLog(event, hidden: hidden, type: type)
+    func createEvent(_ event: String, type: AppEventType, hidden: Bool, secret: Bool, userID: PersistentIdentifier?) {
+        let event = AppEventLog(event, hidden: hidden, secret: secret, type: type)
         modelContext.insert(event)
         
         if let userID {
@@ -47,18 +47,59 @@ extension CoreAppActor { //MARK: Events
         try modelContext.save()
     }
     
-    func getRecentEvents() throws -> [AppEventLog] {
-        let fifteenMinAgo = Date().addingTimeInterval(-900)
+    func getRecentEvents(interval: Double) throws -> [AppEventLog] {
+        let interval = Date().addingTimeInterval(interval)
         
-        let descriptor = FetchDescriptor(predicate: #Predicate<AppEventLog> { $0.timestamp >= fifteenMinAgo })
+        let descriptor = FetchDescriptor(predicate: #Predicate<AppEventLog> { $0.timestamp >= interval }, sortBy: [SortDescriptor(\.timestamp, order: .reverse)])
         return try modelContext.fetch(descriptor)
     }
     
     func getOldEvents() throws -> [AppEventLog] {
-        let fiveDaysAgo = Date().addingTimeInterval(-432000)
+        let threeDaysAgo = Date().addingTimeInterval(-259200)
         
-        let descriptor = FetchDescriptor(predicate: #Predicate<AppEventLog> { $0.timestamp >= fiveDaysAgo })
+        let descriptor = FetchDescriptor(predicate: #Predicate<AppEventLog> { $0.timestamp <= threeDaysAgo })
         return try modelContext.fetch(descriptor)
+    }
+}
+
+extension CoreAppActor { //MARK: Sending Events
+    
+    func createEventPackage(interval: Double, userID: PersistentIdentifier) throws {
+        let date = Date().addingTimeInterval(interval)
+
+        var log = 
+        """
+        <---Events Beginning at \(date.toString(format: "MMM d, h:mm a"))--->
+        Submitted on \(Date().toString(format: "MMM d, h:mm a"))
+        
+        """
+        for event in try getRecentEvents(interval: interval) {
+            log.append(event.toErrorText())
+        }
+        
+        let package = EventPackage(log: log)
+        modelContext.insert(package)
+        package.user = modelContext.model(for: userID) as? CoreUser
+        
+        if NetworkTracker.isConnected {
+            package.send()
+        }
+        
+        try modelContext.save()
+    }
+    
+    private func getNotExportedEventPackages() throws -> [EventPackage] {
+        let descriptor = FetchDescriptor<EventPackage>()
+        return try modelContext.fetch(descriptor)
+    }
+    
+    func attemptSendEventPackages() throws {
+        for package in try getNotExportedEventPackages() {
+            package.send()
+            Core.makeEvent("crash log uploaded", type: .log)
+        }
+        
+        try save()
     }
 }
 
@@ -66,7 +107,7 @@ extension CoreAppActor { //MARK: Errors
     
     public func createError(error: Error, additionalInfo: String? = nil, userId: PersistentIdentifier) -> PersistentIdentifier {
         let error = AppError.create(error: error, additionalInfo: additionalInfo, in: modelContext)
-        error.events = try? getRecentEvents()
+        error.events = try? getRecentEvents(interval: -900)
         let user = modelContext.model(for: userId) as? CoreUser
         user?.errors.append(error)
         
@@ -95,7 +136,7 @@ extension CoreAppActor { //MARK: Crashes
         modelContext.insert(log)
         
         log.user = modelContext.model(for: userID) as? CoreUser
-        log.events = try? getRecentEvents()
+        log.events = try? getRecentEvents(interval: -900)
         
         log.send()
 

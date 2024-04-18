@@ -12,9 +12,11 @@ import OSLog
 public struct EventLogListView: View {
         
     @Query private var events: [AppEventLog]
+
     
-    public init(userID: String) {
-        _events = Query(filter: #Predicate<AppEventLog> { $0.user?.id == userID }, sort: \.timestamp, order: .reverse)
+    
+    public init(userID: String, predicate: Predicate<AppEventLog>) {
+        _events = Query(filter: predicate, sort: \.timestamp, order: .reverse)
     }
     
     public var body: some View {
@@ -35,6 +37,11 @@ public struct EventLogListView: View {
                         .italic()
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                }
+                if event.event == "sign in successful" {
+                    Divider()
+                        .padding(.vertical)
+                        .listRowSeparator(.hidden)
                 }
             }
         }
