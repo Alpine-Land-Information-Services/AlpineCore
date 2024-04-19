@@ -13,8 +13,6 @@ public struct EventLogListView: View {
         
     @Query private var events: [AppEventLog]
 
-    
-    
     public init(userID: String, predicate: Predicate<AppEventLog>) {
         _events = Query(filter: predicate, sort: \.timestamp, order: .reverse)
     }

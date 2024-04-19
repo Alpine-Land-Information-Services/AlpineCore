@@ -14,6 +14,7 @@ public enum AppEventType: String, Codable, CaseIterable {
     case atlas = "Atlas"
     case error = "Error"
     case atlasApp = "Atlas App"
+    case sync = "Sync"
     
     var isDefaultHidden: Bool {
         switch self {
@@ -29,6 +30,8 @@ public enum AppEventType: String, Codable, CaseIterable {
             true
         case .atlasApp:
             false
+        case .sync:
+            true
         }
     }
 }
