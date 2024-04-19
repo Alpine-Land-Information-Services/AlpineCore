@@ -17,7 +17,9 @@ struct NetworkTrackerModifier: ViewModifier {
                 switch newValue {
                 case true:
                     onConnection()
+                    Core.makeEvent("network connection resumed", type: .system, hidden: false)
                 case false:
+                    Core.makeEvent("network connection lost", type: .system, hidden: false)
                     return
                 }
             }

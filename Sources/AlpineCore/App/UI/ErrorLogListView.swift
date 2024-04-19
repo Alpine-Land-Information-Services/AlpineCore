@@ -48,7 +48,6 @@ struct ErrorListSelectView: View {
     @Binding var selectedError: AppError?
     
     @State private var editMode = EditMode.inactive
-    
     @State var multiSelection = Set<AppError>()
     
     public init(userID: String, selectedError: Binding<AppError?>) {

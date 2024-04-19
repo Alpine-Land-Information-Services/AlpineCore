@@ -13,6 +13,9 @@ actor CoreAppActor: ModelActor {
     let modelContainer: ModelContainer
     let modelExecutor: ModelExecutor
     
+    
+    var user: CoreUser?
+    
     init(modelContainer: ModelContainer) {
         self.modelContainer = modelContainer
         let context = ModelContext(modelContainer)
@@ -20,23 +23,22 @@ actor CoreAppActor: ModelActor {
     
     }
     
-    func save() throws {
-        try modelContext.save()
+    func assignUser(userID: PersistentIdentifier) {
+        user = modelContext.model(for: userID) as? CoreUser
+    }
+    
+    func save() {
+        try? modelContext.save()
     }
 }
 
 extension CoreAppActor { //MARK: Events
     
-    func createEvent(_ event: String, type: AppEventType, hidden: Bool, secret: Bool, userID: PersistentIdentifier?) {
-        let event = AppEventLog(event, hidden: hidden, secret: secret, type: type)
+    func createEvent(_ event: String, type: AppEventType, hidden: Bool, secret: Bool, userID: String) {
+        let event = AppEventLog(event, hidden: hidden, secret: secret, type: type, userID: userID)
         modelContext.insert(event)
         
-        if let userID {
-            let user = modelContext.model(for: userID) as? CoreUser
-            event.user = user
-        }
-
-        try? save()
+        try? modelContext.save()
     }
     
     func clearOldEvents() throws {
@@ -99,7 +101,7 @@ extension CoreAppActor { //MARK: Sending Events
             Core.makeEvent("crash log uploaded", type: .log)
         }
         
-        try save()
+        try modelContext.save()
     }
 }
 

@@ -18,13 +18,14 @@ public class AppEventLog {
     var hidden: Bool?
     var secret: Bool?
     
-    var user: CoreUser?
+    public var userID: String?
     
-    init(_ event: String, hidden: Bool, secret: Bool, type: AppEventType) {
+    init(_ event: String, hidden: Bool, secret: Bool, type: AppEventType, userID: String) {
         self.event = event
         self.hidden = hidden
         self.secret = secret
         self.type = type
+        self.userID = userID
     }
     
     func toErrorText() -> String {

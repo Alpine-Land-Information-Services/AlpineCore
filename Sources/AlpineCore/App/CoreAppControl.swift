@@ -22,7 +22,7 @@ public class CoreAppControl {
     public static var shared = CoreAppControl()
     
     public let modelContainer: ModelContainer = {
-        let schema = Schema([CoreUser.self])
+        let schema = Schema([CoreUser.self, AppEventLog.self])
         let storeURL = URL.documentsDirectory.appending(path: "Core App Data.sqlite")
         let modelConfiguration = ModelConfiguration("Core App Data", schema: schema, groupContainer: .none)
         do {
@@ -40,21 +40,24 @@ public class CoreAppControl {
     
     public var defaults = CoreDefaults()
     
+    private var logQueue = DispatchQueue(label: "core.debouncedlogger")
+    private var timer: Timer?
+
     private init() {
         actor = CoreAppActor(modelContainer: modelContainer)
         NetworkTracker.shared.start()
         
-        NotificationCenter.default.addObserver(self, selector: #selector(appWillTerminate), name: UIApplication.willTerminateNotification, object: nil)
+//        NotificationCenter.default.addObserver(self, selector: #selector(appWillTerminate), name: UIApplication.willTerminateNotification, object: nil)
     }
     
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
     
-    @objc
-    private func appWillTerminate() {
-        defaults.isAppActive = false
-    }
+//    @objc
+//    private func appWillTerminate() {
+//        defaults.isAppActive = false
+//    }
     
     func checkForCrash() {
         #if !DEBUG
@@ -62,7 +65,6 @@ public class CoreAppControl {
             promptToCreateCrashLog()
         }
         #endif
-        
         defaults.isAppActive = true
     }
     
@@ -100,10 +102,15 @@ public extension CoreAppControl { //MARK: Init
     
     func assignUser(_ user: CoreUser) {
         self.user = user
-        checkForCrash()
+        Task(priority: .high) {
+            await actor.assignUser(userID: user.persistentModelID)
+        }
         
-        clearOldEvents()
-        sendPendingLogs()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [self] in
+            checkForCrash()
+            clearOldEvents()
+            sendPendingLogs()
+        }
     }
     
     static func reset() {
@@ -154,7 +161,7 @@ extension CoreAppControl { //MARK: Events
     
     public static func makeEvent(_ event: String, type: AppEventType, hidden: Bool? = nil, secret: Bool = false, log: ((_ logger: Logger) -> Void)? = nil) {
         let isHidden = hidden ?? type.isDefaultHidden
-        Core.shared.makeEvent(event, hidden: isHidden, secrect: secret, type: type)
+        Core.shared.makeEvent(event, hidden: isHidden, secrect: secret, type: type, userID: user.id)
         
         if let log {
             guard let subSystem = Bundle.main.bundleIdentifier else { return }
@@ -163,9 +170,23 @@ extension CoreAppControl { //MARK: Events
         }
     }
     
-    private func makeEvent(_ event: String, hidden: Bool, secrect: Bool, type: AppEventType) {
+    private func makeEvent(_ event: String, hidden: Bool, secrect: Bool, type: AppEventType, userID: String) {
         Task(priority: .background) {
-            await actor.createEvent(event, type: type, hidden: hidden, secret: secrect, userID: user?.persistentModelID)
+            await actor.createEvent(event, type: type, hidden: hidden, secret: secrect, userID: userID)
+        }
+        
+//        logQueue.sync {
+//            timer?.invalidate()
+//            timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { [weak self] _ in
+//                print("SAVING LOG")
+//                self?.saveActor()
+//            }
+//        }
+    }
+    
+    func saveActor() {
+        Task(priority: .background) {
+            await actor.save()
         }
     }
     

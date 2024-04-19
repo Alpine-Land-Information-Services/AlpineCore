@@ -18,18 +18,18 @@ public struct AppLogsView: View {
     
     static func hiddenPredicate(userID: String) -> Predicate<AppEventLog> {
         #if DEBUG
-        #Predicate<AppEventLog> { $0.user?.id == userID }
+        #Predicate<AppEventLog> { $0.userID == userID }
         #else
-        #Predicate<AppEventLog> { $0.user?.id == userID && $0.secret == false }
+        #Predicate<AppEventLog> { $0.userID == userID && $0.secret == false }
         #endif
     }
     
     static func visiblePredicate(userID: String) -> Predicate<AppEventLog> {
-        #if DEBUG
-        #Predicate<AppEventLog> { $0.user?.id == userID && $0.hidden == false }
-        #else
-        #Predicate<AppEventLog> { $0.user?.id == userID && $0.secret == false && $0.hidden == false }
-        #endif
+//        #if DEBUG
+        #Predicate<AppEventLog> { $0.userID == userID && $0.hidden == false }
+//        #else
+//        #Predicate<AppEventLog> { $0.userID == userID && $0.hidden == false }
+//        #endif
     }
     
     @State private var showHidden = false

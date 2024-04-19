@@ -17,9 +17,6 @@ public class CoreUser {
     @Relationship(deleteRule: .cascade, inverse: \AppError.user)
     var errors: [AppError] = []
     
-    @Relationship(deleteRule: .cascade, inverse: \AppEventLog.user)
-    var crashes: [AppEventLog] = []
-    
     @Relationship(deleteRule: .cascade, inverse: \AppCrashLog.user)
     var eventLog: [AppCrashLog] = []
     
