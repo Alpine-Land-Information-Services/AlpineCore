@@ -87,7 +87,7 @@ public class CoreAppControl {
 
 public extension CoreAppControl {
     
-    static var user: CoreUser {
+    static var user: CoreUser! {
         Core.shared.user
     }
     
@@ -95,7 +95,6 @@ public extension CoreAppControl {
         Core.shared.defaults.isAppActive = false
         exit(0)
     }
-    
 }
 
 public extension CoreAppControl { //MARK: Init
@@ -161,6 +160,7 @@ extension CoreAppControl { //MARK: Events
     
     public static func makeEvent(_ event: String, type: AppEventType, hidden: Bool? = nil, secret: Bool = false, log: ((_ logger: Logger) -> Void)? = nil) {
         let isHidden = hidden ?? type.isDefaultHidden
+        guard let user else { return }
         Core.shared.makeEvent(event, hidden: isHidden, secrect: secret, type: type, userID: user.id)
         
         if let log {
