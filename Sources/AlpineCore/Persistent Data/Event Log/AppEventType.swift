@@ -5,7 +5,7 @@
 //  Created by Jenya Lebid on 4/15/24.
 //
 
-import Foundation
+import SwiftUI
 
 public enum AppEventType: String, Codable, CaseIterable {
     case log = "Log"
@@ -15,6 +15,7 @@ public enum AppEventType: String, Codable, CaseIterable {
     case error = "Error"
     case atlasApp = "Atlas App"
     case sync = "Sync"
+    case storage = "Storage"
     
     var isDefaultHidden: Bool {
         switch self {
@@ -32,6 +33,29 @@ public enum AppEventType: String, Codable, CaseIterable {
             false
         case .sync:
             true
+        case .storage:
+            true
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .log:
+                .gray
+        case .userAction:
+                .green
+        case .system:
+                .accentColor
+        case .atlas:
+                .blue
+        case .error:
+                .red
+        case .atlasApp:
+                .purple
+        case .sync:
+                .orange
+        case .storage:
+                .mint
         }
     }
 }

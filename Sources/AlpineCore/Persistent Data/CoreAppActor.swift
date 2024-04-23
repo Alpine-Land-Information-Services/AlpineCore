@@ -20,11 +20,24 @@ actor CoreAppActor: ModelActor {
         self.modelContainer = modelContainer
         let context = ModelContext(modelContainer)
         modelExecutor = DefaultSerialModelExecutor(modelContext: context)
-    
+        
     }
     
-    func assignUser(userID: PersistentIdentifier) {
-        user = modelContext.model(for: userID) as? CoreUser
+    func initialize(user: PersistentIdentifier, userID: String) {
+        self.user = modelContext.model(for: user) as? CoreUser
+        
+        Task(priority: .background) {
+            sendPendingLogs(userID: userID)
+            try? clearOldEvents()
+        }
+    }
+    
+    func sendPendingLogs(userID: String) {
+        guard NetworkTracker.shared.isConnected else { return }
+        
+        try? attemptSendPendingCrashes(userID: userID)
+        try? attemptSendPendingErrors()
+        try? attemptSendEventPackages()
     }
     
     func save() {
@@ -42,6 +55,7 @@ extension CoreAppActor { //MARK: Events
     }
     
     func clearOldEvents() throws {
+        Core.makeEvent("clearing out old events", type: .log)
         for event in try getOldEvents() {
             modelContext.delete(event)
         }
@@ -53,6 +67,12 @@ extension CoreAppActor { //MARK: Events
         let interval = Date().addingTimeInterval(interval)
         
         let descriptor = FetchDescriptor(predicate: #Predicate<AppEventLog> { $0.timestamp >= interval }, sortBy: [SortDescriptor(\.timestamp, order: .reverse)])
+        return try modelContext.fetch(descriptor)
+    }
+    
+    func getEvents(before dateInit: Date, limit: Int) throws -> [AppEventLog] {
+        var descriptor = FetchDescriptor(predicate: #Predicate<AppEventLog> { $0.timestamp < dateInit }, sortBy: [SortDescriptor(\.timestamp, order: .reverse)])
+        descriptor.fetchLimit = limit
         return try modelContext.fetch(descriptor)
     }
     
@@ -113,7 +133,7 @@ extension CoreAppActor { //MARK: Errors
         let user = modelContext.model(for: userId) as? CoreUser
         user?.errors.append(error)
         
-        try? save()
+        save()
         
         return error.persistentModelID
     }
@@ -133,25 +153,24 @@ extension CoreAppActor { //MARK: Errors
 
 extension CoreAppActor { //MARK: Crashes
     
-    public func createCrashLog(userID: PersistentIdentifier) {
+    public func createCrashLog(userID: String, dateInit: Date) {
         let log = AppCrashLog()
         modelContext.insert(log)
         
-        log.user = modelContext.model(for: userID) as? CoreUser
-        log.events = try? getRecentEvents(interval: -900)
+        log.events = try? getEvents(before: dateInit, limit: 200)
         
-        log.send()
+        log.send(userID: userID)
 
-        try? save()        
+        save()
     }
     
-    func attemptSendPendingCrashes() throws {
+    func attemptSendPendingCrashes(userID: String) throws {
         for crash in try getNotReportedCrashes() {
-            crash.send()
+            crash.send(userID: userID)
             Core.makeEvent("crash log uploaded", type: .log)
         }
         
-        try save()
+        try modelContext.save()
     }
     
     private func getNotReportedCrashes() throws -> [AppCrashLog] {

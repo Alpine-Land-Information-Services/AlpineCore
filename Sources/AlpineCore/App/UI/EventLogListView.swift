@@ -34,7 +34,7 @@ public struct EventLogListView: View {
                     Text(event.type.rawValue)
                         .italic()
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(event.type.color)
                 }
                 if event.event == "sign in successful" {
                     Divider()

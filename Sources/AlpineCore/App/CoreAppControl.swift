@@ -34,54 +34,37 @@ public class CoreAppControl {
     }()
     
     var actor: CoreAppActor
+    private var dateInit = Date()
     
-    public var user: CoreUser! // IN MAIN CONTEXT
-    public var app: CoreApp! // IN MAIN CONTEXT
+    public var user: CoreUser? // IN MAIN CONTEXT
+    public var app: CoreApp? // IN MAIN CONTEXT
     
     public var defaults = CoreDefaults()
-    
-    private var logQueue = DispatchQueue(label: "core.debouncedlogger")
-    private var timer: Timer?
 
     private init() {
         actor = CoreAppActor(modelContainer: modelContainer)
         NetworkTracker.shared.start()
+    }
+    
+    public func assignUser(_ user: CoreUser) {
+        self.user = user
+
+        Task(priority: .high) {
+            await actor.initialize(user: user.persistentModelID, userID: user.id)
+        }
         
-//        NotificationCenter.default.addObserver(self, selector: #selector(appWillTerminate), name: UIApplication.willTerminateNotification, object: nil)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [self] in
+            checkForCrash()
+        }
     }
     
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-    
-//    @objc
-//    private func appWillTerminate() {
-//        defaults.isAppActive = false
-//    }
-    
-    func checkForCrash() {
+    private func checkForCrash() {
         #if !DEBUG
         if defaults.isAppActive {
             promptToCreateCrashLog()
         }
         #endif
         defaults.isAppActive = true
-    }
-    
-    func sendPendingLogs() {
-        guard NetworkTracker.shared.isConnected else { return }
-        
-        Task(priority: .background) {
-            try? await actor.attemptSendPendingCrashes()
-            try? await actor.attemptSendPendingErrors()
-            try? await actor.attemptSendEventPackages()
-        }
-    }
-    
-    func clearOldEvents() {
-        Task(priority: .background) {
-            try? await actor.clearOldEvents()
-        }
     }
 }
 
@@ -95,25 +78,20 @@ public extension CoreAppControl {
         Core.shared.defaults.isAppActive = false
         exit(0)
     }
+    
+    static func reset() {
+        CoreAppControl.shared = CoreAppControl()
+    }
 }
 
 public extension CoreAppControl { //MARK: Init
     
-    func assignUser(_ user: CoreUser) {
-        self.user = user
-        Task(priority: .high) {
-            await actor.assignUser(userID: user.persistentModelID)
-        }
+    func sendPendingLogs() {
+        guard let user else { return }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [self] in
-            checkForCrash()
-            clearOldEvents()
-            sendPendingLogs()
+        Task(priority: .background) {
+            await actor.sendPendingLogs(userID: user.id)
         }
-    }
-    
-    static func reset() {
-        CoreAppControl.shared = CoreAppControl()
     }
     
     func setInitialized(to value: Bool, sandbox: Bool) {
@@ -151,7 +129,7 @@ extension CoreAppControl { //MARK: Crashes
         guard let user else { return }
         
         Task {
-            await actor.createCrashLog(userID: user.persistentModelID)
+            await actor.createCrashLog(userID: user.id, dateInit: dateInit)
         }
     }
 }
@@ -174,14 +152,6 @@ extension CoreAppControl { //MARK: Events
         Task(priority: .background) {
             await actor.createEvent(event, type: type, hidden: hidden, secret: secrect, userID: userID)
         }
-        
-//        logQueue.sync {
-//            timer?.invalidate()
-//            timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { [weak self] _ in
-//                print("SAVING LOG")
-//                self?.saveActor()
-//            }
-//        }
     }
     
     func saveActor() {
@@ -197,8 +167,9 @@ extension CoreAppControl { //MARK: Events
     }
     
     func createEventPack(interval: Double) {
+        guard let user else { return }
         Core.makeEvent("submitted events", type: .userAction)
-
+        
         Core.makeSimpleAlert(title: "Events Submitted", message: "Thank you, your event logs will be sent to developer.")
         Task(priority: .background) {
             try? await actor.createEventPackage(interval: interval, userID: user.persistentModelID)
@@ -213,6 +184,8 @@ extension CoreAppControl { //MARK: Errors
     }
     
     public func makeError(error: Error, additionalInfo: String? = nil, showToUser: Bool = true) {
+        guard let user else { return }
+
         Task {
             let errorID = await actor.createError(error: error, additionalInfo: additionalInfo, userId: user.persistentModelID)
             

@@ -17,8 +17,8 @@ public class AppCrashLog {
     var events: [AppEventLog]?
     
     var user: CoreUser?
+    var userID: String?
 
-    
     var reportDate: Date?
     var isReported: Bool {
         reportDate != nil
@@ -29,8 +29,7 @@ public class AppCrashLog {
 
 public extension AppCrashLog {
     
-    func send() {
-        guard let user else { return }
+    func send(userID: String) {
         
         let sender = SupportTicketSender()
         var text = """
@@ -46,9 +45,9 @@ public extension AppCrashLog {
             text.append(errorEvents)
         }
         
-        sender.sendBackgroundReport(title: "Application Crash", message: text, email: user.id) { success in
+        sender.sendBackgroundReport(title: "Application Crash", message: text, email: userID) { [self] success in
             if success {
-                self.reportDate = Date()
+                reportDate = Date()
             }
         }
     }

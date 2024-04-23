@@ -13,7 +13,6 @@ public struct AppLogsView: View {
     private enum TabSelection: String, CaseIterable {
         case events = "Events"
         case errors = "Errors"
-        case crashes = "Crashes"
     }
     
     static func hiddenPredicate(userID: String) -> Predicate<AppEventLog> {
@@ -54,8 +53,6 @@ public struct AppLogsView: View {
                     EventLogListView(userID: userID, predicate: predicate)
                 case .errors:
                     ErrorLogListView(userID: userID)
-                case .crashes:
-                    CrashLogListView()
                 }
             } header: {
                 ListPickerBlock(style: .segmented, value: $currentTab) {
@@ -74,29 +71,34 @@ public struct AppLogsView: View {
             if currentTab == .events {
                 Menu {
                     hiddenButton
+                    Menu {
+                        Text("Choose a timeframe to send logs to the developer.")
+                        Button("Last 15 Minutes") {
+                            control.createEventPack(interval: -900)
+                        }
+                        Button("Last Hour") {
+                            control.createEventPack(interval: -3600)
+                        }
+                        Button("Last Day") {
+                            control.createEventPack(interval: -86400)
+                        }
+                    } label: {
+                        Label("Send Logs", systemImage: "paperplane")
+                    }
                 } label: {
                     Image(systemName: "ellipsis.circle")
                 }
-                Menu("Send") {
-                    Text("Choose a timeframe to send logs to the developer.")
-                    Button("Last 15 Minutes") {
-                        control.createEventPack(interval: -900)
-                    }
-                    Button("Last Hour") {
-                        control.createEventPack(interval: -3600)
-                    }
-                    Button("Last Day") {
-                        control.createEventPack(interval: -86400)
-                    }
-                }
+
             }
         }
     }
     
     var hiddenButton: some View {
-        Button(showHidden ? "Hide Hidden" : "Show Hidden") {
+        Button {
             showHidden.toggle()
             predicate = showHidden ? Self.hiddenPredicate(userID: userID) : Self.visiblePredicate(userID: userID)
+        } label: {
+            Label((showHidden ? "Hide Hidden" : "Show Hidden"), systemImage: (showHidden ? "eye.slash" : "eye"))
         }
     }
 }
