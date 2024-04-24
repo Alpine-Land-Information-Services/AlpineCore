@@ -91,6 +91,9 @@ public struct AppLogsView: View {
 
             }
         }
+        .onAppear {
+            Core.makeEvent("opened application logs", type: .userAction)
+        }
     }
     
     var hiddenButton: some View {
