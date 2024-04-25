@@ -55,12 +55,15 @@ extension CoreAppActor { //MARK: Events
     }
     
     func clearOldEvents() throws {
-        Core.makeEvent("clearing out old events", type: .log)
-        for event in try getOldEvents() {
-            modelContext.delete(event)
+        let oldEvents = try getOldEvents()
+        if !oldEvents.isEmpty {
+            Core.makeEvent("clearing out \(oldEvents.count) old events", type: .system)
+            for event in oldEvents {
+                modelContext.delete(event)
+            }
+            
+            try modelContext.save()
         }
-        
-        try modelContext.save()
     }
     
     func getRecentEvents(interval: Double) throws -> [AppEventLog] {
