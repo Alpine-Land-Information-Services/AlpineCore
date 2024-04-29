@@ -76,7 +76,9 @@ public extension CoreAppControl {
     
     static func quit() {
         Core.shared.defaults.isAppActive = false
-        exit(0)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            exit(0)
+        }
     }
     
     static func reset() {
