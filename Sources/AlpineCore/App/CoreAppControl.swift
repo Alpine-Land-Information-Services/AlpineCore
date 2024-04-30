@@ -194,6 +194,7 @@ extension CoreAppControl { //MARK: Errors
             if showToUser {
                 DispatchQueue.main.async { [self] in
                     let (title, message) = getErrorText(error: error)
+                    Core.makeEvent("\(title): \(message)", type: .error)
                     let reportButton = CoreAlertButton(title: "Report", style: .default) {
                         if let error = self.modelContainer.mainContext.model(for: errorID) as? AppError {
                             Core.presentSheet {

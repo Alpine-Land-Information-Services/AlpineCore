@@ -19,7 +19,6 @@ open class AlpineError: Error {
         self.file = file
         self.function = function
         self.line = line
-        Core.makeEvent("error: \(message)", type: .error)
     }
     
     open func getType() -> String {
