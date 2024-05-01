@@ -61,6 +61,15 @@ public class CoreDefaults {
 
 public extension CoreDefaults {
     
+    var lastAppLaunch: Date? {
+        get {
+            value(for: "last_app_launch") as? Date
+        }
+        set {
+            setValue(newValue, for: "last_app_launch")
+        }
+    }
+    
     var isAppActive: Bool {
         get {
             value(for: "is_app_active") as? Bool ?? false

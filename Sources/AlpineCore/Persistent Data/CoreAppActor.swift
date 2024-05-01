@@ -66,10 +66,19 @@ extension CoreAppActor { //MARK: Events
         }
     }
     
-    func getRecentEvents(interval: Double) throws -> [AppEventLog] {
-        let interval = Date().addingTimeInterval(interval)
+    func getRecentEvents(interval: Double, from date: Date = Date()) throws -> [AppEventLog] {
+        let interval = date.addingTimeInterval(interval)
         
         let descriptor = FetchDescriptor(predicate: #Predicate<AppEventLog> { $0.timestamp >= interval }, sortBy: [SortDescriptor(\.timestamp, order: .reverse)])
+        return try modelContext.fetch(descriptor)
+    }
+    
+    
+    func getRecentEvents(interval: Double, from date: Date, to endDate: Date) throws -> [AppEventLog] {
+        let interval = date.addingTimeInterval(interval)
+        
+        let descriptor = FetchDescriptor(predicate: #Predicate<AppEventLog> { $0.timestamp >= interval && $0.timestamp < endDate }, sortBy: [SortDescriptor(\.timestamp, order: .reverse)])
+        
         return try modelContext.fetch(descriptor)
     }
     
@@ -77,6 +86,17 @@ extension CoreAppActor { //MARK: Events
         var descriptor = FetchDescriptor(predicate: #Predicate<AppEventLog> { $0.timestamp < dateInit }, sortBy: [SortDescriptor(\.timestamp, order: .reverse)])
         descriptor.fetchLimit = limit
         return try modelContext.fetch(descriptor)
+    }
+    
+    func getPreCrashEvents(before dateInit: Date) throws -> [AppEventLog] {
+        var descriptor = FetchDescriptor(predicate: #Predicate<AppEventLog> { $0.timestamp < dateInit }, sortBy: [SortDescriptor(\.timestamp, order: .reverse)])
+        descriptor.fetchLimit = 1
+        
+        if let event = try modelContext.fetch(descriptor).first {
+            return try getRecentEvents(interval: -900, from: event.timestamp, to: dateInit)
+        }
+        
+        return []
     }
     
     func getOldEvents() throws -> [AppEventLog] {
@@ -156,10 +176,11 @@ extension CoreAppActor { //MARK: Errors
 
 extension CoreAppActor { //MARK: Crashes
     
-    public func createCrashLog(userID: String, dateInit: Date) {
+    public func createCrashLog(userID: String, dateInit: Date, lastLaunch: Date?) {
         let log = AppCrashLog()
         modelContext.insert(log)
         
+        log.lastDateLaunch = lastLaunch
         log.events = try? getEvents(before: dateInit, limit: 200)
         
         log.send(userID: userID)

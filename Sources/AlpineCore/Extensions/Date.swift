@@ -29,6 +29,15 @@ public extension Date {
 //        return formatter.string(from: self)
 //    }
     
+    
+    func hoursAndMinutes(to date: Date) -> (hours: Int, minutes: Int) {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.hour, .minute], from: self, to: date)
+        let hours = components.hour ?? 0
+        let totalMinutes = components.minute ?? 0
+        return (hours, totalMinutes)
+    }
+    
     func passedTime(from date: Date, to endDate: Date = Date()) -> String {
         let difference = Calendar.current.dateComponents([.minute, .second], from: date, to: endDate)
         

@@ -59,9 +59,12 @@ public class CoreAppControl {
     }
     
     private func checkForCrash() {
+        let lastLaunch = defaults.lastAppLaunch
+        defaults.lastAppLaunch = dateInit
+
         #if !DEBUG
         if defaults.isAppActive {
-            promptToCreateCrashLog()
+            promptToCreateCrashLog(lastLaunch: lastLaunch)
         }
         #endif
         defaults.isAppActive = true
@@ -117,21 +120,21 @@ public extension CoreAppControl { //MARK: Init
 
 extension CoreAppControl { //MARK: Crashes
     
-    func promptToCreateCrashLog() {
+    func promptToCreateCrashLog(lastLaunch: Date?) {
         let doNot = CoreAlertButton(title: "Do Not Send", action: {})
         let ok = CoreAlertButton(title: "Okay", style: .default) {
-            self.createCrashLog()
+            self.createCrashLog(lastLaunch: lastLaunch)
         }
         let alert = CoreAlert(title: "Application Crash", message: "We detected a crash during last usage. Report will be sent to the developer to help resolve this issue as soon as possible.", buttons: [doNot, ok])
         
         Core.makeAlert(alert)
     }
     
-    private func createCrashLog() {
+    private func createCrashLog(lastLaunch: Date?) {
         guard let user else { return }
         
         Task {
-            await actor.createCrashLog(userID: user.id, dateInit: dateInit)
+            await actor.createCrashLog(userID: user.id, dateInit: dateInit, lastLaunch: lastLaunch)
         }
     }
 }
