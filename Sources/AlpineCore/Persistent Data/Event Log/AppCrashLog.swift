@@ -45,7 +45,6 @@ public extension AppCrashLog {
             text.append(lastLuanch)
         }
         
-        
         if let events = events?.sorted(by: { $0.timestamp > $1.timestamp }) {
             var errorEvents = "\n\n<--- Events --->"
             for event in events {
@@ -54,11 +53,11 @@ public extension AppCrashLog {
             text.append(errorEvents)
         }
         
-        sender.sendBackgroundReport(title: "Application Crash", message: text, email: userID) { [self] success in
+        sender.sendBackgroundReport(title: "Application Crash", message: text, email: userID) { [weak self] success in
+            guard let self else { return }
             if success {
                 reportDate = Date()
             }
         }
     }
 }
-

@@ -53,7 +53,8 @@ public class CoreAppControl {
             await actor.initialize(user: user.persistentModelID, userID: user.id)
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+            guard let self else { return }
             checkForCrash()
         }
     }
@@ -195,7 +196,8 @@ extension CoreAppControl { //MARK: Errors
             let errorID = await actor.createError(error: error, additionalInfo: additionalInfo, userId: user.persistentModelID)
             
             if showToUser {
-                DispatchQueue.main.async { [self] in
+                DispatchQueue.main.async { [weak self] in
+                    guard let self else { return }
                     let (title, message) = getErrorText(error: error)
                     Core.makeEvent("\(title): \(message)", type: .error)
                     let reportButton = CoreAlertButton(title: "Report", style: .default) {

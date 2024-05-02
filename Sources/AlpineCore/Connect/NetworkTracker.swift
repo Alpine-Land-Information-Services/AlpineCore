@@ -52,7 +52,8 @@ public class NetworkTracker {
     }
     
     func changeConnectionType(_ type: ConnectionType) {
-        DispatchQueue.main.async { [self] in
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
             connected = type != .offline
             self.type = type
         }
