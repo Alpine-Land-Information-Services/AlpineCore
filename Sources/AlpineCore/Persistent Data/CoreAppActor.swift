@@ -176,11 +176,13 @@ extension CoreAppActor { //MARK: Errors
 
 extension CoreAppActor { //MARK: Crashes
     
-    public func createCrashLog(userID: String, dateInit: Date, lastLaunch: Date?) {
+    public func createCrashLog(userID: String, dateInit: Date, lastLaunch: Date?, comments: String?, didNot: Bool?) {
         let log = AppCrashLog()
         modelContext.insert(log)
         
+        log.comments = comments
         log.lastDateLaunch = lastLaunch
+        log.didNotCrash = didNot
         log.events = try? getEvents(before: dateInit, limit: 200)
         
         log.send(userID: userID)

@@ -20,6 +20,9 @@ public class AppCrashLog {
     var user: CoreUser?
     var userID: String?
     
+    var comments: String?
+    var didNotCrash: Bool?
+    
     var lastDateLaunch: Date?
 
     var reportDate: Date?
@@ -41,8 +44,22 @@ public extension AppCrashLog {
         """
         if let lastDateLaunch {
             let (hours, minute) = lastDateLaunch.hoursAndMinutes(to: timestamp)
-            let lastLuanch = "App active time: \(hours) hours, and \(minute) minutes \nfrom \(timestamp.toString(format: "HH:mm:ss, MM.d"))"
+            let lastLuanch = "App active time: \(hours) hours, and \(minute) minutes \nfrom \(lastDateLaunch.toString(format: "HH:mm:ss, MM.d"))"
             text.append(lastLuanch)
+        }
+        
+        if didNotCrash != nil {
+            let didNot = "\nUser Specified They DID NOT Crash"
+            text.append(didNot)
+        }
+        
+        if let comments {
+            let didNot = "\n<---User Comments--->\n\(comments)"
+            text.append(didNot)
+        }
+        else {
+            let didNot = "\nUser DID NOT Provide Comments"
+            text.append(didNot)
         }
         
         if let events = events?.sorted(by: { $0.timestamp > $1.timestamp }) {
