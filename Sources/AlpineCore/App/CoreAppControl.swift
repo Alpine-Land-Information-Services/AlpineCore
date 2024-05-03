@@ -134,8 +134,8 @@ extension CoreAppControl { //MARK: Crashes
     private func createCrashLog(lastLaunch: Date?) {
         guard let user else { return }
         
-        Task {
-            await actor.createCrashLog(userID: user.id, dateInit: dateInit, lastLaunch: lastLaunch)
+        Task { [weak self] in
+            await self?.actor.createCrashLog(userID: user.id, dateInit: dateInit, lastLaunch: lastLaunch)
         }
     }
 }
@@ -192,7 +192,8 @@ extension CoreAppControl { //MARK: Errors
     public func makeError(error: Error, additionalInfo: String? = nil, showToUser: Bool = true) {
         guard let user else { return }
 
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             let errorID = await actor.createError(error: error, additionalInfo: additionalInfo, userId: user.persistentModelID)
             
             if showToUser {
