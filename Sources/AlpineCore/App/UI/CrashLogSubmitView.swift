@@ -33,7 +33,7 @@ struct CrashLogSubmitView: View {
                             .fontWeight(.bold)
                             .foregroundStyle(Color(uiColor: .label))
                             .padding(.bottom)
-                        Text("Your device may not have terminitated correctly during last session. \n\nDid you experience a crash?")
+                        Text("\(core.app?.fullAppName ?? "This App") may not have terminitated correctly during last session. \n\nDid you experience a crash?")
                             .multilineTextAlignment(.center)
                             .font(.headline)
                     }
@@ -44,7 +44,7 @@ struct CrashLogSubmitView: View {
                 
                 Section {
                     TextEditor(text: $crashComments)
-                        .frame(height: 200)
+                        .frame(height: 160)
                 } header: {
                     Text("If so, please describe your last actions to help us resolve the issue as soon as possible.")
                         .textCase(.none)
