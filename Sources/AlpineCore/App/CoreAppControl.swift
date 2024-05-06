@@ -49,13 +49,12 @@ public class CoreAppControl {
     public func assignUser(_ user: CoreUser) {
         self.user = user
 
-        Task(priority: .high) {
-            await actor.initialize(user: user.persistentModelID, userID: user.id)
+        Task(priority: .high) { [weak self] in
+            await self?.actor.initialize(user: user.persistentModelID, userID: user.id)
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-            guard let self else { return }
-            checkForCrash()
+            self?.checkForCrash()
         }
     }
     
@@ -95,8 +94,8 @@ public extension CoreAppControl { //MARK: Init
     func sendPendingLogs() {
         guard let user else { return }
         
-        Task(priority: .background) {
-            await actor.sendPendingLogs(userID: user.id)
+        Task(priority: .background) { [weak self] in
+            await self?.actor.sendPendingLogs(userID: user.id)
         }
     }
     
@@ -158,14 +157,14 @@ extension CoreAppControl { //MARK: Events
     }
     
     private func makeEvent(_ event: String, hidden: Bool, secrect: Bool, type: AppEventType, userID: String) {
-        Task(priority: .background) {
-            await actor.createEvent(event, type: type, hidden: hidden, secret: secrect, userID: userID)
+        Task(priority: .background) { [weak self] in
+            await self?.actor.createEvent(event, type: type, hidden: hidden, secret: secrect, userID: userID)
         }
     }
     
     func saveActor() {
-        Task(priority: .background) {
-            await actor.save()
+        Task(priority: .background) { [weak self] in
+            await self?.actor.save()
         }
     }
     
@@ -180,8 +179,8 @@ extension CoreAppControl { //MARK: Events
         Core.makeEvent("submitted events", type: .userAction)
         
         Core.makeSimpleAlert(title: "Events Submitted", message: "Thank you, your event logs will be sent to developer.")
-        Task(priority: .background) {
-            try? await actor.createEventPackage(interval: interval, userID: user.persistentModelID)
+        Task(priority: .background) { [weak self] in
+            try? await self?.actor.createEventPackage(interval: interval, userID: user.persistentModelID)
         }
     }
 }

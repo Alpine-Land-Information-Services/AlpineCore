@@ -24,8 +24,8 @@ public class SupportTicketSender: ObservableObject {
     
     func sendGitReport(title: String, message: String, email: String) {
         defer {
-            DispatchQueue.main.async {
-                self.spinner = false
+            DispatchQueue.main.async { [weak self] in
+                self?.spinner = false
             }
         }
         guard !Self.owner.isEmpty, !Self.repository.isEmpty, !Self.token.isEmpty else {
