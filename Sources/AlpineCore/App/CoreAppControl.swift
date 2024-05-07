@@ -63,11 +63,22 @@ public class CoreAppControl {
         defaults.lastAppLaunch = dateInit
 
         #if !DEBUG
-        if defaults.isAppActive {
+        if user?.isActive ?? false {
             promptToCreateCrashLog(lastLaunch: lastLaunch)
         }
         #endif
-        defaults.isAppActive = true
+        markActive()
+    }
+    
+    
+    public func markActive() {
+        user?.isActive = true
+        try? user?.modelContext?.save()
+    }
+    
+    public func markInactive() {
+        user?.isActive = false
+        try? user?.modelContext?.save()
     }
 }
 
@@ -78,7 +89,7 @@ public extension CoreAppControl {
     }
     
     static func quit() {
-        Core.shared.defaults.isAppActive = false
+        Core.shared.markInactive()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             exit(0)
         }

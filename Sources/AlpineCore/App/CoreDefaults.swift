@@ -70,14 +70,14 @@ public extension CoreDefaults {
         }
     }
     
-    var isAppActive: Bool {
-        get {
-            value(for: "is_app_active") as? Bool ?? false
-        }
-        set {
-            setValue(newValue, for: "is_app_active")
-        }
-    }
+//    var isAppActive: Bool {
+//        get {
+//            value(for: "is_app_active") as? Bool ?? false
+//        }
+//        set {
+//            setValue(newValue, for: "is_app_active")
+//        }
+//    }
     
     var layerReinit: Bool {
         get {
