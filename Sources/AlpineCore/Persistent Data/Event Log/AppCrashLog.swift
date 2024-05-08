@@ -70,10 +70,12 @@ public extension AppCrashLog {
             text.append(errorEvents)
         }
         
-        sender.sendBackgroundReport(title: "Application Crash", message: text, email: userID) { [weak self] success in
-            guard let self else { return }
+        sender.sendBackgroundReport(title: "Application Crash", message: text, email: userID) { [self] success in            
             if success {
                 reportDate = Date()
+                
+                modelContext?.delete(self)
+                try? modelContext?.save()
             }
         }
     }
