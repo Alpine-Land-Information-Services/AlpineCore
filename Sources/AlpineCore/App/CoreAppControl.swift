@@ -202,11 +202,10 @@ extension CoreAppControl { //MARK: Errors
             guard let self else { return }
             let errorID = await actor.createError(error: error, additionalInfo: additionalInfo, userId: user.persistentModelID)
             
-            let (title, message) = getErrorText(error: error)
-            Core.makeEvent("\(title): \(message)", type: .error)
-            
             if showToUser {
                 DispatchQueue.main.async {
+                    let (title, message) = self.getErrorText(error: error)
+                    Core.makeEvent("\(title): \(message)", type: .error)
                     let reportButton = CoreAlertButton(title: "Report", style: .default) {
                         if let error = self.modelContainer.mainContext.model(for: errorID) as? AppError {
                             Core.presentSheet {
