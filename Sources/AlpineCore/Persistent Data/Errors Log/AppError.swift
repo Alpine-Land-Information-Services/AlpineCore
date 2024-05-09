@@ -57,7 +57,7 @@ public class AppError: Hashable {
     }
     
     public var title: String {
-        typeName ?? "Unknown error"
+        typeName ?? "System error"
     }
     
     public var content: String {

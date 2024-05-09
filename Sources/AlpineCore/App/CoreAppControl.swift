@@ -202,11 +202,11 @@ extension CoreAppControl { //MARK: Errors
             guard let self else { return }
             let errorID = await actor.createError(error: error, additionalInfo: additionalInfo, userId: user.persistentModelID)
             
+            let (title, message) = getErrorText(error: error)
+            Core.makeEvent("\(title): \(message)", type: .error)
+            
             if showToUser {
-                DispatchQueue.main.async { [weak self] in
-                    guard let self else { return }
-                    let (title, message) = getErrorText(error: error)
-                    Core.makeEvent("\(title): \(message)", type: .error)
+                DispatchQueue.main.async {
                     let reportButton = CoreAlertButton(title: "Report", style: .default) {
                         if let error = self.modelContainer.mainContext.model(for: errorID) as? AppError {
                             Core.presentSheet {
@@ -220,6 +220,10 @@ extension CoreAppControl { //MARK: Errors
                         } else {
                             Core.makeSimpleAlert(title: "Something Went Wrong", message: "Could not find error by specified ID to send.")
                         }
+                    }
+                    if message.contains("socketError") || message.contains("connectionClosed") {
+                        Core.makeAlert(CoreAlert(title: "Connection Error", message: "Server could not be reached now.\nPlease try again later.", buttons: [.ok]))
+                        return
                     }
                     Core.makeAlert(CoreAlert(title: title, message: message, buttons: [.ok, reportButton]))
                 }
