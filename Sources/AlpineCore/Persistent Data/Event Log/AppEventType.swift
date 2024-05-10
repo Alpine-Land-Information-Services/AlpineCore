@@ -58,4 +58,25 @@ public enum AppEventType: String, Codable, CaseIterable {
                 .mint
         }
     }
+    
+    public var description: String {
+        switch self {
+        case .log:
+                "log"
+        case .userAction:
+                "user_action"
+        case .system:
+                "system"
+        case .atlas:
+                "atlas"
+        case .error:
+                "error"
+        case .atlasApp:
+                "atlas_app"
+        case .sync:
+                "sync"
+        case .storage:
+                "storage"
+        }
+    }
 }

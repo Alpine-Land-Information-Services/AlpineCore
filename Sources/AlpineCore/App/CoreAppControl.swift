@@ -40,6 +40,8 @@ public class CoreAppControl {
     public var app: CoreApp? // IN MAIN CONTEXT
     
     public var defaults = CoreDefaults()
+    
+    public var appEventAdder: ((_ event: String, _ type: AppEventType) -> Void)?
 
     private init() {
         actor = CoreAppActor(modelContainer: modelContainer)
@@ -62,11 +64,11 @@ public class CoreAppControl {
         let lastLaunch = defaults.lastAppLaunch
         defaults.lastAppLaunch = dateInit
 
-        #if !DEBUG
-        if user?.isActive ?? false {
-            promptToCreateCrashLog(lastLaunch: lastLaunch)
-        }
-        #endif
+//        #if !DEBUG
+//        if user?.isActive ?? false {
+//            promptToCreateCrashLog(lastLaunch: lastLaunch)
+//        }
+//        #endif
         markActive()
     }
     
@@ -161,6 +163,9 @@ extension CoreAppControl { //MARK: Events
     }
     
     private func makeEvent(_ event: String, hidden: Bool, secrect: Bool, type: AppEventType, userID: String) {
+        if let appEventAdder {
+            appEventAdder(event, type)
+        }
         Task(priority: .background) { [weak self] in
             await self?.actor.createEvent(event, type: type, hidden: hidden, secret: secrect, userID: userID)
         }

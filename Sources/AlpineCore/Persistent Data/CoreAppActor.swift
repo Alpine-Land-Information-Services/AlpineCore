@@ -35,7 +35,7 @@ actor CoreAppActor: ModelActor {
     func sendPendingLogs(userID: String) {
         guard NetworkTracker.shared.isConnected else { return }
         
-        try? attemptSendPendingCrashes(userID: userID)
+//        try? attemptSendPendingCrashes(userID: userID)
         try? attemptSendPendingErrors()
         try? attemptSendEventPackages()
     }
