@@ -47,6 +47,10 @@ public extension FileSystem {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
     
+    static var appSupportURL: URL {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+    }
+    
     static func move(at sourceURL: URL, destinationURL: URL, overrideIfExists: Bool = true) throws {
         try FileManager.default.createDirectory(at: destinationURL.deletingLastPathComponent(), withIntermediateDirectories: true)
         
