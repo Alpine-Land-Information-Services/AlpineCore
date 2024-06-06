@@ -23,7 +23,6 @@ public class CoreAppControl {
     
     public let modelContainer: ModelContainer = {
         let schema = Schema([CoreUser.self, AppEventLog.self])
-        let storeURL = URL.documentsDirectory.appending(path: "Core App Data.sqlite")
         let modelConfiguration = ModelConfiguration("Core App Data", schema: schema, groupContainer: .none)
         do {
             let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
