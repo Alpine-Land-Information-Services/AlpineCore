@@ -35,6 +35,8 @@ public class CoreApp {
     public var inTutorial = true
     public var isSandbox = false
     
+    public var parameters: [CoreAppParameter]?
+    
     public init(_ name: String, version: String?, isSandbox: Bool = false) {
         self.name = name
         self.version = version
@@ -42,6 +44,40 @@ public class CoreApp {
         
         ui = CoreAppUI()
         tips = CoreTips()
+    }
+}
+
+public extension CoreApp {
+    
+    func parameterValue<V: CoreParameterValueType>(for key: String, as valueType: V.Type) -> V? {
+        guard let parameter = parameter(for: key) else {
+            return nil
+        }
+        return V.value(from: parameter)
+    }
+    
+    func setParameterValue<V: CoreParameterValueType>(_ value: V, for key: String) {
+        var parameter = parameter(for: key) ?? CoreAppParameter(key: key)
+        
+        switch value {
+        case let stringValue as String:
+            parameter.strValue = stringValue
+        case let intValue as Int:
+            parameter.intValue = intValue
+        case let codableValue as Codable:
+            let encoder = JSONEncoder()
+            if let data = try? encoder.encode(codableValue),
+               let jsonString = String(data: data, encoding: .utf8) {
+                parameter.strValue = jsonString
+            }
+        default:
+            break
+        }
+    }
+    
+    
+    func parameter(for key: String) -> CoreAppParameter? {
+        parameters?.first(where: { $0.key == key })
     }
 }
 
