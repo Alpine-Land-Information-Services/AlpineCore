@@ -57,7 +57,7 @@ public extension CoreApp {
     }
     
     func setParameterValue<V: CoreParameterValueType>(_ value: V, for key: String) {
-        var parameter = parameter(for: key) ?? CoreAppParameter(key: key)
+        let parameter = parameter(for: key) ?? CoreAppParameter(key: key)
         
         switch value {
         case let stringValue as String:
@@ -66,9 +66,8 @@ public extension CoreApp {
             parameter.intValue = intValue
         case let codableValue as Codable:
             let encoder = JSONEncoder()
-            if let data = try? encoder.encode(codableValue),
-               let jsonString = String(data: data, encoding: .utf8) {
-                parameter.strValue = jsonString
+            if let data = try? encoder.encode(codableValue) {
+                parameter.dataValue = data
             }
         default:
             break
