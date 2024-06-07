@@ -85,6 +85,18 @@ public extension FileSystem {
         try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
     }
     
+    static func deleteFile(for path: FSPath, in pathType: FS.PathType) throws {
+        try deleteFile(at: getURL(for: pathType).appending(path: path.rawValue))
+    }
+
+    static func deleteFile(at url: URL) throws {
+        do {
+            try FileManager.default.removeItem(at: url)
+        } catch {
+            throw CoreError("Cannot delete file or directory.", type: .fileSystem)
+        }
+    }
+    
     static func getURL(for pathType: FS.PathType) -> URL {
         switch pathType {
         case .documents:
