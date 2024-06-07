@@ -47,6 +47,10 @@ public class CoreApp {
 
 public extension CoreApp {
     
+    var core: CoreAppControl {
+        CoreAppControl.shared
+    }
+    
     var fullAppName: String {
         if let version {
             return name + " " + version

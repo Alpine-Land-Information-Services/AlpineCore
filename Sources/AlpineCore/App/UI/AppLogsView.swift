@@ -94,6 +94,7 @@ public struct AppLogsView: View {
         .onAppear {
             Core.makeEvent("opened application logs", type: .userAction)
         }
+        .modelContainer(CoreAppControl.shared.modelContainer)
     }
     
     var hiddenButton: some View {
