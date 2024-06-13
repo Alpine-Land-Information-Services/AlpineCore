@@ -14,8 +14,6 @@ public class CoreAppUI {
     public var isCompassPresented = false
     
     public var landscapeSidebarOverlay = false
-    public var floatingNavigation = false
-    public var floatingNavigationAlignment = "topLeading"
     
     public var compassAlignment = "topTrailing"
     public var borderedButtonStyle = true
