@@ -50,7 +50,7 @@ public class CoreAppControl {
     public func assignUser(_ user: CoreUser) {
         self.user = user
 
-        Task(priority: .high) { [weak self] in
+        Task(priority: .high) { @MainActor [weak self] in
             await self?.actor.initialize(user: user.persistentModelID, userID: user.id)
         }
         
