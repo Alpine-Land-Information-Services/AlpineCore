@@ -21,15 +21,7 @@ public extension Date {
 }
 
 public extension Date {
-    
-//    func toString(format: String = "yyyy-MM-dd") -> String {
-//        let formatter = DateFormatter()
-//        formatter.dateStyle = .short
-//        formatter.dateFormat = format
-//        return formatter.string(from: self)
-//    }
-    
-    
+
     func hoursAndMinutes(to date: Date) -> (hours: Int, minutes: Int) {
         let calendar = Calendar.current
         let components = calendar.dateComponents([.hour, .minute], from: self, to: date)

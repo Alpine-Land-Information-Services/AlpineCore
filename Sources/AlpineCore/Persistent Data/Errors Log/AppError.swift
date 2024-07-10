@@ -19,20 +19,24 @@ public class AppError: Hashable {
     
     var guid = UUID()
     var date = Date()
-    
     var file: String?
     var function: String?
     var line: Int?
     var message: String?
-    
     var additionalInfo: String?
     var typeName: String?
-    
     var dateSent: Date?
     var report: String?
-    
     var user: CoreUser?
     var events: [AppEventLog]?
+    
+    public var title: String {
+        typeName ?? "System error"
+    }
+    
+    public var content: String {
+        message ?? "No error description"
+    }
     
     private init(error: Error, additionalText: String? = nil) {
         if let err = error as? AlpineError {
@@ -54,14 +58,6 @@ public class AppError: Hashable {
         try? context.save()
         
         return error
-    }
-    
-    public var title: String {
-        typeName ?? "System error"
-    }
-    
-    public var content: String {
-        message ?? "No error description"
     }
     
     public func markSent() {

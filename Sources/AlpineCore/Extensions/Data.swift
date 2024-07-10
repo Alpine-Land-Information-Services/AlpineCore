@@ -31,9 +31,6 @@ public extension Data {
         
         return prettyPrintedString
     }
-}
-
-public extension Data {
     
     func decode(as type: Decodable.Type) -> Decodable? {
         try? JSONDecoder().decode(type, from: self)
