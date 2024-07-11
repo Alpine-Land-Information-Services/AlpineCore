@@ -314,3 +314,10 @@ public extension String {
         return self.replacingOccurrences(of: target, with: withString, options: NSString.CompareOptions.literal, range: nil)
     }
 }
+
+
+extension String: CoreParameterValueType {
+    public static func value(from parameter: CoreAppParameter) -> String? {
+        return parameter.strValue
+    }
+}

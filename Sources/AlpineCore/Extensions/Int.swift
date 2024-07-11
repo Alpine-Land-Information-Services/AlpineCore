@@ -19,3 +19,9 @@ public extension Int {
         Formatter.withSeparator.string(for: Int(self)) ?? ""
     }
 }
+
+extension Int: CoreParameterValueType {
+    public static func value(from parameter: CoreAppParameter) -> Int? {
+        return parameter.intValue
+    }
+}

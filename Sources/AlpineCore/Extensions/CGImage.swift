@@ -16,7 +16,7 @@ public extension CGImage {
         guard let dataProvider = CGDataProvider(data: data as CFData) else {
             return nil
         }
-
+        
         if let cgImage = CGImage(pngDataProviderSource: dataProvider,
                                  decode: nil,
                                  shouldInterpolate: true,
@@ -26,22 +26,39 @@ public extension CGImage {
         
         return nil
     }
-}
-
-public extension CGImage {
+    
+    func resize(to size: CGSize) -> CGImage? {
+        let destWidth = Int(size.width)
+        let destHeight = Int(size.height)
+        let bitsPerComponent = 8
+        let bytesPerPixel = self.bitsPerPixel / bitsPerComponent
+        let destBytesPerRow = destWidth * bytesPerPixel
+        
+        let context = CGContext(data: nil,
+                                width: destWidth,
+                                height: destHeight,
+                                bitsPerComponent: bitsPerComponent,
+                                bytesPerRow: destBytesPerRow,
+                                space: self.colorSpace!,
+                                bitmapInfo: self.bitmapInfo.rawValue)!
+        context.interpolationQuality = .low
+        context.draw(self, in: CGRect(origin: CGPoint.zero, size: size))
+        return context.makeImage()
+    }
     
     func toData(as type: CFString = UTType.png.identifier as CFString) -> Data? {
         guard let mutableData = CFDataCreateMutable(nil, 0),
               let destination = CGImageDestinationCreateWithData(mutableData, type, 1, nil) else {
             return nil
         }
-
+        
         CGImageDestinationAddImage(destination, self, nil)
-
+        
         guard CGImageDestinationFinalize(destination) else {
             return nil
         }
-
+        
         return mutableData as Data
     }
+    
 }

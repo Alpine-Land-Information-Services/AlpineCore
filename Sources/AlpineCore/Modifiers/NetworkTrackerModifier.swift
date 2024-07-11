@@ -30,9 +30,3 @@ struct NetworkTrackerModifier: ViewModifier {
     }
 }
 
-public extension View {
-    
-    var networkTracker: some View {
-        modifier(NetworkTrackerModifier())
-    }
-}
