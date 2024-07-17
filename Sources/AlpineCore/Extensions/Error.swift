@@ -22,11 +22,11 @@ extension Error {
 //    }
 //}
 
-public func unwrap<T>(_ optional: T?) throws -> T {
+public func unwrap<T>(_ optional: T?, message: String? = nil) throws -> T {
     if let real = optional {
         return real
     } else {
-        throw CoreError("Found nil while unwrapping \(String(describing: T.self))", type: .nil)
-//        throw UnwrapError(optional: optional)
+        let message = message ?? "Found nil while unwrapping \(String(describing: T.self))"
+        throw CoreError(message, type: .nil)
     }
 }
