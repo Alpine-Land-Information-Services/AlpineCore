@@ -21,6 +21,10 @@ public class CoreAppControl {
     
     public static var shared = CoreAppControl()
     
+    public var user: CoreUser? // IN MAIN CONTEXT
+    public var app: CoreApp? // IN MAIN CONTEXT
+    public var defaults = CoreDefaults()
+    public var appEventAdder: ((_ event: String, _ type: AppEventType) -> Void)?
     public let modelContainer: ModelContainer = {
         let schema = Schema([CoreUser.self, AppEventLog.self])
         let modelConfiguration = ModelConfiguration("Core App Data", schema: schema, groupContainer: .none)
@@ -32,15 +36,9 @@ public class CoreAppControl {
         }
     }()
     
-    var actor: CoreAppActor
     private var dateInit = Date()
     
-    public var user: CoreUser? // IN MAIN CONTEXT
-    public var app: CoreApp? // IN MAIN CONTEXT
-    
-    public var defaults = CoreDefaults()
-    
-    public var appEventAdder: ((_ event: String, _ type: AppEventType) -> Void)?
+    var actor: CoreAppActor
 
     private init() {
         actor = CoreAppActor(modelContainer: modelContainer)

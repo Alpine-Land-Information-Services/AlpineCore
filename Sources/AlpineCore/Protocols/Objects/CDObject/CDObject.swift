@@ -20,8 +20,6 @@ public extension CDObject {
         if let guid = (self.managedObjectContext?.performAndWait { value(forKey: "a_guid") as? UUID }) {
             return guid
         }
-        
-//        assertionFailure("CDObject has no managedObjectContext!")
         return UUID(uuidString: "00000000-FA0E-0000-0000-000000000000")!
     }
     
