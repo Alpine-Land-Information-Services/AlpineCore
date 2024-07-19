@@ -1,11 +1,12 @@
 //
-//  NSNumber.swift
+//  OptionalExtention.swift
 //  AlpineCore
 //
 //  Created by Jenya Lebid on 8/28/23.
 //
 
 import Foundation
+import CoreData
 
 public extension Optional where Wrapped == NSNumber {
     
@@ -14,7 +15,9 @@ public extension Optional where Wrapped == NSNumber {
     }
 }
 
-public extension NSNumber {
+public extension Optional where Wrapped == NSSet {
     
-    
+    func array<Object: NSManagedObject>(as objectType: Object.Type) -> [Object] {
+        self?.allObjects as? [Object] ?? []
+    }
 }
