@@ -28,21 +28,27 @@ public extension CGImage {
     }
     
     func resize(to size: CGSize) -> CGImage? {
+        guard let colorSpace = self.colorSpace else { return nil }
+        
         let destWidth = Int(size.width)
         let destHeight = Int(size.height)
         let bitsPerComponent = 8
         let bytesPerPixel = self.bitsPerPixel / bitsPerComponent
         let destBytesPerRow = destWidth * bytesPerPixel
         
-        let context = CGContext(data: nil,
-                                width: destWidth,
-                                height: destHeight,
-                                bitsPerComponent: bitsPerComponent,
-                                bytesPerRow: destBytesPerRow,
-                                space: self.colorSpace!,
-                                bitmapInfo: self.bitmapInfo.rawValue)!
+        guard let context = CGContext(data: nil,
+                                      width: destWidth,
+                                      height: destHeight,
+                                      bitsPerComponent: bitsPerComponent,
+                                      bytesPerRow: destBytesPerRow,
+                                      space: colorSpace,
+                                      bitmapInfo: self.bitmapInfo.rawValue) else {
+            print("Error: Unable to create CGContext.")
+            return nil
+        }
+        
         context.interpolationQuality = .low
-        context.draw(self, in: CGRect(origin: CGPoint.zero, size: size))
+        context.draw(self, in: CGRect(origin: .zero, size: size))
         return context.makeImage()
     }
     
