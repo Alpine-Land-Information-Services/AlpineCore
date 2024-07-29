@@ -14,6 +14,7 @@ import AlpineUI
 
 public typealias Core = CoreAppControl
 public typealias CoreAlert = SceneAlert
+public typealias CoreAlertManager = AlertManager
 public typealias CoreAlertButton = AlertButton
 
 @Observable
