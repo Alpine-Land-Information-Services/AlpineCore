@@ -35,7 +35,6 @@ actor CoreAppActor: ModelActor {
     func sendPendingLogs(userID: String) {
         guard NetworkTracker.shared.isConnected else { return }
         
-//        try? attemptSendPendingCrashes(userID: userID)
         try? attemptSendPendingErrors()
         try? attemptSendEventPackages()
     }
@@ -174,33 +173,33 @@ extension CoreAppActor { //MARK: Errors
     }
 }
 
-extension CoreAppActor { //MARK: Crashes
-    
-    public func createCrashLog(userID: String, dateInit: Date, lastLaunch: Date?, comments: String?, didNot: Bool?) {
-        let log = AppCrashLog()
-        modelContext.insert(log)
-        
-        log.comments = comments
-        log.lastDateLaunch = lastLaunch
-        log.didNotCrash = didNot
-        log.events = try? getEvents(before: dateInit, limit: 200)
-        
-        log.send(userID: userID)
-
-        save()
-    }
-    
-    func attemptSendPendingCrashes(userID: String) throws {
-        for crash in try getNotReportedCrashes() {
-            crash.send(userID: userID)
-            Core.makeEvent("crash log uploaded", type: .log)
-        }
-        
-        try modelContext.save()
-    }
-    
-    private func getNotReportedCrashes() throws -> [AppCrashLog] {
-        let descriptor = FetchDescriptor(predicate: #Predicate<AppCrashLog> { $0.reportDate == nil })
-        return try modelContext.fetch(descriptor)
-    }
-}
+//extension CoreAppActor { //MARK: Crashes
+//    
+//    public func createCrashLog(userID: String, dateInit: Date, lastLaunch: Date?, comments: String?, didNot: Bool?) {
+//        let log = AppCrashLog()
+//        modelContext.insert(log)
+//        
+//        log.comments = comments
+//        log.lastDateLaunch = lastLaunch
+//        log.didNotCrash = didNot
+//        log.events = try? getEvents(before: dateInit, limit: 200)
+//        
+//        log.send(userID: userID)
+//
+//        save()
+//    }
+//    
+//    func attemptSendPendingCrashes(userID: String) throws {
+//        for crash in try getNotReportedCrashes() {
+//            crash.send(userID: userID)
+//            Core.makeEvent("crash log uploaded", type: .log)
+//        }
+//        
+//        try modelContext.save()
+//    }
+//    
+//    private func getNotReportedCrashes() throws -> [AppCrashLog] {
+//        let descriptor = FetchDescriptor(predicate: #Predicate<AppCrashLog> { $0.reportDate == nil })
+//        return try modelContext.fetch(descriptor)
+//    }
+//}

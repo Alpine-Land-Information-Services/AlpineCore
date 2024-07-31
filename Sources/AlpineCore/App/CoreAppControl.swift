@@ -26,6 +26,7 @@ public class CoreAppControl {
     public var app: CoreApp? // IN MAIN CONTEXT
     public var defaults = CoreDefaults()
     public var appEventAdder: ((_ event: String, _ type: AppEventType) -> Void)?
+    public var fireEventAdder: ((_ event: String, _ parameters: [String: Any]?) -> Void)?
     public let modelContainer: ModelContainer = {
         let schema = Schema([CoreUser.self, AppEventLog.self])
         let modelConfiguration = ModelConfiguration("Core App Data", schema: schema, groupContainer: .none)
@@ -52,33 +53,6 @@ public class CoreAppControl {
         Task(priority: .high) { @MainActor [weak self] in
             await self?.actor.initialize(user: user.persistentModelID, userID: user.id)
         }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-            self?.checkForCrash()
-        }
-    }
-    
-    private func checkForCrash() {
-        let lastLaunch = defaults.lastAppLaunch
-        defaults.lastAppLaunch = dateInit
-
-//        #if !DEBUG
-//        if user?.isActive ?? false {
-//            promptToCreateCrashLog(lastLaunch: lastLaunch)
-//        }
-//        #endif
-        markActive()
-    }
-    
-    
-    public func markActive() {
-        user?.isActive = true
-        try? user?.modelContext?.save()
-    }
-    
-    public func markInactive() {
-        user?.isActive = false
-        try? user?.modelContext?.save()
     }
 }
 
@@ -89,7 +63,6 @@ public extension CoreAppControl {
     }
     
     static func quit() {
-        Core.shared.markInactive()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             exit(0)
         }
@@ -129,25 +102,21 @@ public extension CoreAppControl { //MARK: Init
     }
 }
 
-extension CoreAppControl { //MARK: Crashes
+extension CoreAppControl { //MARK: Firebase Analytics
     
-    func promptToCreateCrashLog(lastLaunch: Date?) {
-        Core.presentSheet {
-            CrashLogSubmitView(lastLuanch: lastLaunch)
-        }
+    public static func fireEvent(_ event: String, parameters: [String: Any]? = nil) {
+        Core.shared.fireEvent(event, parameters: parameters)
     }
     
-    func createCrashLog(lastLaunch: Date?, comments: String?, didNot: Bool?) {
-        guard let user else { return }
-        let dateInit = dateInit
-        Task { [weak self] in
-            await self?.actor.createCrashLog(userID: user.id, dateInit: dateInit, lastLaunch: lastLaunch, comments: comments, didNot: didNot)
+    private func fireEvent(_ event: String, parameters: [String: Any]?) {
+        if let fireEventAdder {
+            fireEventAdder(event, parameters)
         }
     }
 }
 
 extension CoreAppControl { //MARK: Events
-    
+
     public static func makeEvent(_ event: String, type: AppEventType, hidden: Bool? = nil, secret: Bool = false, log: ((_ logger: Logger) -> Void)? = nil) {
         let isHidden = hidden ?? type.isDefaultHidden
         guard let user else { return }
