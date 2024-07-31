@@ -25,8 +25,8 @@ public class CoreAppControl {
     public var user: CoreUser? // IN MAIN CONTEXT
     public var app: CoreApp? // IN MAIN CONTEXT
     public var defaults = CoreDefaults()
-    public var appEventAdder: ((_ event: String, _ type: AppEventType) -> Void)?
-    public var fireEventAdder: ((_ event: String, _ parameters: [String: Any]?) -> Void)?
+    public var appEventLogger: ((_ event: String, _ type: AppEventType) -> Void)?
+    public var firebaseEventLogger: ((_ event: String, _ parameters: [String: Any]?) -> Void)?
     public let modelContainer: ModelContainer = {
         let schema = Schema([CoreUser.self, AppEventLog.self])
         let modelConfiguration = ModelConfiguration("Core App Data", schema: schema, groupContainer: .none)
@@ -104,13 +104,34 @@ public extension CoreAppControl { //MARK: Init
 
 extension CoreAppControl { //MARK: Firebase Analytics
     
-    public static func fireEvent(_ event: String, parameters: [String: Any]? = nil) {
-        Core.shared.fireEvent(event, parameters: parameters)
+    /// Logs a Firebase Analytics event.
+    ///
+    /// This method logs an event to Firebase Analytics. The event is specified by a string and can be
+    /// accompanied by optional parameters.
+    ///
+    /// - Parameters:
+    ///   - event: The name of the event to be logged.
+    ///   - parameters: An optional dictionary of parameters associated with the event. Defaults to `nil`.
+    ///
+    /// - Example:
+    ///   ```swift
+    ///   CoreAppControl.logFirebaseEvent("user_signup", parameters: ["method": "email"])
+    ///   ```
+    public static func logFirebaseEvent(_ event: String, parameters: [String: Any]? = nil) {
+        Core.shared.logFirebaseEvent(event, parameters: parameters)
     }
     
-    private func fireEvent(_ event: String, parameters: [String: Any]?) {
-        if let fireEventAdder {
-            fireEventAdder(event, parameters)
+    /// Logs a Firebase Analytics event with optional parameters.
+    ///
+    /// This private method logs an event to Firebase Analytics using a provided logger function if available.
+    /// The event is specified by a string and can be accompanied by optional parameters.
+    ///
+    /// - Parameters:
+    ///   - event: The name of the event to be logged.
+    ///   - parameters: An optional dictionary of parameters associated with the event.
+    private func logFirebaseEvent(_ event: String, parameters: [String: Any]?) {
+        if let firebaseEventLogger {
+            firebaseEventLogger(event, parameters)
         }
     }
 }
@@ -130,8 +151,8 @@ extension CoreAppControl { //MARK: Events
     }
     
     private func makeEvent(_ event: String, hidden: Bool, secrect: Bool, type: AppEventType, userID: String) {
-        if let appEventAdder {
-            appEventAdder(event, type)
+        if let appEventLogger {
+            appEventLogger(event, type)
         }
         Task(priority: .background) { [weak self] in
             await self?.actor.createEvent(event, type: type, hidden: hidden, secret: secrect, userID: userID)
