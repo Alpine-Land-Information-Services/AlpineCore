@@ -13,9 +13,7 @@ public class CoreAppBackup {
     
     public var dateCreated = Date()
     public var path: String
-    
     public var app: CoreApp?
-    
     public var size: Int
     
     init(path: String, size: Int) {

@@ -92,7 +92,7 @@ public struct AppLogsView: View {
             }
         }
         .onAppear {
-            Core.makeEvent("opened application logs", type: .userAction)
+            Core.logCoreEvent(.openedApplicationLogs, typ: .userAction)
         }
         .modelContainer(CoreAppControl.shared.modelContainer)
     }

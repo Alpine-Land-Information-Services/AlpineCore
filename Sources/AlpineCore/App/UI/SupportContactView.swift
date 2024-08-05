@@ -61,7 +61,7 @@ public struct SupportContactView: View {
             comments
         }
         .onAppear {
-            Core.makeEvent("opened support", type: .userAction)
+            Core.logCoreEvent(.openedSupport, typ: .userAction)
         }
         .navigationTitle(isManual ? "Alpine Support" : "Report Error")
         .navigationBarTitleDisplayMode(.inline)

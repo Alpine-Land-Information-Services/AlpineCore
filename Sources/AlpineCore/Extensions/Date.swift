@@ -94,6 +94,34 @@ public extension Date {
         return formatter.string(from: self)
     }
     
+    func convert(from initTimeZone: TimeZone, to targetTimeZone: TimeZone) -> Date {
+        let delta = TimeInterval(targetTimeZone.secondsFromGMT(for: self) - initTimeZone.secondsFromGMT(for: self))
+        return addingTimeInterval(delta)
+    }
+    
+    func convertToCurrentZone() -> Date {
+        guard let gmtTimeZone = TimeZone(abbreviation: "GMT") else {
+            print("Invalid GMT time zone")
+            return Date()
+        }
+        return self.convert(from: gmtTimeZone, to: TimeZone.current)
+    }
+
+    func convertToGMTZone() -> Date {
+        guard let laTimeZone = TimeZone(identifier: "America/Los_Angeles"),
+              let gmtTimeZone = TimeZone(abbreviation: "GMT") else {
+            print("Invalid time zone")
+            return Date()
+        }
+        return self.convert(from: laTimeZone, to: gmtTimeZone)
+    }
+    
+    func year() -> Int {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year], from: self)
+        return components.year ?? 0
+    }
+    
     func startOfMonth() -> Date {
         var components = Calendar.current.dateComponents([.year,.month], from: self)
         components.day = 1

@@ -12,7 +12,5 @@ public class CoreUIToolbar {
     
     public var buttons: [ToolbarButton] = []
     
-    public init() {
-        
-    }
+    public init() {}
 }

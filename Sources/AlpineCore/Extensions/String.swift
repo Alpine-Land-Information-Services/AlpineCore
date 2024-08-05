@@ -221,6 +221,42 @@ public extension String {
         }
     }
     
+    /// Returns the name of the current file where this function is called.
+    ///
+    /// This function uses the `#file` macro to get the full file path and extracts the file name.
+    ///
+    /// - Parameter file: The full file path, automatically provided by the `#file` macro. Do not pass this manually.
+    /// - Returns: A string containing the current file name.
+    ///
+    /// # Example:
+    /// ```swift
+    /// let fileName = currentFileName()
+    /// print("Current file: \(fileName)")
+    /// ```
+    static func currentFileName(file: String = #file) -> String {
+        return URL(fileURLWithPath: file).lastPathComponent
+    }
+    
+    /// Returns a string containing the name of the current file, function, and line number.
+    ///
+    /// This function uses default parameters to capture the file name, function name, and line number at the call site.
+    /// It can be useful for debugging and logging purposes to know the exact location in the code where the function was called.
+    ///
+    /// - Parameters:
+    ///   - file: The name of the file where the function is called. Default is `#file`, which is replaced by the compiler with the full path of the current file.
+    ///   - function: The name of the function or method where the function is called. Default is `#function`, which is replaced by the compiler with the current function or method name.
+    ///   - line: The line number where the function is called. Default is `#line`, which is replaced by the compiler with the current line number.
+    /// - Returns: A string containing the name of the file, the function name, and the line number in the format "File: [file name], Function: [function name], Line: [line number]".
+    ///
+    ///    /// # Example:
+    /// ```swift
+    /// let FileInfo = currentFileInfo()
+    /// print("Current file: \(fileName)")
+    /// ```
+    static func currentFileInfo(file: String = #file, function: String = #function, line: Int = #line) -> String {
+        let fileName = URL(fileURLWithPath: file).lastPathComponent
+        return "File: \(fileName), Function: \(function), Line: \(line)"
+    }
     
     /// Splits the string into a 2D array using a CSV delimiter.
     /// - Parameter delimiter: The delimiter for the CSV.

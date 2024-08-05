@@ -12,8 +12,10 @@ import CoreData
 @Model
 public class CoreApp {
 
-    public var isInitialized = false
-    
+    public var inTutorial: Bool  = true
+    public var isSandbox: Bool  = false
+    public var isInitialized: Bool = false
+    public var parameters: [CoreAppParameter]?
     public var name: String
     public var version: String?
     
@@ -28,14 +30,8 @@ public class CoreApp {
     public var ui: CoreAppUI
     @Relationship(deleteRule: .cascade)
     public var tips: CoreTips
-    
     @Relationship(deleteRule: .cascade, inverse: \CoreAppBackup.app)
     public var backups: [CoreAppBackup] = []
-    
-    public var inTutorial = true
-    public var isSandbox = false
-    
-    public var parameters: [CoreAppParameter]?
     
     public init(_ name: String, version: String?, isSandbox: Bool = false) {
         self.name = name

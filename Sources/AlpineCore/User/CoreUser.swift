@@ -27,7 +27,6 @@ public class CoreUser {
     public var apps: [CoreApp] = []
     
     public var isActive = false
-    
     public var app: CoreApp?
             
     public init(id: String) {

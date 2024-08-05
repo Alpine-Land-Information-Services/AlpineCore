@@ -12,10 +12,8 @@ public class ToolbarButton {
     
     public var icon: String
     public var title: String
-    
     public var action: ToolbarAction
     public var actionValue: String?
-    
     public var isEnabled = true
     public var sortIndex: Int
     
@@ -26,10 +24,4 @@ public class ToolbarButton {
         self.actionValue = actionValue
         self.sortIndex = sortIndex
     }
-}
-
-public enum ToolbarAction: String, CaseIterable, Codable {
-    case fullExtent
-    case measureTool
-    case openLayer
 }

@@ -11,24 +11,26 @@ import SwiftData
 @Model
 public class CoreAppUI {
     
-    public var isCompassPresented = false
-    
-    public var landscapeSidebarOverlay = false
-    
-    public var compassAlignment = "topTrailing"
-    public var borderedButtonStyle = true
-    
+    public var isCompassPresented: Bool = false
+    public var landscapeSidebarOverlay: Bool = false
+    public var borderedButtonStyle: Bool = true
+    public var compassAlignment: String = "topTrailing"
     public var sidebarAlignmnet: String = "trailing"
-    public var buttonsSize = "compact"
-    
+    public var buttonsSize: String = "compact"
     public var toolbar: CoreUIToolbar?
     
-    public init() {
-        
-    }
+    public init() {}
 }
 
 public extension CoreAppUI {
+    
+    var largeButtons: Bool {
+        buttonsSize == "large"
+    }
+    
+    var leftUI: Bool {
+        sidebarAlignmnet == "trailing"
+    }
     
     var panelAlignment: Alignment {
         get {
@@ -47,14 +49,6 @@ public extension CoreAppUI {
                 sidebarAlignmnet = "leading"
             }
         }
-    }
-    
-    var largeButtons: Bool {
-        buttonsSize == "large"
-    }
-    
-    var leftUI: Bool {
-        sidebarAlignmnet == "trailing"
     }
 }
 
