@@ -148,6 +148,28 @@ public extension String {
         return date
     }
     
+    /// Returns a localized string.
+    ///
+    /// This method returns a localized version of the string on which it is called.
+    /// It uses `NSLocalizedString` to fetch the localized string from the appropriate `.strings` file
+    /// within the current module's bundle.
+    ///
+    /// - Returns: A localized version of the string.
+    ///
+    /// - Note: Ensure that the string keys and their corresponding translations are properly set up in the
+    ///         `.strings` files for localization to work correctly. The `NSLocalizedString` function will
+    ///         look for the key in the `.strings` files and return the localized string if found; otherwise,
+    ///         it will return the key itself.
+    ///
+    /// - Example:
+    ///   ```swift
+    ///   let greeting = "hello".localizedString()
+    ///   print(greeting) // Prints the localized string for "hello", if available.
+    ///   ```
+    func localizedString() -> String {
+        NSLocalizedString(self, bundle: .module, comment: "")
+    }
+    
     /// Returns the initials of the string.
     /// - Returns: A string containing the initials.
     func initials() -> String {
