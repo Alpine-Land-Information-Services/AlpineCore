@@ -144,6 +144,16 @@ public extension CoreDefaults {
         }
     }
     
+    var jwtToken: Data? {
+        get {
+            value(for: "jwt_token") as? Data
+
+        }
+        set {
+            setValue(newValue, for: "jwt_token")
+        }
+    }
+    
     var resetCode: String? {
         get {
             value(for: "reset_code") as? String
