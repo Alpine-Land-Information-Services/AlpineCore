@@ -219,3 +219,15 @@ public extension Date {
         }
     }
 }
+
+public extension Date {
+    
+    static func fromISO8601String(_ isoDateString: String) -> Date? {
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        isoFormatter.timeZone = TimeZone(secondsFromGMT: 0) // Set to GMT
+
+        let date = isoFormatter.date(from: isoDateString)
+        return date
+    }
+}
