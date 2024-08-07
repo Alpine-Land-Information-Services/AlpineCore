@@ -105,7 +105,7 @@ public struct SupportContactView: View {
     
     var isRepeatable: some View {
         Section {
-            ListToggleBlock(title: "Able To Replicate", isOn: $repeatable)
+            ListToggleBlock(title: "Able To Replicate", isOn: $repeatable, eventTracker: Core.eventTracker)
         } footer: {
             Text("Are you able to replicate the issue? If so, please describe the steps below.")
         }

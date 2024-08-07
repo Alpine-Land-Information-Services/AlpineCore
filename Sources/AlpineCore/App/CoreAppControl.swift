@@ -21,8 +21,8 @@ public typealias CoreAlertButton = AlertButton
 public class CoreAppControl {
     
     public static var shared = CoreAppControl()
-    
     public static var eventTracker: UIEventTracker = CoreEventTracker()
+    
     public var user: CoreUser? // IN MAIN CONTEXT
     public var app: CoreApp? // IN MAIN CONTEXT
     public var defaults = CoreDefaults()
@@ -256,12 +256,5 @@ public extension CoreAppControl { //MARK: Sheets
     
     static func makePopout(systemImage: String, message: String) {
         PKPopoutManager.shared.makePopout(systemImage: systemImage, message: message)
-    }
-}
-
-
-public class CoreEventTracker: UIEventTracker {
-    public func logEvent(_ event: String, parameters: [String: Any]?) {
-        CoreAppControl.logFirebaseEvent(event, parameters: parameters)
     }
 }
