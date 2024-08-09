@@ -105,7 +105,9 @@ public struct SupportContactView: View {
     
     var isRepeatable: some View {
         Section {
-            ListToggleBlock(title: "Able To Replicate", isOn: $repeatable, eventTracker: Core.eventTracker)
+            ListToggleBlock(title: "Able To Replicate", isOn: $repeatable, onEvent: { event, parameters in
+                Core.logUIEvent(event, parameters: parameters)
+            })
         } footer: {
             Text("Are you able to replicate the issue? If so, please describe the steps below.")
         }
@@ -165,12 +167,10 @@ public struct SupportContactView: View {
                             dismiss()
                         }
                     }
-                }
-                else {
+                } else {
                     dismiss()
                 }
-            }
-            else {
+            } else {
                 network.connectedAction {
                     supportTicketSender.spinner = true
                     supportTicketSender.sendGitReport(title: reportTitle, message: reportText, email: userID)

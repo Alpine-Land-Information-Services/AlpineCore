@@ -9,12 +9,13 @@ import Foundation
 
 public class SupportTicketSender: ObservableObject {
     
-    var resultText = ""
     @Published var spinner = false
     
     private static var owner: String = ""
     private static var repository: String = ""
     private static var token: String = ""
+    
+    var resultText = ""
     
     static public func doInit(owner: String, repository: String, token: String) {
         self.owner = owner
