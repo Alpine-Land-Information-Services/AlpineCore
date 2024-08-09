@@ -206,7 +206,9 @@ extension CoreAppControl { //MARK: Errors
                                 NavigationStack {
                                     SupportContactView(userID: error.user?.id ?? "_NO_USER_ID_", supportType: .bug, associatedError: error)
                                         .toolbar(content: {
-                                           DismissButton(eventTracker: Core.eventTracker)
+                                            DismissButton(onEvent: { event, parameters in
+                                                Core.logUIEvent(.dismissButton)
+                                            })
                                         })
                                 }
                             }

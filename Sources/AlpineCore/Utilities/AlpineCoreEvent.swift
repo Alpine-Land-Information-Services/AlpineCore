@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AlpineUI
 
 public enum AlpineCoreEvent: String {
     
@@ -44,6 +45,21 @@ extension CoreAppControl {
                                     file: String = #file,
                                     function: String = #function,
                                     line: Int = #line) {
+        
+        var updatedParameters = parameters ?? [:]
+        updatedParameters["appTarget"] = Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Unknown Target"
+        updatedParameters["fileInfo"] = "File: \(URL(fileURLWithPath: file).lastPathComponent), Function: \(function), Line: \(line)"
+        updatedParameters["eventTyp"] = typ?.rawValue
+        logFirebaseEvent(event.rawValue, parameters: updatedParameters)
+    }
+    
+    
+    public static func logUIEvent(_ event: UIEvent, typ: UIEventType? = .presses,
+                    fileInfo: String? = nil,
+                    parameters: [String: Any]? = nil,
+                    file: String = #file,
+                    function: String = #function,
+                    line: Int = #line) {
         
         var updatedParameters = parameters ?? [:]
         updatedParameters["appTarget"] = Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Unknown Target"
