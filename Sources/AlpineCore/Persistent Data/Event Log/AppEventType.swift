@@ -17,7 +17,7 @@ public enum AppEventType: String, Codable, CaseIterable {
     case sync = "Sync"
     case storage = "Storage"
     
-    var isDefaultHidden: Bool {
+    public var isDefaultHidden: Bool {
         switch self {
         case .log:
             false

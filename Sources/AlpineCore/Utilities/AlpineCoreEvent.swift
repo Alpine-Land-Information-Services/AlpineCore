@@ -39,7 +39,7 @@ extension CoreAppControl {
     ///
     /// - Note:
     ///   Ensure that the `AlpineCoreEvent` enumeration includes all possible events you want to log.
-    public static func logCoreEvent(_ event: AlpineCoreEvent, typ: AppEventType? = nil,
+    public static func logCoreEvent(_ event: AlpineCoreEvent, type: AppEventType? = nil,
                                     fileInfo: String? = nil,
                                     parameters: [String: Any]? = nil,
                                     file: String = #file,
@@ -49,8 +49,16 @@ extension CoreAppControl {
         var updatedParameters = parameters ?? [:]
         updatedParameters["appTarget"] = Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Unknown Target"
         updatedParameters["fileInfo"] = "File: \(URL(fileURLWithPath: file).lastPathComponent), Function: \(function), Line: \(line)"
-        updatedParameters["eventTyp"] = typ?.rawValue
+        updatedParameters["eventTyp"] = type?.rawValue
         logFirebaseEvent(event.rawValue, parameters: updatedParameters)
+        
+        guard let user, let type else { return }
+        
+        recordAppEvent(event.rawValue,
+                       hidden: type.isDefaultHidden,
+                       secrect: false,
+                       type: type,
+                       userID: user.id)
     }
     
     
@@ -66,6 +74,13 @@ extension CoreAppControl {
         updatedParameters["fileInfo"] = "File: \(URL(fileURLWithPath: file).lastPathComponent), Function: \(function), Line: \(line)"
         updatedParameters["eventTyp"] = typ?.rawValue
         logFirebaseEvent(event.rawValue, parameters: updatedParameters)
+        
+        guard let user else { return }
+        
+        recordAppEvent(event.rawValue,
+                       hidden: false,
+                       secrect: false,
+                       type: .userAction,
+                       userID: user.id)
     }
 }
-

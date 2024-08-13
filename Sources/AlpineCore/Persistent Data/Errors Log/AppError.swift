@@ -29,6 +29,7 @@ public class AppError: Hashable {
     var report: String?
     var user: CoreUser?
     var events: [AppEventLog]?
+    var errorTag: String?
     
     public var title: String {
         typeName ?? "System error"
@@ -38,7 +39,7 @@ public class AppError: Hashable {
         message ?? "No error description"
     }
     
-    private init(error: Error, additionalText: String? = nil) {
+    private init(error: Error, errorTag: String? = nil, additionalText: String? = nil) {
         if let err = error as? AlpineError {
             self.typeName = err.getType()
             self.file = err.file
@@ -50,14 +51,21 @@ public class AppError: Hashable {
         }
         
         self.additionalInfo = additionalText
+        
+        self.errorTag = errorTag ?? AppError.generateErrorTag()
     }
     
-    public static func create(error: Error, additionalInfo: String? = nil, in context: ModelContext) -> AppError {
-        let error = AppError(error: error, additionalText: additionalInfo)
+    public static func create(error: Error, errorTag: String? = nil, additionalInfo: String? = nil, in context: ModelContext) -> AppError {
+        let error = AppError(error: error, errorTag: errorTag, additionalText: additionalInfo)
         context.insert(error)
         try? context.save()
         
         return error
+    }
+    
+    public static func generateErrorTag() -> String {
+        let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        return String((0..<5).map { _ in characters.randomElement()! })
     }
     
     public func markSent() {
@@ -74,6 +82,13 @@ public class AppError: Hashable {
         }
         
         let sender = SupportTicketSender()
+        
+//        if let errorTag {
+//            Task {
+//                try await Core.shared.uploader?.uploadFilesInFolderAndCleanup(folder: errorTag)
+//            }
+//        }
+//       
         sender.sendBackgroundReport(title: title, message: report ?? "_ERROR_SENT_WITH_NO_REPORT_CREATED_", email: user.id) { sent in
             if sent {
                 self.markSent()
@@ -84,6 +99,9 @@ public class AppError: Hashable {
     public func createReport(issueLevel: IssueLevel, comments: String, repeatable: Bool) -> String {
         var text = """
                     \(title)
+                    
+                    <--- Error Tag --->
+                    \(errorTag ?? "Unknown")
                     
                     <--- Bug Severity --->
                     \(issueLevel.rawValue)

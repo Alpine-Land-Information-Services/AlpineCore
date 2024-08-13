@@ -44,7 +44,7 @@ public class SupportTicketSender: ObservableObject {
                 Core.makeSimpleAlert(title: "Thank You", message: "Your inquiry was sent.")
             case .failure(let error):
                 Core.makeSimpleAlert(title: "Something Went Wrong", message: "Please try again later.")
-                Core.shared.makeError(error: error, showToUser: false)
+                Core.makeError(error: error, showToUser: false)
             }
         }
     }

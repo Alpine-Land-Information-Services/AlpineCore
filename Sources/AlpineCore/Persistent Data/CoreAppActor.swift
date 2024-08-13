@@ -13,7 +13,6 @@ actor CoreAppActor: ModelActor {
     let modelContainer: ModelContainer
     let modelExecutor: ModelExecutor
     
-    
     var user: CoreUser?
     
     init(modelContainer: ModelContainer) {
@@ -149,8 +148,8 @@ extension CoreAppActor { //MARK: Sending Events
 
 extension CoreAppActor { //MARK: Errors
     
-    public func createError(error: Error, additionalInfo: String? = nil, userId: PersistentIdentifier) -> PersistentIdentifier {
-        let error = AppError.create(error: error, additionalInfo: additionalInfo, in: modelContext)
+    public func createError(error: Error, errorTag: String? = nil, additionalInfo: String? = nil, userId: PersistentIdentifier) -> PersistentIdentifier {
+        let error = AppError.create(error: error, errorTag: errorTag, additionalInfo: additionalInfo, in: modelContext)
         error.events = try? getRecentEvents(interval: -900)
         let user = modelContext.model(for: userId) as? CoreUser
         user?.errors.append(error)
