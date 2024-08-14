@@ -168,6 +168,7 @@ extension CoreAppActor { //MARK: Errors
     
     private func getPendingErrors() throws -> [AppError] {
         let descriptor = FetchDescriptor(predicate: #Predicate<AppError> { $0.report != nil })
+        
         return try modelContext.fetch(descriptor)
     }
 }

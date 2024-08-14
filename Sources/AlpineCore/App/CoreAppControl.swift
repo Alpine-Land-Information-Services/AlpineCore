@@ -143,9 +143,10 @@ extension CoreAppControl { //MARK: Events
                                  log: ((_ logger: Logger) -> Void)? = nil) {
         
         let isHidden = hidden ?? type.isDefaultHidden
+        
         guard let user else { return }
         
-        Self.shared.recordAppEvent(event, hidden: isHidden, secrect: secret, type: type, userID: user.id)
+        Self.shared.recordAppEvent(event, hidden: isHidden, secret: secret, type: type, userID: user.id)
         Self.shared.logFirebaseEvent(type.description, parameters: ["event": event])
         
         if let log {
@@ -156,19 +157,19 @@ extension CoreAppControl { //MARK: Events
     }
     
     public static func recordAppEvent(_ event: String, hidden: Bool, secrect: Bool, type: AppEventType, userID: String) {
-        Self.shared.recordAppEvent(event, hidden: hidden, secrect: secrect, type: type, userID: userID)
-    }
-    
-    private func recordAppEvent(_ event: String, hidden: Bool, secrect: Bool, type: AppEventType, userID: String) {
-        Task(priority: .background) { [weak self] in
-            await self?.actor.createEvent(event, type: type, hidden: hidden, secret: secrect, userID: userID)
-        }
+        Self.shared.recordAppEvent(event, hidden: hidden, secret: secrect, type: type, userID: userID)
     }
     
     public static func log(_ message: String, strType: String? = nil, type: AppEventType = .log, level: OSLogType = .info) {
         guard let subSystem = Bundle.main.bundleIdentifier else { return }
         let logger = Logger(subsystem: subSystem, category: strType ?? type.rawValue)
         logger.log(level: level, "\(message)")
+    }
+    
+    private func recordAppEvent(_ event: String, hidden: Bool, secret: Bool, type: AppEventType, userID: String) {
+        Task(priority: .background) { [weak self] in
+            await self?.actor.createEvent(event, type: type, hidden: hidden, secret: secret, userID: userID)
+        }
     }
     
     func saveActor() {
@@ -379,47 +380,12 @@ extension CoreAppControl { //MARK: Errors
                     _ = try? await uploader?.archiveAndMoved(containerPath: "Atlas User Data.store", to: errorTag, containerType: .userData)
                 case .mapDataDataContainer:
                     _ = try? await uploader?.archiveAndMoved(containerPath: "\(defaultUserID)/\(defaultAppName)", to: errorTag, containerType: .mapData)
+                case .file(path: let path):
+                    _ = try? await uploader?.archiveAndMoved(containerURL: path, to: errorTag, fileName: nil)
                 }
             }
         }
     }
-
-//    public func makeError(error: Error, errorTag: String? = nil, additionalInfo: String? = nil, showToUser: Bool = true) {
-//        guard let user else { return }
-//
-//        Task { [weak self] in
-//            guard let self else { return }
-//            let errorID = await actor.createError(error: error, errorTag: errorTag, additionalInfo: additionalInfo, userId: user.persistentModelID)
-//
-//            if showToUser {
-//                DispatchQueue.main.async {
-//                    let (title, message) = self.getErrorText(error: error, errorTag: errorTag)
-//                    Core.makeEvent("\(title): \(message)", type: .error)
-//                    let reportButton = CoreAlertButton(title: "Report", style: .default) {
-//                        if let error = self.modelContainer.mainContext.model(for: errorID) as? AppError {
-//                            Core.presentSheet {
-//                                NavigationStack {
-//                                    SupportContactView(userID: error.user?.id ?? "_NO_USER_ID_", supportType: .bug, associatedError: error)
-//                                        .toolbar(content: {
-//                                            DismissButton(onEvent: { event, parameters in
-//                                                Core.logUIEvent(.dismissButton)
-//                                            })
-//                                        })
-//                                }
-//                            }
-//                        } else {
-//                            Core.makeSimpleAlert(title: "Something Went Wrong", message: "Could not find error by specified ID to send.")
-//                        }
-//                    }
-//                    if message.contains("socketError") || message.contains("connectionClosed") {
-//                        Core.makeAlert(CoreAlert(title: "Connection Error", message: "Server could not be reached now.\nPlease try again later.", buttons: [.ok]))
-//                        return
-//                    }
-//                    Core.makeAlert(CoreAlert(title: title, message: message, buttons: [.ok, reportButton]))
-//                }
-//            }
-//        }
-//    }
 }
 
 public extension CoreAppControl { //MARK: Alerts

@@ -83,13 +83,7 @@ public class AppError: Hashable {
         
         let sender = SupportTicketSender()
         
-//        if let errorTag {
-//            Task {
-//                try await Core.shared.uploader?.uploadFilesInFolderAndCleanup(folder: errorTag)
-//            }
-//        }
-//       
-        sender.sendBackgroundReport(title: title, message: report ?? "_ERROR_SENT_WITH_NO_REPORT_CREATED_", email: user.id) { sent in
+        sender.sendBackgroundReport(title: title, message: report ?? "_ERROR_SENT_WITH_NO_REPORT_CREATED_", email: user.id, errorTag: errorTag) { sent in
             if sent {
                 self.markSent()
             }
