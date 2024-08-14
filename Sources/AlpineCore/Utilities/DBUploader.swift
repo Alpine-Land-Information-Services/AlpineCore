@@ -18,6 +18,7 @@ public class DBUploader {
         case appData = "App Container"
         case userData = "Atlas User Data"
         case mapData = "Map Data"
+        case otherFiles = "Other files"
     }
     
     /// An enumeration representing the status of the upload process.
@@ -101,6 +102,26 @@ public class DBUploader {
         }
     }
     
+    /// Archives and moves a file or data container to a specified folder.
+    ///
+    /// This method zips the specified file or container and moves the resulting ZIP archive to the specified folder.
+    ///
+    /// - Parameters:
+    ///   - containerURL: The URL of the file or container to be archived and moved.
+    ///   - folder: The destination folder for the archive.
+    ///   - fileName: An optional name for the ZIP archive. If not provided, the default name will be used.
+    /// - Returns: The URL of the moved archive, or `nil` if an error occurs.
+    public func archiveAndMoved(containerURL: URL, to folder: String, fileName: String?) async throws -> URL? {
+        do {
+            let zipURL = try zipContainer(at: containerURL, fileName: fileName)
+            let destinationURL = try moveZipToDestination(zipURL: zipURL, to: folder, type: nil)
+            return destinationURL
+        } catch {
+            handleError(error)
+            return nil
+        }
+    }
+    
     /// Uploads files from a specified folder and cleans up after upload.
     ///
     /// This method uploads all files in the specified folder and removes them from the local filesystem after upload.
@@ -159,6 +180,20 @@ public class DBUploader {
         resetStatus()
     }
     
+    /// Compresses a file into a zip archive, uploads it, and then deletes the zip file.
+    ///
+    /// - Parameter fileURL: The URL of the file to be zipped, uploaded, and deleted.
+    public func zipUploadAndCleanup(fileURL: URL) async throws {
+        do {
+            let zipURL = try Zip.quickZipFiles([fileURL], fileName: fileURL.deletingPathExtension().lastPathComponent)
+            try await doUpload(from: zipURL, to: nil)
+            try fileManager.removeItem(at: zipURL)
+            resetStatus()
+        } catch {
+            handleError(error)
+        }
+    }
+    
     /// Uploads a zip file and resets the status afterward.
     ///
     /// This method uploads the specified zip file and resets the status of the upload process.
@@ -182,38 +217,39 @@ public class DBUploader {
     /// - Throws: A `CoreError` if the container does not exist.
     private func prepareContainerURL(containerPath: String, containerType: ContainerType) throws -> URL {
         let containerURL = getURL(path: containerPath, in: containerType)
-        guard FS.fileExists(at: containerURL) else {
+        guard let containerURL, FS.fileExists(at: containerURL) else {
             throw CoreError("Container does not exist at specified path: \(containerURL)", type: .upload)
         }
         return containerURL
     }
     
-    /// Zips the specified data container.
+    /// Zips the specified data container or file.
     ///
-    /// This method creates a zip file of the specified container.
+    /// This method creates a zip file of the specified container or file.
     ///
     /// - Parameters:
-    ///   - url: The URL of the container to be zipped.
-    ///   - containerType: The type of the container.
+    ///   - url: The URL of the container or file to be zipped.
+    ///   - fileName: An optional name for the ZIP archive. If not provided, the default name will be used.
+    ///   - containerType: An optional type of the container. Used to generate the file name if provided.
     /// - Returns: The URL of the created zip file.
     /// - Throws: An error if the zipping process fails.
-    private func zipContainer(at url: URL, containerType: ContainerType) throws -> URL {
-        let fileName = (Core.shared.defaultUserID.map { "\($0) " } ?? "") + containerType.rawValue
+    private func zipContainer(at url: URL, fileName: String? = nil, containerType: ContainerType? = nil) throws -> URL {
+        let fullFileName = (Core.shared.defaultUserID.map { "\($0) " } ?? "") + (fileName ?? "") + (containerType?.rawValue ?? "")
         setStatus(to: .packing)
-        return try Zip.quickZipFiles([url], fileName: fileName)
+        return try Zip.quickZipFiles([url], fileName: fullFileName)
     }
     
-    /// Moves the zipped container to a specified destination folder.
+    /// Moves the zipped container or file to a specified destination folder.
     ///
     /// This method moves the zip file to the specified folder.
     ///
     /// - Parameters:
     ///   - zipURL: The URL of the zip file to be moved.
     ///   - folder: The destination folder for the zip file.
-    ///   - type: The type of the container associated with the zip file.
+    ///   - type: The optional type of the container associated with the zip file. If `nil`, the file will be moved without type-specific processing.
     /// - Returns: The URL of the moved zip file.
     /// - Throws: An error if the move operation fails.
-    private func moveZipToDestination(zipURL: URL, to folder: String, type: ContainerType) throws -> URL {
+    private func moveZipToDestination(zipURL: URL, to folder: String, type: ContainerType? = nil) throws -> URL {
         let destinationFolderURL = getDataPackagesURL(folder: folder, type: type)
         if !fileManager.fileExists(atPath: destinationFolderURL.path) {
             try fileManager.createDirectory(at: destinationFolderURL, withIntermediateDirectories: true)
@@ -309,9 +345,9 @@ public class DBUploader {
     ///
     /// - Parameters:
     ///   - path: The file path of the container.
-    ///   - container: The type of the container.
-    /// - Returns: The constructed URL for the container.
-    private func getURL(path: String, in container: ContainerType) -> URL {
+    ///   - container: The optional type of the container.
+    /// - Returns: The constructed URL for the container, or `nil` if the container type is not provided or unrecognized.
+    private func getURL(path: String, in container: ContainerType?) -> URL? {
         switch container {
         case .filesystem:
             return FS.atlasGroupURL.appending(component: "Library").appending(component: "Application Support").appending(component: path)
@@ -322,6 +358,8 @@ public class DBUploader {
         case .mapData:
             return FS.appDocumentsURL.appending(component: "Atlas").appending(path: path)
                 .appending(component: "Map Data.sqlite")
+        default:
+            return nil
         }
     }
     
@@ -337,7 +375,7 @@ public class DBUploader {
         }
         
         switch container {
-        case .filesystem, .appData, .userData, .mapData:
+        default:
             return FS.appDocumentsURL.appending(component: "Data Packages").appending(component: folder)
         }
     }

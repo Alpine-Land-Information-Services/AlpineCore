@@ -63,7 +63,7 @@ public struct SupportContactView: View {
         .onAppear {
             Core.logCoreEvent(.openedSupport, type: .userAction)
         }
-        .navigationTitle(isManual ? "Alpine Support" : "Report Error")
+        .navigationTitle(isManual ? "Alpine Support" : "Report Error (Ref: \(associatedError?.errorTag ?? "Unknown"))")
         .navigationBarTitleDisplayMode(.inline)
         .overlay {
             if supportTicketSender.spinner {
@@ -134,58 +134,6 @@ public struct SupportContactView: View {
         }
     }
     
-    var send: some View {
-        Button {
-            let reportTitle = "\(supportType.rawValue)"
-            var reportText = ""
-            switch supportType {
-            case .feedback, .featureRequest:
-                reportText = "\(supportComment)"
-            case .bug:
-                if associatedError == nil {
-                    reportText = """
-                    \(reportTitle)
-                    
-                    <--- Bug Severity --->
-                    \(issueLevel.rawValue)
-                    
-                    ASSOCIATED ERROR NOT PROVIDED
-                    
-                    <--- User Description --->
-                    \(supportComment.isEmpty ? "Not Provided" : supportComment)
-                    """
-                }
-            }
-            if let associatedError {
-                let report = supportTicketSender.markToSendError(associatedError, comments: supportComment, issueLevel: issueLevel, repeatable: repeatable)
-                if network.isConnected {
-                    supportTicketSender.sendBackgroundReport(title: reportTitle, message: report, email: userID) { sent in
-                        if sent {
-                            associatedError.markSent()
-                        }
-                        DispatchQueue.main.async {
-                            dismiss()
-                        }
-                    }
-                } else {
-                    dismiss()
-                }
-            } else {
-                network.connectedAction {
-                    supportTicketSender.spinner = true
-                    supportTicketSender.sendGitReport(title: reportTitle, message: reportText, email: userID)
-                    dismiss()
-                }
-            }
-        } label: {
-            Text(associatedError == nil ? "Send" : "Submit")
-                .font(.title3)
-                .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(.borderedProminent)
-        .padding()
-    }
-    
     var error: some View {
         Section {
             NavigationLink {
@@ -198,5 +146,72 @@ public struct SupportContactView: View {
         } footer: {
             Text("Select an error to which this report is corresponds to, if one exists.")
         }
+    }
+    
+    var send: some View {
+        Button {
+            let reportTitle = "\(supportType.rawValue)"
+            var reportText = ""
+            switch supportType {
+            case .feedback, .featureRequest:
+                reportText = "\(supportComment)"
+            case .bug:
+                reportText = generateBugReport()
+            }
+            
+            if let associatedError {
+                handleErrorReport(associatedError: associatedError, reportTitle: reportTitle, reportText: reportText)
+            } else {
+                handleNoErrorReport(reportTitle: reportTitle, reportText: reportText)
+            }
+        } label: {
+            Text(associatedError == nil ? "Send" : "Submit")
+                .font(.title3)
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.borderedProminent)
+        .padding()
+    }
+    
+    private func handleErrorReport(associatedError: AppError, reportTitle: String, reportText: String ) {
+        let report = supportTicketSender.markToSendError(associatedError, comments: supportComment, issueLevel: issueLevel, repeatable: repeatable)
+        
+        if network.isConnected {
+            supportTicketSender.sendBackgroundReport(title: reportTitle, message: report, email: userID, errorTag: associatedError.errorTag) { sent in
+                if sent {
+                    associatedError.markSent()
+                }
+                DispatchQueue.main.async {
+                    dismiss()
+                }
+            }
+        } else {
+            dismiss()
+        }
+    }
+    
+    private func handleNoErrorReport(reportTitle: String, reportText: String) {
+        network.connectedAction {
+            supportTicketSender.spinner = true
+            supportTicketSender.sendGitReport(title: reportTitle, message: reportText, email: userID)
+            dismiss()
+        }
+    }
+    
+    private func generateBugReport() -> String {
+        if associatedError == nil {
+            return """
+            \(supportType.rawValue)
+            
+            <--- Bug Severity --->
+            \(issueLevel.rawValue)
+            
+            ASSOCIATED ERROR NOT PROVIDED
+            
+            <--- User Description --->
+            \(supportComment.isEmpty ? "Not Provided" : supportComment)
+            """
+        }
+        return ""
     }
 }

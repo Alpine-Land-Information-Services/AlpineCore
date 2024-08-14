@@ -49,9 +49,13 @@ public class SupportTicketSender: ObservableObject {
         }
     }
     
-    func sendBackgroundReport(title: String, message: String, email: String, didSend: @escaping (_: Bool) -> Void) {
+    func sendBackgroundReport(title: String, message: String, email: String, errorTag: String?, didSend: @escaping (_: Bool) -> Void) {
         guard !Self.owner.isEmpty, !Self.repository.isEmpty, !Self.token.isEmpty else {
             return
+        }
+        
+        if let errorTag {
+            uploadFilesForReport(errorTag: errorTag)
         }
         
         GitReport().sendReport(owner: Self.owner,
@@ -66,6 +70,13 @@ public class SupportTicketSender: ObservableObject {
             case .failure(_):
                 didSend(false)
             }
+        }
+    }
+    
+    private func uploadFilesForReport(errorTag: String?) {
+        guard let errorTag else { return }
+        Task {
+            try await Core.shared.uploader?.uploadFilesInFolderAndCleanup(folder: errorTag)
         }
     }
     
