@@ -158,6 +158,11 @@ public extension Date {
         return endDate ?? Date()
     }
     
+    func removeSeconds(_ seconds: Int) -> Date {
+        let endDate = Calendar.current.date(byAdding: .second, value: -seconds, to: self)
+        return endDate ?? self
+    }
+    
     func getHumanReadableDayString() -> String {
         let weekdays = [
             "Sunday",
