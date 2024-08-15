@@ -11,25 +11,39 @@ import SwiftData
 @Model
 public class AppEventLog {
     
+    public var userID: String?
+    
     var timestamp = Date()
     var type: AppEventType
     var event: String
+    var parameters: [String: String]?
     
-    var hidden: Bool?
-    var secret: Bool?
-    
-    public var userID: String?
-    
-    init(_ event: String, hidden: Bool, secret: Bool, type: AppEventType, userID: String) {
+    init(_ event: String, type: AppEventType, userID: String, rawParameters: [String: Any]? = nil) {
         self.event = event
-        self.hidden = hidden
-        self.secret = secret
         self.type = type
         self.userID = userID
+        
+        self.parameters = rawParameters?.compactMapValues { value in
+            return "\(value)"
+        }
     }
     
     func toErrorText() -> String {
-        "\nAt \(timestamp.toString(format: "HH:mm:ss, MM.d")) ---- \(type.rawValue)\t ---- \(event)"
+        var logMessage = """
+        \n```
+        Timestamp: \(timestamp.toString(format: "HH:mm:ss, MM.d")) Event Type: \(type.rawValue)
+        Event: \(event)
+        """
+        
+        if let parameters = parameters, !parameters.isEmpty {
+            logMessage += "\nParameters:"
+            for (key, value) in parameters {
+                logMessage += "\n - \(key): \(value)"
+            }
+        }
+        
+        logMessage += "\n```"
+        
+        return logMessage
     }
-    
 }

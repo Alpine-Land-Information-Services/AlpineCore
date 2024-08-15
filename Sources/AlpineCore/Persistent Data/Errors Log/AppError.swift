@@ -92,33 +92,39 @@ public class AppError: Hashable {
     
     public func createReport(issueLevel: IssueLevel, comments: String, repeatable: Bool) -> String {
         var text = """
-                    \(title)
-                    
-                    <--- Error Tag --->
-                    \(errorTag ?? "Unknown")
-                    
-                    <--- Bug Severity --->
-                    \(issueLevel.rawValue)
-                    
-                    <--- Is Able To Replicate --->
-                    \(repeatable ? "YES" : "NO")
-                    
-                    <--- Associated Error --->
-                    [file] \(file ?? "Unknown")
-                    [function] \(function ?? "Unknown")
-                    [line] \(line != nil ? String(line!) : "Unknown")
-                    
-                    \(content)
-                    
-                    \((additionalInfo != nil && additionalInfo != "") ? "[Additional Info]\n\(additionalInfo!)" : "")
-                    
-                    """
-        if !comments.isEmpty {
-            text.append("<--- User Description --->\n\(comments)")
-        }
+        ---
+        ### 🚨 \(title)
+        ---
         
-        if let events = events?.sorted(by: { $0.timestamp > $1.timestamp }) {
-            var errorEvents = "\n\n<--- Events --->"
+        **🆔 Error Reference**
+        ```
+       \(errorTag ?? "Unknown")
+       ```
+        
+        **📊 Bug Severity**
+        > \(issueLevel.rawValue)
+
+        **🔄 Is Able To Replicate**
+        > \(repeatable ? "YES" : "NO")
+
+        **⚠️ Associated Error**
+        > - **File**: \(file ?? "Unknown")
+        > - **Function**: \(function ?? "Unknown")
+        > - **Line**: \(line != nil ? String(line!) : "Unknown")
+
+       **📝 Description**
+       > \(content)
+       
+       \((additionalInfo != nil && additionalInfo != "") ? "**ℹ️ Additional Info**\n\(additionalInfo!)" : "")
+       """
+       
+       if !comments.isEmpty {
+           text.append("\n\n**💬 User Description**\n\(comments)")
+       }
+        
+        if let events = events?.sorted(by: { $0.timestamp > $1.timestamp })
+                               .filter({$0.type != .atlas}) {
+            var errorEvents = "---\n\n### 📅 Events"
             for event in events {
                 errorEvents.append(event.toErrorText())
             }

@@ -33,9 +33,9 @@ class GitReport {
         request.addValue("application/vnd.github.v3+json", forHTTPHeaderField: "accept")
         request.addValue("Basic \(accessToken)", forHTTPHeaderField: "Authorization")
         
-        let appVersion = getAppVersion()
+        let appInfo = generateAppInfoHeader()
         let params: [String: Any] = ["title": email + ", " + title,
-                                     "body": (appVersion != nil ? "(v\(appVersion!)) " : "") + "\n" + message]
+                                     "body": "\(appInfo)" + "\n" + message]
         let data: Data
         do {
             data = try JSONSerialization.data(withJSONObject: params, options: JSONSerialization.WritingOptions())
@@ -67,7 +67,13 @@ class GitReport {
         task.resume()
     }
     
-    func getAppVersion() -> String? {
-        "\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown").\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown")"
+    func generateAppInfoHeader() -> String {
+        let appName = Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String
+                    ?? Bundle.main.infoDictionary?["CFBundleName"] as? String
+                    ?? "Unknown App"
+        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+        let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
+        
+        return "### 📱 App: '\(appName)' -  v\(appVersion) (Build \(buildNumber))"
     }
 }

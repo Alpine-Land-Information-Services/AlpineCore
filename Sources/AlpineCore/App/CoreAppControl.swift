@@ -12,7 +12,6 @@ import OSLog
 import PopupKit
 import AlpineUI
 
-
 @Observable
 public class CoreAppControl {
     
@@ -39,7 +38,7 @@ public class CoreAppControl {
     private var defaultContainerName: String?
     private var defaultAppName: String?
     private var actor: CoreAppActor
-
+    
     private init() {
         actor = CoreAppActor(modelContainer: modelContainer)
         NetworkTracker.shared.start()
@@ -100,7 +99,96 @@ public extension CoreAppControl { //MARK: Init
     }
 }
 
-extension CoreAppControl { //MARK: Firebase Analytics
+extension CoreAppControl {  //MARK: Events
+    
+    /// Logs a deprecated event using the previous `makeEvent` method.
+    ///
+    /// This method logs an event but is deprecated in favor of using the `logCoreEvent`, `logUIEvent`, or
+    /// your framework's specific logging function.
+    ///
+    /// - Parameters:
+    ///   - event: The event name as a `String`.
+    ///   - type: The type of the event as an `AppEventType`.
+    ///   - parameters: An optional dictionary of parameters associated with the event. Defaults to `nil`.
+    ///   - fileInfo: An optional string containing file information. Defaults to `nil`.
+    ///   - file: The name of the file from which the function is called. Defaults to the file where the function is called.
+    ///   - function: The name of the function from which the function is called. Defaults to the function where the function is called.
+    ///   - line: The line number from which the function is called. Defaults to the line where the function is called.
+    @available(*, deprecated, message: "Use the logCoreEvent(...), logUIEvent(...) or your framework's funtion. ")
+    public static func makeEvent(_ event: String,
+                                 type: AppEventType,
+                                 parameters: [String: Any]? = nil,
+                                 fileInfo: String? = nil,
+                                 file: String = #file,
+                                 function: String = #function,
+                                 line: Int = #line) {
+        
+        Self.shared.logEvent(event, type: type.rawValue, parameters: parameters, fileInfo: fileInfo, file: file, function: function, line: line)
+    }
+    
+    /// Logs an event of type `AlpineCoreEvent` to Firebase Analytics.
+    ///
+    /// This method uses `logCoreEvent` to send the event to Firebase Analytics. The event is specified
+    /// using the `AlpineCoreEvent` enumeration and can be accompanied by optional parameters.
+    ///
+    /// - Parameters:
+    ///   - event: The event to be logged, from the `AlpineCoreEvent` enumeration.
+    ///   - type: An optional type of the event, from the `AppEventType` enumeration. Defaults to `nil`.
+    ///   - fileInfo: An optional string containing file information. Defaults to `nil`.
+    ///   - parameters: An optional dictionary of parameters associated with the event. Defaults to `nil`.
+    ///   - file: The name of the file from which the function is called. Defaults to the file where the function is called.
+    ///   - function: The name of the function from which the function is called. Defaults to the function where the function is called.
+    ///   - line: The line number from which the function is called. Defaults to the line where the function is called.
+    ///
+    /// - Example:
+    ///   ```swift
+    ///   Core.logCoreEvent(.createdSiteCalling, parameters: ["key": "value"])
+    ///   ```
+    ///
+    /// - Note:
+    ///   Ensure that the `AlpineCoreEvent` enumeration includes all possible events you want to log.
+    public static func logCoreEvent(_ event: AlpineCoreEvent, type: AppEventType? = nil, parameters: [String: Any]? = nil,
+                                    fileInfo: String? = nil, file: String = #file, function: String = #function, line: Int = #line) {
+        Self.shared.logEvent(event.rawValue, type: type?.rawValue, parameters: parameters, fileInfo: fileInfo, file: file, function: function, line: line)
+    }
+    
+    /// Logs a UI event of type `AlpineUI.UIEvent` to Firebase Analytics.
+    ///
+    /// This method logs a UI event `from AlpineUI`, adding the event action type to the parameters, and sends it to Firebase Analytics.
+    ///
+    /// - Parameters:
+    ///   - event: The event to be logged, from the `AlpineUI.UIEvent` enumeration.
+    ///   - typ: The type of UI event, from the `UIEventType` enumeration. Defaults to `.presses`.
+    ///   - fileInfo: An optional string containing file information. Defaults to `nil`.
+    ///   - parameters: An optional dictionary of parameters associated with the event. Defaults to `nil`.
+    ///   - file: The name of the file from which the function is called. Defaults to the file where the function is called.
+    ///   - function: The name of the function from which the function is called. Defaults to the function where the function is called.
+    ///   - line: The line number from which the function is called. Defaults to the line where the function is called.
+    public static func logUIEvent(_ event: AlpineUI.UIEvent, typ: UIEventType? = .presses, fileInfo: String? = nil, parameters: [String: Any]? = nil,
+                                  file: String = #file, function: String = #function, line: Int = #line) {
+        
+        var updatedParameters = parameters ?? [:]
+        updatedParameters["eventActionTyp"] = typ?.rawValue
+        
+        Self.shared.logEvent(event.rawValue, type: AppEventType.userAction.rawValue, parameters: updatedParameters, fileInfo: fileInfo, file: file, function: function, line: line)
+    }
+    
+    /// Logs a generic event.
+    ///
+    /// This method logs a generic event by sending it to Firebase Analytics and potentially other logging mechanisms.
+    ///
+    /// - Parameters:
+    ///   - event: The event name as a `String`.
+    ///   - type: An optional type of the event as a `String`. Defaults to `nil`.
+    ///   - parameters: An optional dictionary of parameters associated with the event. Defaults to `nil`.
+    ///   - fileInfo: An optional string containing file information. Defaults to `nil`.
+    ///   - file: The name of the file from which the function is called. Defaults to the file where the function is called.
+    ///   - function: The name of the function from which the function is called. Defaults to the function where the function is called.
+    ///   - line: The line number from which the function is called. Defaults to the line where the function is called.
+    public static func logEvent(_ event: String, type: String? = nil, parameters: [String: Any]? = nil, fileInfo: String? = nil,
+                                file: String = #file, function: String = #function, line: Int = #line) {
+        Self.shared.logEvent(event, type: type, parameters: parameters, fileInfo: fileInfo, file: file, function: function, line: line)
+    }
     
     /// Logs a Firebase Analytics event.
     ///
@@ -113,11 +201,45 @@ extension CoreAppControl { //MARK: Firebase Analytics
     ///
     /// - Example:
     ///   ```swift
-    ///   CoreAppControl.logFirebaseEvent("user_signup", parameters: ["method": "email"])
+    ///   Core.logFirebaseEvent("user_signup", parameters: ["method": "email"])
     ///   ```
     public static func logFirebaseEvent(_ event: String, parameters: [String: Any]? = nil) {
-        Core.shared.logFirebaseEvent(event, parameters: parameters)
+        Self.shared.logFirebaseEvent(event, parameters: parameters)
     }
+    
+    
+    /// Logs an event with detailed metadata.
+    ///
+    /// This private method is responsible for logging an event, including detailed metadata such as file information, function name, and line number.
+    ///
+    /// - Parameters:
+    ///   - event: The event name as a `String`.
+    ///   - type: An optional type of the event as a `String`. Defaults to `nil`.
+    ///   - parameters: An optional dictionary of parameters associated with the event. Defaults to `nil`.
+    ///   - fileInfo: An optional string containing file information. Defaults to `nil`.
+    ///   - file: The name of the file from which the function is called. Defaults to the file where the function is called.
+    ///   - function: The name of the function from which the function is called. Defaults to the function where the function is called.
+    ///   - line: The line number from which the function is called. Defaults to the line where the function is called.
+    private func logEvent(_ event: String, type: String? = nil, parameters: [String: Any]? = nil, fileInfo: String? = nil,
+                          file: String = #file, function: String = #function, line: Int = #line) {
+        
+        var updatedParameters = parameters ?? [:]
+        
+        //TODO: - Finalize the targeting ("appTarget") definition for frameworks and packages
+//       let currentBundle = Bundle(for: Self.self)
+        
+        updatedParameters["appTarget"] = Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Unknown Target"
+        updatedParameters["fileInfo"] = "File: \(URL(fileURLWithPath: file).lastPathComponent), Function: \(function), Line: \(line)"
+        updatedParameters["eventType"] = type
+        
+        logFirebaseEvent(event, parameters: updatedParameters)
+        log(event)
+        
+        guard let user, let type, let appType = AppEventType(rawValue: type) else { return }
+        
+        recordAppEvent(event, type: appType, userID: user.id, rawParameters: updatedParameters)
+    }
+    
     
     /// Logs a Firebase Analytics event with optional parameters.
     ///
@@ -132,47 +254,47 @@ extension CoreAppControl { //MARK: Firebase Analytics
             firebaseEventLogger(event, parameters)
         }
     }
-}
-
-extension CoreAppControl { //MARK: Events
     
-    public static func makeEvent(_ event: String,
-                                 type: AppEventType,
-                                 hidden: Bool? = nil,
-                                 secret: Bool = false,
-                                 log: ((_ logger: Logger) -> Void)? = nil) {
-        
-        let isHidden = hidden ?? type.isDefaultHidden
-        
-        guard let user else { return }
-        
-        Self.shared.recordAppEvent(event, hidden: isHidden, secret: secret, type: type, userID: user.id)
-        Self.shared.logFirebaseEvent(type.description, parameters: ["event": event])
-        
-        if let log {
-            guard let subSystem = Bundle.main.bundleIdentifier else { return }
-            let logger = Logger(subsystem: subSystem, category: type.rawValue)
-            log(logger)
+    /// Records an application event in the event log.
+    ///
+    /// This private method is responsible for recording an event in the application's event log, including user-related information.
+    ///
+    /// - Parameters:
+    ///   - event: The event name as a `String`.
+    ///   - type: The type of the event as an `AppEventType`.
+    ///   - userID: The user ID associated with the event.
+    ///   - rawParameters: An optional dictionary of raw parameters associated with the event. Defaults to `nil`.
+    private func recordAppEvent(_ event: String, type: AppEventType, userID: String, rawParameters: [String: Any]? = nil) {
+       
+        Task(priority: .background) { [weak self] in
+            var updatedParameters = rawParameters
+            updatedParameters?.removeValue(forKey: "appTarget")
+            updatedParameters?.removeValue(forKey: "eventType")
+            
+            await self?.actor.createEvent(event, type: type, userID: userID, rawParameters: updatedParameters)
         }
     }
     
-    public static func recordAppEvent(_ event: String, hidden: Bool, secrect: Bool, type: AppEventType, userID: String) {
-        Self.shared.recordAppEvent(event, hidden: hidden, secret: secrect, type: type, userID: userID)
-    }
-    
-    public static func log(_ message: String, strType: String? = nil, type: AppEventType = .log, level: OSLogType = .info) {
+    /// Logs a message to the system logger.
+    ///
+    /// This private method logs a message to the system logger using the specified log level and event type.
+    ///
+    /// - Parameters:
+    ///   - message: The message to log.
+    ///   - strType: An optional string representing the type of the message. Defaults to `nil`.
+    ///   - type: The type of the event as an `AppEventType`. Defaults to `.log`.
+    ///   - level: The log level to use for the message. Defaults to `.info`.
+    private func log(_ message: String, strType: String? = nil, type: AppEventType = .log, level: OSLogType = .info) {
         guard let subSystem = Bundle.main.bundleIdentifier else { return }
         let logger = Logger(subsystem: subSystem, category: strType ?? type.rawValue)
         logger.log(level: level, "\(message)")
     }
     
-    private func recordAppEvent(_ event: String, hidden: Bool, secret: Bool, type: AppEventType, userID: String) {
-        Task(priority: .background) { [weak self] in
-            await self?.actor.createEvent(event, type: type, hidden: hidden, secret: secret, userID: userID)
-        }
-    }
+}
+
+extension CoreAppControl { //MARK: Actor
     
-    func saveActor() {
+    private func saveActor() {
         Task(priority: .background) { [weak self] in
             await self?.actor.save()
         }
@@ -180,8 +302,6 @@ extension CoreAppControl { //MARK: Events
     
     func createEventPack(interval: Double) {
         guard let user else { return }
-        Core.makeEvent("submitted events", type: .userAction)
-        
         Core.makeSimpleAlert(title: "Events Submitted", message: "Thank you, your event logs will be sent to developer.")
         Task(priority: .background) { [weak self] in
             try? await self?.actor.createEventPackage(interval: interval, userID: user.persistentModelID)
@@ -236,9 +356,9 @@ extension CoreAppControl { //MARK: Errors
     ///   - additionalInfo: Additional information to include in the error log. Defaults to `nil`.
     ///   - showToUser: A Boolean value indicating whether the error should be presented to the user. Defaults to `true`.
     private func makeError(error: Error,
-                                 errorTag: String? = nil,
-                                 additionalInfo: String? = nil,
-                                 showToUser: Bool = true) {
+                           errorTag: String? = nil,
+                           additionalInfo: String? = nil,
+                           showToUser: Bool = true) {
         let errorTag = AppError.generateErrorTag()
         
         Task {
@@ -246,7 +366,7 @@ extension CoreAppControl { //MARK: Errors
             Self.shared.createError(error: error, errorTag: errorTag, additionalInfo: additionalInfo, showToUser: showToUser)
         }
     }
-
+    
     /// Processes the provided error and handles the necessary tasks to log and present the error to the user.
     ///
     /// This private method ensures the error is logged and provides the user with a report option if the error is presented
@@ -282,7 +402,8 @@ extension CoreAppControl { //MARK: Errors
     ///   - errorTag: An optional tag to identify the error. Defaults to `nil`.
     private func presentErrorToUser(error: Error, errorID: PersistentIdentifier, errorTag: String?) async {
         let (title, message) = self.getErrorText(error: error, errorTag: errorTag)
-        Core.makeEvent("\(title): \(message)", type: .error)
+//        Core.logCoreEvent(.presentError, type: .error, parameters: ["title" : "\(title)", "message":"\(message)"])
+        Core.logCoreEvent(.presentError, type: .error)
         let okButton = AlertButton(title: "Okay", style: .default, action: {
             try? self.uploader?.cleanupErrorFilesFolder(folderTag: errorTag)
         })
@@ -295,12 +416,12 @@ extension CoreAppControl { //MARK: Errors
         }
         
         let reportButton = await self.createReportButton(for: errorID)
-
+        
         DispatchQueue.main.async {
             Core.makeAlert(CoreAlert(title: title, message: message, buttons: [okButton, reportButton]))
         }
     }
-
+    
     /// Creates a report button that allows the user to report the error.
     ///
     /// This method creates a button that, when pressed, allows the user to report the error. The button is linked to
@@ -320,7 +441,7 @@ extension CoreAppControl { //MARK: Errors
             }
         }
     }
-
+    
     /// Presents the support contact view for the error.
     ///
     /// This method presents a view that allows the user to contact support regarding the error.

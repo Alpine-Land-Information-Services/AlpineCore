@@ -45,8 +45,8 @@ actor CoreAppActor: ModelActor {
 
 extension CoreAppActor { //MARK: Events
     
-    func createEvent(_ event: String, type: AppEventType, hidden: Bool, secret: Bool, userID: String) {
-        let event = AppEventLog(event, hidden: hidden, secret: secret, type: type, userID: userID)
+    func createEvent(_ event: String, type: AppEventType, userID: String, rawParameters: [String: Any]? = nil) {
+        let event = AppEventLog(event, type: type, userID: userID, rawParameters: rawParameters)
         modelContext.insert(event)
         
         try? modelContext.save()
@@ -55,7 +55,7 @@ extension CoreAppActor { //MARK: Events
     func clearOldEvents() throws {
         let oldEvents = try getOldEvents()
         if !oldEvents.isEmpty {
-            Core.makeEvent("clearing out \(oldEvents.count) old events", type: .system)
+            Core.logCoreEvent(.clearingOutOldEvents, type: .system, parameters: ["oldEvents count" : "\(oldEvents.count)"])
             for event in oldEvents {
                 modelContext.delete(event)
             }

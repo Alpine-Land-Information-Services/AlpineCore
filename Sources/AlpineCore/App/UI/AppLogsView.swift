@@ -16,23 +16,14 @@ public struct AppLogsView: View {
     }
     
     static func hiddenPredicate(userID: String) -> Predicate<AppEventLog> {
-        #if DEBUG
         #Predicate<AppEventLog> { $0.userID == userID }
-        #else
-        #Predicate<AppEventLog> { $0.userID == userID && $0.secret == false }
-        #endif
     }
     
     static func visiblePredicate(userID: String) -> Predicate<AppEventLog> {
-//        #if DEBUG
-        #Predicate<AppEventLog> { $0.userID == userID && $0.hidden == false }
-//        #else
-//        #Predicate<AppEventLog> { $0.userID == userID && $0.hidden == false }
-//        #endif
+        #Predicate<AppEventLog> { $0.userID == userID }
     }
     
-    @State private var showHidden = false
-    
+    @State private var showHidden: Bool = false
     @State private var currentTab = TabSelection.events
     @State private var predicate: Predicate<AppEventLog>
     
@@ -70,17 +61,20 @@ public struct AppLogsView: View {
         .toolbar {
             if currentTab == .events {
                 Menu {
-                    hiddenButton
+//                    hiddenButton
                     Menu {
                         Text("Choose a timeframe to send logs to the developer.")
                         Button("Last 15 Minutes") {
                             control.createEventPack(interval: -900)
+                            Core.logCoreEvent(.submittedEvents, type: .userAction)
                         }
                         Button("Last Hour") {
                             control.createEventPack(interval: -3600)
+                            Core.logCoreEvent(.submittedEvents, type: .userAction)
                         }
                         Button("Last Day") {
                             control.createEventPack(interval: -86400)
+                            Core.logCoreEvent(.submittedEvents, type: .userAction)
                         }
                     } label: {
                         Label("Send Logs", systemImage: "paperplane")
