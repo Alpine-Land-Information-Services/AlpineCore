@@ -8,14 +8,15 @@
 import SwiftUI
 
 public enum AppEventType: String, Codable, CaseIterable {
-    case log = "Log"
+
     case userAction = "User Action"
     case system = "System"
-    case atlas = "Atlas"
+    case log = "Log"
     case error = "Error"
-    case atlasApp = "Atlas App"
     case sync = "Sync"
     case storage = "Storage"
+    case atlas = "Atlas"
+    case atlasApp = "Atlas App"
     
     public var isDefaultHidden: Bool {
         switch self {

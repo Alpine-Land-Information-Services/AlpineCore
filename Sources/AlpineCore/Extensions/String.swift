@@ -361,6 +361,10 @@ public extension String {
         return String(substring)
     }
     
+    /// Converts the string to snake_case format.
+    func toSnakeCase() -> String {
+        return self.lowercased().replacingOccurrences(of: " ", with: "_")
+    }
     // MARK: - Private Methods
     
     /// Replaces occurrences of a target string with another string.

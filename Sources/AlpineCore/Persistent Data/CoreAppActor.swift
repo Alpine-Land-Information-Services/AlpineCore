@@ -139,7 +139,7 @@ extension CoreAppActor { //MARK: Sending Events
     func attemptSendEventPackages() throws {
         for package in try getNotExportedEventPackages() {
             package.send()
-            Core.makeEvent("crash log uploaded", type: .log)
+            Core.logCoreEvent(.crashLogUploaded, type: .log)
         }
         
         try modelContext.save()
@@ -162,7 +162,7 @@ extension CoreAppActor { //MARK: Errors
     func attemptSendPendingErrors() throws {
         for error in try getPendingErrors() {
             error.send()
-            Core.makeEvent("error log uploaded", type: .log)
+            Core.logCoreEvent(.errorLogUploaded, type: .log)
         }
     }
     
@@ -172,34 +172,3 @@ extension CoreAppActor { //MARK: Errors
         return try modelContext.fetch(descriptor)
     }
 }
-
-//extension CoreAppActor { //MARK: Crashes
-//    
-//    public func createCrashLog(userID: String, dateInit: Date, lastLaunch: Date?, comments: String?, didNot: Bool?) {
-//        let log = AppCrashLog()
-//        modelContext.insert(log)
-//        
-//        log.comments = comments
-//        log.lastDateLaunch = lastLaunch
-//        log.didNotCrash = didNot
-//        log.events = try? getEvents(before: dateInit, limit: 200)
-//        
-//        log.send(userID: userID)
-//
-//        save()
-//    }
-//    
-//    func attemptSendPendingCrashes(userID: String) throws {
-//        for crash in try getNotReportedCrashes() {
-//            crash.send(userID: userID)
-//            Core.makeEvent("crash log uploaded", type: .log)
-//        }
-//        
-//        try modelContext.save()
-//    }
-//    
-//    private func getNotReportedCrashes() throws -> [AppCrashLog] {
-//        let descriptor = FetchDescriptor(predicate: #Predicate<AppCrashLog> { $0.reportDate == nil })
-//        return try modelContext.fetch(descriptor)
-//    }
-//}

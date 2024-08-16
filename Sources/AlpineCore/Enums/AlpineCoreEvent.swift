@@ -16,4 +16,6 @@ public enum AlpineCoreEvent: String {
     case presentError = "present_error"
     case cannotFindFeature = "cannot_find_feature"
     case clearingOutOldEvents = "clearing_out_old_events"
+    case crashLogUploaded = "crash_log_uploaded"
+    case errorLogUploaded = "error_log_uploaded"
 }
