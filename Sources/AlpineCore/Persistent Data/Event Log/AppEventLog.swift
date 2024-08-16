@@ -31,7 +31,7 @@ public class AppEventLog {
     func toErrorText() -> String {
         var logMessage = """
         \n```
-        "\(event) at \(timestamp.toString(format: "MMMd HH:mm:ss"))"
+        \(event.uppercased()) @ \(timestamp.toString(format: "MMM d HH:mm:ss"))
         """
         
         if let parameters = parameters, !parameters.isEmpty {
