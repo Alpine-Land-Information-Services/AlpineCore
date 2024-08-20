@@ -35,7 +35,6 @@ public class AppEventLog {
         """
         
         if let parameters = parameters, !parameters.isEmpty {
-            logMessage += "\nParameters:"
             for (key, value) in parameters {
                 logMessage += "\n - \(key): \(value)"
             }

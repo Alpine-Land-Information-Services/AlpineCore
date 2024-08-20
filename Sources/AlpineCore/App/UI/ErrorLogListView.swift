@@ -43,6 +43,7 @@ struct ErrorListSelectView: View {
     
     @Environment(CoreAppControl.self) var control
     @Environment(\.dismiss) var dismiss
+    
     @Query private var errors: [AppError]
     
     @Binding var selectedError: AppError?

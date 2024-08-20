@@ -169,7 +169,7 @@ extension CoreAppControl {  //MARK: Events
                                   file: String = #file, function: String = #function, line: Int = #line) {
         
         var updatedParameters = parameters ?? [:]
-        updatedParameters["eventActionTyp"] = typ?.rawValue
+        updatedParameters["eventActionType"] = typ?.rawValue
         
         Self.shared.logEvent(event.rawValue, type: AppEventType.userAction.rawValue, parameters: updatedParameters, fileInfo: fileInfo, file: file, function: function, line: line)
     }
@@ -470,15 +470,10 @@ extension CoreAppControl { //MARK: Errors
     ///   - errorTag: An optional tag to identify the error.
     /// - Returns: A tuple containing the title and message text for the error.
     private func getErrorText(error: Error, errorTag: String?) -> (String, String) {
-        var errorCod: String? = nil
-        if let errorTag = errorTag {
-            errorCod = "\n(Ref: \(errorTag))"
-        }
-        
         if let err = error as? AlpineError {
-            return (err.getType(), err.message + (errorCod ?? ""))
+            return (err.getType(), err.message)
         }
-        return ("System Error", error.log() + (errorCod ?? ""))
+        return ("System Error", error.log())
     }
     
     /// Processes the files associated with an error.

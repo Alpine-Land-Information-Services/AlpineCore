@@ -17,21 +17,18 @@ public struct SupportContactView: View {
         case bug = "Bug Report"
     }
     
-    @State private var issueLevel: AppError.IssueLevel = .nonUrgent
-    @State private var repeatable = false
-    
-    @State private var supportType: SupportType = .feedback
-    @State private var supportComment = ""
-    
-    @State private var associatedError: AppError?
-    @StateObject private var supportTicketSender = SupportTicketSender()
-    
     @Environment(\.dismiss) var dismiss
     
+    @State private var issueLevel: AppError.IssueLevel = .nonUrgent
+    @State private var supportType: SupportType = .feedback
+    @State private var repeatable: Bool = false
+    @State private var supportComment = ""
+    @State private var associatedError: AppError?
+    
+    @StateObject private var supportTicketSender = SupportTicketSender()
+    
     var network = NetworkTracker.shared
-    
     var userID: String
-    
     var isManual: Bool
     
     public init(userID: String, supportType: SupportType? = nil, associatedError: AppError? = nil) {
