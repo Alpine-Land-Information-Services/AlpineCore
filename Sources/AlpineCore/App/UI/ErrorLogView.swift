@@ -10,8 +10,9 @@ import AlpineUI
 
 struct ErrorLogView: View {
     
-    var error: AppError
+    @State private var refreshFlag = false
     
+    var error: AppError
     
     var body: some View {
         List {
@@ -19,13 +20,22 @@ struct ErrorLogView: View {
                 Text(error.content)
             } header: {
                 VStack(alignment: .leading) {
-                    HStack {
-                        Text("Timestamp: ")
-                        Text(error.date.toString(format: "MM-dd-yy HH:mm"))
+                    Group {
+                        HStack {
+                            Text("Timestamp: ")
+                            Text(error.date.toString(format: "MM-dd-yy HH:mm"))
+                        }
+                        if let errorTag = error.errorTag, let dateSent = error.dateSent {
+                            HStack {
+                                Text("Reference number: ")
+                                Text(errorTag)
+                            }
+                        }
                     }
                     .font(.callout)
-                    .padding(.bottom)
+
                     Text("Description:")
+                        .padding(.top)
                         .font(.caption)
                 }
                 .textCase(.none)
@@ -47,15 +57,16 @@ struct ErrorLogView: View {
                 if let dateSent = error.dateSent {
                     Text("Sent on \(dateSent.toString(format: "MMM d"))")
                         .font(.caption)
-                }
-                else if error.report != nil {
+                } else if error.report != nil {
                     Text("Submited")
                         .font(.caption)
-                }
-                else {
+                } else {
                     reportButton
                 }
             }
+        }
+        .onAppear {
+            refreshFlag.toggle()
         }
     }
     

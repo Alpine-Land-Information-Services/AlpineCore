@@ -52,7 +52,7 @@ public struct SupportContactView: View {
                 issueType
                 isRepeatable
                 if isManual {
-                    error
+//                    error
                 }
             }
             comments
@@ -131,6 +131,8 @@ public struct SupportContactView: View {
         }
     }
     
+    //TODO: -FIX Container for  AppError
+    //Temporarily removed this block from the UI
     var error: some View {
         Section {
             NavigationLink {

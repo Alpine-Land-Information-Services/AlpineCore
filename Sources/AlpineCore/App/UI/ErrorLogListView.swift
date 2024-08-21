@@ -21,14 +21,17 @@ public struct ErrorLogListView: View {
     public var body: some View {
         if errors.isEmpty {
             ContentUnavailableView("No Errors Recorded", systemImage: "hand.thumbsup")
-        }
-        else {
+        } else {
             ForEach(errors) { error in
                 NavigationLink {
                     ErrorLogView(error: error)
                 } label: {
                     HStack {
                         Text(error.title)
+                        if let errorTag = error.errorTag, let _ = error.dateSent {
+                            Text("(Ref: \(errorTag))")
+                            sentLabel
+                        }
                         Spacer()
                         Text(error.date.toString(format: "MM-dd-yy HH:mm"))
                             .font(.caption)
@@ -37,64 +40,16 @@ public struct ErrorLogListView: View {
             }
         }
     }
-}
-
-struct ErrorListSelectView: View {
-    
-    @Environment(CoreAppControl.self) var control
-    @Environment(\.dismiss) var dismiss
-    
-    @Query private var errors: [AppError]
-    
-    @Binding var selectedError: AppError?
-    
-    @State private var editMode = EditMode.inactive
-    @State var multiSelection = Set<AppError>()
-    
-    public init(userID: String, selectedError: Binding<AppError?>) {
-        _errors = Query(filter: #Predicate<AppError> { $0.user?.id == userID }, sort: \.date, order: .reverse)
-        _selectedError = selectedError
-    }
-    
-    public var body: some View {
-        List(selection: $selectedError) {
-            Section {
-                ForEach(errors, id: \.self) { error in
-                    HStack {
-                        Text(error.title)
-                        Spacer()
-                        Text(error.date.toString(format: "MM-dd-yy HH:mm"))
-                            .font(.caption)
-                    }
-                }
-            } header: {
-                Text("Select a corresponding error to your support request, if one exists.")
-                    .textCase(.none)
-            }
-
-        }
-        .environment(\.editMode, .constant(.active))
-        .navigationTitle("Error Selection")
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden()
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    selectedError = nil
-                    dismiss()
-                } label: {
-                    Text("Cancel")
-                }
-            }
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    dismiss()
-                } label: {
-                    Text("Done")
-                        .font(.headline)
-                }
-            }
-        }
+    var sentLabel: some View {
+        Text("Sent")
+            .font(.caption)
+            .padding(4)
+            .foregroundColor(.green)
+            .background(.ultraThickMaterial)
+            .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.green, lineWidth: 1)
+            )
     }
 }
-

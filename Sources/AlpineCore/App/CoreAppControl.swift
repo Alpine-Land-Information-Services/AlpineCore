@@ -165,13 +165,14 @@ extension CoreAppControl {  //MARK: Events
     ///   - file: The name of the file from which the function is called. Defaults to the file where the function is called.
     ///   - function: The name of the function from which the function is called. Defaults to the function where the function is called.
     ///   - line: The line number from which the function is called. Defaults to the line where the function is called.
-    public static func logUIEvent(_ event: AlpineUIEvent, typ: UIEventType? = .presses, fileInfo: String? = nil, parameters: [String: Any]? = nil,
+    public static func logUIEvent(_ event: AlpineUIEvent, extendedEventName: String? = nil, typ: UIEventType? = .presses, fileInfo: String? = nil, parameters: [String: Any]? = nil,
                                   file: String = #file, function: String = #function, line: Int = #line) {
         
+        let eventName = extendedEventName != nil ? "\(event.rawValue)_\(extendedEventName!.toSnakeCase())" : event.rawValue
         var updatedParameters = parameters ?? [:]
         updatedParameters["eventActionType"] = typ?.rawValue
         
-        Self.shared.logEvent(event.rawValue, type: AppEventType.userAction.rawValue, parameters: updatedParameters, fileInfo: fileInfo, file: file, function: function, line: line)
+        Self.shared.logEvent(eventName, type: AppEventType.userAction.rawValue, parameters: updatedParameters, fileInfo: fileInfo, file: file, function: function, line: line)
     }
     
     /// Logs a generic event.

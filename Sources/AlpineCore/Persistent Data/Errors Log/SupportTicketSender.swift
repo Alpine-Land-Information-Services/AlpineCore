@@ -82,7 +82,8 @@ public class SupportTicketSender: ObservableObject {
     
     func markToSendError(_ error: AppError, comments: String, issueLevel: AppError.IssueLevel, repeatable: Bool) -> String {
         let report = error.createReport(issueLevel: issueLevel, comments: comments, repeatable: repeatable)
-        Core.makeSimpleAlert(title: "Report Submitted", message: "Thank you, your report has been submitted.")
+        let message = error.errorTag != nil ? "Thank you, your report has been submitted.\n(Ref: \(error.errorTag!)" : "Thank you, your report has been submitted."
+        Core.makeSimpleAlert(title: "Report Submitted", message: message)
         
         return report
     }
