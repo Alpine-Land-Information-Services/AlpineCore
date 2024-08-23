@@ -112,9 +112,9 @@ extension CoreAppActor { //MARK: Sending Events
 
         var log = 
         """
-        <---Events Beginning at \(date.toString(format: "MMM d, h:mm a"))--->
+        ### 📅 Events
+        Beginning at \(date.toString(format: "MMM d, h:mm a"))
         Submitted on \(Date().toString(format: "MMM d, h:mm a"))
-        
         """
         for event in try getRecentEvents(interval: interval) {
             log.append(event.toErrorText())

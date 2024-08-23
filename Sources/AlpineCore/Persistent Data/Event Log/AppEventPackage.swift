@@ -27,8 +27,7 @@ public class EventPackage {
         }
         
         let sender = SupportTicketSender()
-        sender.sendBackgroundReport(title: "App Events", message: log, email: user.id, errorTag: nil) { [weak self] success in
-            guard let self else { return }
+        sender.sendBackgroundReport(title: "App Events", message: log, email: user.id, errorTag: nil) { [self] success in
             if success {
                 modelContext?.delete(self)
             }

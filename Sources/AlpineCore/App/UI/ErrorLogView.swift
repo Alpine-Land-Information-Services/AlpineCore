@@ -25,7 +25,7 @@ struct ErrorLogView: View {
                             Text("Timestamp: ")
                             Text(error.date.toString(format: "MM-dd-yy HH:mm"))
                         }
-                        if let errorTag = error.errorTag, let dateSent = error.dateSent {
+                        if let errorTag = error.errorTag, let _ = error.dateSent {
                             HStack {
                                 Text("Reference number: ")
                                 Text(errorTag)
