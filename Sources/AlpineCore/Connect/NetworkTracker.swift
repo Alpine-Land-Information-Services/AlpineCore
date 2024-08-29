@@ -126,11 +126,29 @@ public extension NetworkTracker {
 public extension NetworkTracker {
     
     func connectedAction(action: () -> Void) {
-        guard isConnected else {
+        guard Self.isConnected else {
             Core.makeSimpleAlert(title: "Offline", message: "Network connection is required for this action.")
             return
         }
         
         action()
+    }
+    
+    func connectedAction(action: () async -> Void) async {
+        guard isConnected else {
+            Core.makeSimpleAlert(title: "Offline", message: "Network connection is required for this action.")
+            return
+        }
+        
+        await action()
+    }
+    
+    static func connectedAction(action: () -> Void) {
+        Self.shared.connectedAction(action: action)
+
+    }
+    
+    static func connectedAction(action: () async -> Void) async {
+        await Self.shared.connectedAction(action: action)
     }
 }
