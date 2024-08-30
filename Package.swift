@@ -17,16 +17,14 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/jenyalebid/AlpineUI.git", branch: "main"),
-        .package(url: "https://github.com/jenyalebid/PopupKit.git", branch: "main"),
         .package(url: "https://github.com/marmelroy/Zip.git", from: "2.1.2")
-
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "AlpineCore",
-            dependencies: ["AlpineUI", "PopupKit", "Zip"]),
+            dependencies: ["AlpineUI", "Zip"]),
         .testTarget(
             name: "AlpineCoreTests",
             dependencies: ["AlpineCore"]),

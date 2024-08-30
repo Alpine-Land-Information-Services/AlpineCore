@@ -8,8 +8,6 @@
 import SwiftUI
 import SwiftData
 import OSLog
-
-import PopupKit
 import AlpineUI
 
 @Observable

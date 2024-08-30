@@ -5,7 +5,7 @@
 //  Created by mkv on 1/22/24.
 //
 
-import PopupKit
+import AlpineUI
 import Foundation
 
 public extension AlertButton {

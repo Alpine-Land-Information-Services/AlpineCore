@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import PopupKit
 import AlpineUI
 
 public typealias Core = CoreAppControl
