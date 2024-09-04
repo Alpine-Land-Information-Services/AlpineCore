@@ -9,7 +9,6 @@ import Foundation
 
 public struct FSPath: RawRepresentable {
     
-    @available(*, deprecated, message: "User specific raw")
     public var rawValue: String
 
     public init(rawValue: String) {
