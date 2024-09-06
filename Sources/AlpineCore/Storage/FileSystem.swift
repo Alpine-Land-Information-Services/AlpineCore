@@ -9,9 +9,7 @@ import Foundation
 
 
 public final class FileSystem {
-    
-//    static var shared = FileSystem()
-    
+        
     public enum FSError: Error {
         case error(_: Error)
         case urlFail
