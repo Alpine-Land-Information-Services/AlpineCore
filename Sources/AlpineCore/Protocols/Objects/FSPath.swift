@@ -15,43 +15,6 @@ public struct FSPath: RawRepresentable {
     public init(rawValue: String) {
         self.rawValue = rawValue
     }
-    
-    public var lastComponent: String {
-        rawValue.components(separatedBy: "/").last ?? rawValue
-    }
-    
-    public var isFolder: Bool {
-        rawValue.hasSuffix("/")
-    }
-    
-    public var isFile: Bool {
-        !isFolder
-    }
-    
-    public var pathType: FS.PathType {
-        isFolder ? .folder : .file
-    }
-}
-
-public extension FSPath {
-    
-    func fullPath(in type: FS.PathRoot) -> FSPath {
-        switch type {
-        case .documents:
-            return FS.appDocumentsURL.path.appending("/\(rawValue)").fsPath
-        case .group:
-            return FS.atlasGroupURL.path.appending("/\(rawValue)").fsPath
-        }
-    }
-    
-    func url(in type: FS.PathRoot) -> URL {
-        switch type {
-        case .documents:
-            return FS.appDocumentsURL.appending(path: rawValue)
-        case .group:
-            return FS.atlasGroupURL.appending(path: rawValue)
-        }
-    }
 }
 
 extension FSPath: Codable {
@@ -68,6 +31,52 @@ extension FSPath: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         rawValue = try container.decode(String.self)
+    }
+}
+
+public extension FSPath {
+    
+    var fileName: String {
+        self.rawValue.components(separatedBy: "/").last!
+    }
+    
+    var rawFolder: String {
+        if rawValue.last == "/" {
+            return rawValue
+        }
+        return rawValue.appending("/")
+    }
+    
+    var rawFile: String {
+        if rawValue.last == "/" {
+            var modified = rawValue
+            modified.removeLast()
+            
+            return modified
+        }
+        return rawValue
+    }
+}
+
+@available(iOS 16.0, *)
+public extension FSPath {
+    
+    func fullPath(in type: FS.PathType) -> FSPath {
+        switch type {
+        case .documents:
+            return FS.appDocumentsURL.path.appending("/\(rawValue)").fsPath
+        case .group:
+            return FS.atlasGroupURL.path.appending("/\(rawValue)").fsPath
+        }
+    }
+    
+    func url(in type: FS.PathType) -> URL {
+        switch type {
+        case .documents:
+            return FS.appDocumentsURL.appending(path: rawValue)
+        case .group:
+            return FS.atlasGroupURL.appending(path: rawValue)
+        }
     }
 }
 
@@ -100,43 +109,12 @@ public extension FSPath {
 
 public extension FSPath {
     
-    func appending(_ item: String, isFolder: Bool = true) -> FSPath {
-        if self.rawValue.last != "/" {
-            return FSPath(rawValue: self.rawValue.appending("/").appending(item).appending(isFolder ? "" : "/"))
-        }
-        else {
-            return FSPath(rawValue: self.rawValue.appending(item).appending(isFolder ? "" : "/"))
-        }
+    func appending(_ item: String) -> FSPath {
+        FSPath(rawValue: self.rawValue.appending("/").appending(item))
     }
     
     func equals(_ other: FSPath) -> Bool {
         self.rawValue == other.rawValue
     }
 }
-
-@available(*, deprecated, message: "DO NOT USE")
-public extension FSPath {
-    
-    var fileName: String {
-        self.rawValue.components(separatedBy: "/").last!
-    }
-    
-    var rawFolder: String {
-        if rawValue.last == "/" {
-            return rawValue
-        }
-        return rawValue.appending("/")
-    }
-    
-    var rawFile: String {
-        if rawValue.last == "/" {
-            var modified = rawValue
-            modified.removeLast()
-            
-            return modified
-        }
-        return rawValue
-    }
-}
-    
 
