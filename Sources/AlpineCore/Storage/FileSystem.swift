@@ -155,8 +155,10 @@ public extension FileSystem { //MARK: NEW
     }
     
     static func exists(at path: FSPath) -> Bool {
-        let path = documentsDirectory.absoluteString.appending("/\(path.rawValue)")
-        return FileManager.default.fileExists(atPath: path)
+        var str = documentsDirectory.path()
+        let delimiter = str.last == "/" ? "" : "/"
+        str = str.appending("\(delimiter)\(path.rawValue)")
+        return FileManager.default.fileExists(atPath: str)
     }
 }
 
