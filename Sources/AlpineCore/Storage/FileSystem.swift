@@ -120,6 +120,12 @@ public extension FileSystem {
     static func fileExists(at path: FSPath, in pathType: FS.PathRoot) -> Bool {
         return fileExists(at: getURL(for: pathType).appending(path: path.rawValue))
     }
+    
+    static func removeIfExists(at url: URL) throws {
+        if fileExists(at: url) {
+            try FileManager.default.removeItem(at: url)
+        }
+    }
 }
 
 public extension FileSystem { //MARK: NEW
