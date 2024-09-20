@@ -108,11 +108,16 @@ public extension FSPath {
 }
 
 public extension FSPath {
-    
-    func appending(_ item: String) -> FSPath {
-        FSPath(rawValue: self.rawValue.appending("/").appending(item))
+  
+    func appending(_ item: String, isFolder: Bool = true) -> FSPath {
+        if self.rawValue.last != "/" {
+            return FSPath(rawValue: self.rawValue.appending("/").appending(item).appending(isFolder ? "/" : ""))
+        }
+        else {
+            return FSPath(rawValue: self.rawValue.appending(item).appending(isFolder ? "/" : ""))
+        }
     }
-    
+  
     func equals(_ other: FSPath) -> Bool {
         self.rawValue == other.rawValue
     }

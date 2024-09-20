@@ -8,10 +8,8 @@
 import Foundation
 
 
-public class FileSystem {
-    
-    static var shared = FileSystem()
-    
+public final class FileSystem {
+  
     public enum FSError: Error {
         case error(_: Error)
         case urlFail
@@ -120,6 +118,12 @@ public extension FileSystem {
     static func fileExists(at path: FSPath, in pathType: FS.PathType) -> Bool {
         return fileExists(at: getURL(for: pathType).appending(path: path.rawValue))
     }
+    
+    static func removeIfExists(at url: URL) throws {
+        if fileExists(at: url) {
+            try FileManager.default.removeItem(at: url)
+        }
+    }
 }
 
 public extension FileSystem { //MARK: NEW
@@ -155,8 +159,10 @@ public extension FileSystem { //MARK: NEW
     }
     
     static func exists(at path: FSPath) -> Bool {
-        let path = documentsDirectory.absoluteString.appending("/\(path.rawValue)")
-        return FileManager.default.fileExists(atPath: path)
+        var str = documentsDirectory.path()
+        let delimiter = str.last == "/" ? "" : "/"
+        str = str.appending("\(delimiter)\(path.rawValue)")
+        return FileManager.default.fileExists(atPath: str)
     }
 }
 
