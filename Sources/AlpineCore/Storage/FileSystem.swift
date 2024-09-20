@@ -9,7 +9,7 @@ import Foundation
 
 
 public final class FileSystem {
-        
+  
     public enum FSError: Error {
         case error(_: Error)
         case urlFail
@@ -22,33 +22,31 @@ public final class FileSystem {
     }
     
     public enum PathType: String {
-        case file
-        case folder
-    }
-    
-    public enum PathRoot: String {
         case documents
         case group
     }
     
-    public static var atlasGroupURL: URL {
-        FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.alpinelis.atlas")!
+    private var documentsDirectoryURL: URL?
+    
+    init() {
+        documentsDirectoryURL = URL(string: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
     }
-    
-    public static var appDocumentsURL: URL {
-        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-    }
-    
-    public static var appSupportURL: URL {
-        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-    }
-    
-    
-    private init() {}
 }
 
 @available(iOS 16.0, *)
 public extension FileSystem {
+    
+    static var atlasGroupURL: URL {
+        FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.alpinelis.atlas")!
+    }
+    
+    static var appDocumentsURL: URL {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+    }
+    
+    static var appSupportURL: URL {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+    }
     
     static func move(at sourceURL: URL, destinationURL: URL, overrideIfExists: Bool = true) throws {
         try FileManager.default.createDirectory(at: destinationURL.deletingLastPathComponent(), withIntermediateDirectories: true)
@@ -76,7 +74,7 @@ public extension FileSystem {
         try FileManager.default.copyItem(at: sourceURL, to: destinationURL)
     }
     
-    static func createDirectory(for path: FSPath, in pathType: FS.PathRoot) throws {
+    static func createDirectory(for path: FSPath, in pathType: FS.PathType) throws {
         try FileManager.default.createDirectory(at: getURL(for: pathType).appending(path: path.rawValue), withIntermediateDirectories: true)
     }
     
@@ -84,7 +82,7 @@ public extension FileSystem {
         try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
     }
     
-    static func deleteFile(for path: FSPath, in pathType: FS.PathRoot) throws {
+    static func deleteFile(for path: FSPath, in pathType: FS.PathType) throws {
         try deleteFile(at: getURL(for: pathType).appending(path: path.rawValue))
     }
 
@@ -96,7 +94,7 @@ public extension FileSystem {
         }
     }
     
-    static func getURL(for pathType: FS.PathRoot) -> URL {
+    static func getURL(for pathType: FS.PathType) -> URL {
         switch pathType {
         case .documents:
             return appDocumentsURL
@@ -117,7 +115,7 @@ public extension FileSystem {
         return FileManager.default.fileExists(atPath: url.path(percentEncoded: false))
     }
     
-    static func fileExists(at path: FSPath, in pathType: FS.PathRoot) -> Bool {
+    static func fileExists(at path: FSPath, in pathType: FS.PathType) -> Bool {
         return fileExists(at: getURL(for: pathType).appending(path: path.rawValue))
     }
     
@@ -131,8 +129,8 @@ public extension FileSystem {
 public extension FileSystem { //MARK: NEW
     
     static var documentsDirectory: URL {
-        return FS.appDocumentsURL
-//        ?? URL(string: "/Users/jenya/Library/Developer/CoreSimulator/Devices/8FE8FE32-8BF7-4A22-B975-55851D2E44AA/data/Containers/Data/Application/3303E29B-C936-438A-A1EF-539494B81BD7/Documents/")! // FOR PREVIEW USE ONLY
+        return FS.shared.documentsDirectoryURL
+        ?? URL(string: "/Users/jenya/Library/Developer/CoreSimulator/Devices/8FE8FE32-8BF7-4A22-B975-55851D2E44AA/data/Containers/Data/Application/3303E29B-C936-438A-A1EF-539494B81BD7/Documents/")! // FOR PREVIEW USE ONLY
     }
     
     static func getDirectoryContents(in path: FSPath) -> [String]? {
@@ -149,7 +147,7 @@ public extension FileSystem { //MARK: NEW
     
     @discardableResult
     static func findOrCreateDirectoryPath(for path: FSPath) -> FSPath {
-        let fullPath = documentsDirectory.path(percentEncoded: false).appending(path.rawValue)
+        let fullPath = documentsDirectory.absoluteString.appending("/\(path.rawValue)")
         if !FileManager.default.fileExists(atPath: fullPath) {
             do {
                 try FileManager.default.createDirectory(atPath: fullPath, withIntermediateDirectories: true)
@@ -261,7 +259,7 @@ public extension FileSystem { //MARK: OLD
     }
     
     static func fileExists(at path: String) -> Bool {
-        return FileManager.default.fileExists(atPath: documentsDirectory.path(percentEncoded: false).appending(path))
+        return FileManager.default.fileExists(atPath: documentsDirectory.absoluteString.appending("/\(path)"))
     }
     
     static func fileExists(_ file: String, in directory: Folder) -> Bool {
