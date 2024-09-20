@@ -21,7 +21,7 @@ public final class FileSystem {
         case presets
     }
     
-    public enum PathType: String {
+    public enum PathRoot: String {
         case documents
         case group
     }
@@ -74,7 +74,7 @@ public extension FileSystem {
         try FileManager.default.copyItem(at: sourceURL, to: destinationURL)
     }
     
-    static func createDirectory(for path: FSPath, in pathType: FS.PathType) throws {
+    static func createDirectory(for path: FSPath, in pathType: FS.PathRoot) throws {
         try FileManager.default.createDirectory(at: getURL(for: pathType).appending(path: path.rawValue), withIntermediateDirectories: true)
     }
     
@@ -82,7 +82,7 @@ public extension FileSystem {
         try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
     }
     
-    static func deleteFile(for path: FSPath, in pathType: FS.PathType) throws {
+    static func deleteFile(for path: FSPath, in pathType: FS.PathRoot) throws {
         try deleteFile(at: getURL(for: pathType).appending(path: path.rawValue))
     }
 
@@ -94,7 +94,7 @@ public extension FileSystem {
         }
     }
     
-    static func getURL(for pathType: FS.PathType) -> URL {
+    static func getURL(for pathType: FS.PathRoot) -> URL {
         switch pathType {
         case .documents:
             return appDocumentsURL
@@ -115,7 +115,7 @@ public extension FileSystem {
         return FileManager.default.fileExists(atPath: url.path(percentEncoded: false))
     }
     
-    static func fileExists(at path: FSPath, in pathType: FS.PathType) -> Bool {
+    static func fileExists(at path: FSPath, in pathType: FS.PathRoot) -> Bool {
         return fileExists(at: getURL(for: pathType).appending(path: path.rawValue))
     }
     
@@ -129,7 +129,7 @@ public extension FileSystem {
 public extension FileSystem { //MARK: NEW
     
     static var documentsDirectory: URL {
-        return FS.shared.documentsDirectoryURL
+        return FS.appDocumentsURL
         ?? URL(string: "/Users/jenya/Library/Developer/CoreSimulator/Devices/8FE8FE32-8BF7-4A22-B975-55851D2E44AA/data/Containers/Data/Application/3303E29B-C936-438A-A1EF-539494B81BD7/Documents/")! // FOR PREVIEW USE ONLY
     }
     

@@ -9,11 +9,23 @@ import Foundation
 
 public struct FSPath: RawRepresentable {
     
-    @available(*, deprecated, message: "User specific raw")
     public var rawValue: String
 
     public init(rawValue: String) {
         self.rawValue = rawValue
+    }
+    
+    public func appending(_ item: String, isFolder: Bool = true) -> FSPath {
+        if self.rawValue.last != "/" {
+            return FSPath(rawValue: self.rawValue.appending("/").appending(item).appending(isFolder ? "/" : ""))
+        }
+        else {
+            return FSPath(rawValue: self.rawValue.appending(item).appending(isFolder ? "/" : ""))
+        }
+    }
+  
+    public func equals(_ other: FSPath) -> Bool {
+        self.rawValue == other.rawValue
     }
 }
 
@@ -61,7 +73,7 @@ public extension FSPath {
 @available(iOS 16.0, *)
 public extension FSPath {
     
-    func fullPath(in type: FS.PathType) -> FSPath {
+    func fullPath(in type: FS.PathRoot) -> FSPath {
         switch type {
         case .documents:
             return FS.appDocumentsURL.path.appending("/\(rawValue)").fsPath
@@ -70,7 +82,7 @@ public extension FSPath {
         }
     }
     
-    func url(in type: FS.PathType) -> URL {
+    func url(in type: FS.PathRoot) -> URL {
         switch type {
         case .documents:
             return FS.appDocumentsURL.appending(path: rawValue)
@@ -104,22 +116,6 @@ public extension FSPath {
         } else {
             FS.documentsDirectory.appendingPathComponent("/\(self.rawValue)")
         }
-    }
-}
-
-public extension FSPath {
-  
-    func appending(_ item: String, isFolder: Bool = true) -> FSPath {
-        if self.rawValue.last != "/" {
-            return FSPath(rawValue: self.rawValue.appending("/").appending(item).appending(isFolder ? "/" : ""))
-        }
-        else {
-            return FSPath(rawValue: self.rawValue.appending(item).appending(isFolder ? "/" : ""))
-        }
-    }
-  
-    func equals(_ other: FSPath) -> Bool {
-        self.rawValue == other.rawValue
     }
 }
 
