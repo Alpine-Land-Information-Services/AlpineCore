@@ -10,22 +10,46 @@ import Foundation
 public struct FSPath: RawRepresentable {
     
     public var rawValue: String
-
+    
     public init(rawValue: String) {
         self.rawValue = rawValue
     }
     
-    public func appending(_ item: String, isFolder: Bool = true) -> FSPath {
-        if self.rawValue.last != "/" {
-            return FSPath(rawValue: self.rawValue.appending("/").appending(item).appending(isFolder ? "/" : ""))
-        }
-        else {
-            return FSPath(rawValue: self.rawValue.appending(item).appending(isFolder ? "/" : ""))
+    public var lastComponent: String {
+        rawValue.components(separatedBy: "/").last ?? rawValue
+    }
+    
+    public var isFolder: Bool {
+        rawValue.hasSuffix("/")
+    }
+    
+    public var isFile: Bool {
+        !isFolder
+    }
+    
+    public var pathType: FS.PathType {
+        isFolder ? .folder : .file
+    }
+}
+
+public extension FSPath {
+    
+    func fullPath(in type: FS.PathRoot) -> FSPath {
+        switch type {
+        case .documents:
+            return FS.appDocumentsURL.path.appending("/\(rawValue)").fsPath
+        case .group:
+            return FS.atlasGroupURL.path.appending("/\(rawValue)").fsPath
         }
     }
-  
-    public func equals(_ other: FSPath) -> Bool {
-        self.rawValue == other.rawValue
+    
+    func url(in type: FS.PathRoot) -> URL {
+        switch type {
+        case .documents:
+            return FS.appDocumentsURL.appending(path: rawValue)
+        case .group:
+            return FS.atlasGroupURL.appending(path: rawValue)
+        }
     }
 }
 
@@ -46,6 +70,46 @@ extension FSPath: Codable {
     }
 }
 
+public extension FSPath {
+    
+    var removeExtension: FSPath {
+        let components = self.rawValue.components(separatedBy: ".")
+        return components.dropLast().joined(separator: ".").fsPath
+    }
+    
+    var removeLast: FSPath {
+        let components = self.rawValue.components(separatedBy: "/")
+        return components.dropLast().joined(separator: "/").fsPath
+    }
+    
+    @available(*, deprecated, message: "use fullPath()")
+    var fullPath: FSPath {
+        return FS.documentsDirectory.absoluteString.appending("/\(self.rawValue)").fsPath
+    }
+    
+    @available(*, deprecated, message: "use url()")
+    var url: URL {
+        if #available(iOS 16.0, *) {
+            FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appending(path: self.rawValue)
+        } else {
+            FS.documentsDirectory.appendingPathComponent("/\(self.rawValue)")
+        }
+    }
+}
+
+public extension FSPath {
+    
+    func appending(_ item: String, isFolder: Bool = true) -> FSPath {
+        let delimiter = self.rawValue.last == "/" ? "" : "/"
+        return FSPath(rawValue: self.rawValue.appending(delimiter).appending(item).appending(isFolder ? "/" : ""))
+    }
+    
+    func equals(_ other: FSPath) -> Bool {
+        self.rawValue == other.rawValue
+    }
+}
+
+@available(*, deprecated, message: "DO NOT USE")
 public extension FSPath {
     
     var fileName: String {
@@ -69,53 +133,3 @@ public extension FSPath {
         return rawValue
     }
 }
-
-@available(iOS 16.0, *)
-public extension FSPath {
-    
-    func fullPath(in type: FS.PathRoot) -> FSPath {
-        switch type {
-        case .documents:
-            return FS.appDocumentsURL.path.appending("/\(rawValue)").fsPath
-        case .group:
-            return FS.atlasGroupURL.path.appending("/\(rawValue)").fsPath
-        }
-    }
-    
-    func url(in type: FS.PathRoot) -> URL {
-        switch type {
-        case .documents:
-            return FS.appDocumentsURL.appending(path: rawValue)
-        case .group:
-            return FS.atlasGroupURL.appending(path: rawValue)
-        }
-    }
-}
-
-public extension FSPath {
-    
-    var removeExtension: FSPath {
-        let components = self.rawValue.components(separatedBy: ".")
-        return components.dropLast().joined(separator: ".").fsPath
-    }
-
-    var removeLast: FSPath {
-        let components = self.rawValue.components(separatedBy: "/")
-        return components.dropLast().joined(separator: "/").fsPath
-    }
-
-    @available(*, deprecated, message: "use fullPath()")
-    var fullPath: FSPath {
-        return FS.documentsDirectory.absoluteString.appending("/\(self.rawValue)").fsPath
-    }
-    
-    @available(*, deprecated, message: "use url()")
-    var url: URL {
-        if #available(iOS 16.0, *) {
-            FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appending(path: self.rawValue)
-        } else {
-            FS.documentsDirectory.appendingPathComponent("/\(self.rawValue)")
-        }
-    }
-}
-
