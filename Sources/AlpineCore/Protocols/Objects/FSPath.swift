@@ -30,6 +30,17 @@ public struct FSPath: RawRepresentable {
     public var pathType: FS.PathType {
         isFolder ? .folder : .file
     }
+    
+    public static func fromRoot(_ root: FS.PathRoot, for userID: String, as fileName: String) -> FSPath {
+        let folderName = fileName.components(separatedBy: ".").first?.capitalized ?? fileName
+
+        switch root {
+        case .documents:
+            return FSPath(rawValue: "Atlas/\(userID)/\(folderName)/\(fileName)")
+        case .group:
+            return FSPath(rawValue: "Users/\(userID)/\(folderName)/\(fileName)")
+        }
+    }
 }
 
 public extension FSPath {
