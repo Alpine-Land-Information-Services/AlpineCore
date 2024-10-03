@@ -72,7 +72,13 @@ public extension FileSystem {
             else {
                 throw CoreError("Cannot copy file, it already exists at destination.", type: .fileSystem)
             }
+        } else {
+            let folderURL = destinationURL.deletingLastPathComponent()
+            if !FileManager.default.fileExists(atPath: folderURL.path(percentEncoded: false)) {
+                try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+            }
         }
+        
         try FileManager.default.copyItem(at: sourceURL, to: destinationURL)
     }
     
