@@ -16,6 +16,14 @@ public struct AtlasFieldData {
     
     public var name: String
     public var value: Any
+    
+    public static func convertToDictionary(_ array: [AtlasFieldData]) -> [String: Any] {
+        var result = [String: Any]()
+        for item in array {
+            result[item.name] = item.value
+        }
+        return result
+    }
 }
 
 public struct AtlasFeatureData {
