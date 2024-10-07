@@ -223,6 +223,14 @@ public extension Date {
             return "Just now"
         }
     }
+    
+    func toISO8601StringWithFractionalSeconds() -> String {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        
+        let dateString = formatter.string(from: self)
+        return dateString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+    }
 }
 
 public extension Date {
