@@ -110,6 +110,17 @@ public extension FileSystem {
             return atlasGroupURL
         }
     }
+    
+    static func addExtensionToFile(at fileURL: URL, newName: String? = nil, extension ext: String) throws -> URL {
+        let fileName = newName ?? fileURL.deletingPathExtension().lastPathComponent
+        let newFileURL = fileURL.deletingLastPathComponent().appendingPathComponent(fileName).appendingPathExtension(ext)
+        
+        if FileManager.default.fileExists(atPath: newFileURL.path) {
+            try FileManager.default.removeItem(at: newFileURL)
+        }
+        try FileManager.default.moveItem(at: fileURL, to: newFileURL)
+        return newFileURL
+    }
 }
 
 @available(iOS 16.0, *)
