@@ -121,6 +121,18 @@ public extension FileSystem {
         try FileManager.default.moveItem(at: fileURL, to: newFileURL)
         return newFileURL
     }
+    
+    static func renameFile(at fileURL: URL, newName: String) throws -> URL {
+        let fileExtension = fileURL.pathExtension.isEmpty ? "" : ".\(fileURL.pathExtension)"
+        let newFileURL = fileURL.deletingLastPathComponent().appendingPathComponent(newName + fileExtension)
+        
+        if FileManager.default.fileExists(atPath: newFileURL.path) {
+            try FileManager.default.removeItem(at: newFileURL)
+        }
+        
+        try FileManager.default.moveItem(at: fileURL, to: newFileURL)
+        return newFileURL
+    }
 }
 
 @available(iOS 16.0, *)
