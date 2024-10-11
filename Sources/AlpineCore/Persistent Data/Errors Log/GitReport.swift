@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 struct gitError: Error {
     var message: String
@@ -73,7 +74,12 @@ class GitReport {
                     ?? "Unknown App"
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
         let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
-        
-        return "### 📱 App: '\(appName)' -  v\(appVersion) (Build \(buildNumber))"
+        let systemVersion = UIDevice.current.systemVersion
+        let deviceModel = UIDevice.current.model
+
+        return """
+        ### 📱 App: '\(appName)' - v\(appVersion) (Build \(buildNumber))
+        > Device: \(deviceModel) > iOS Version: \(systemVersion)
+        """
     }
 }
