@@ -233,11 +233,10 @@ extension CoreAppControl {  //MARK: Events
         updatedParameters["eventType"] = type
         
         logFirebaseEvent(event, parameters: updatedParameters)
-        log(event)
+//        log(event)
         
-        guard let user, let type, let appType = AppEventType(rawValue: type) else { return }
-        
-        recordAppEvent(event, type: appType, userID: user.id, rawParameters: updatedParameters)
+//        guard let user, let type, let appType = AppEventType(rawValue: type) else { return }
+//        recordAppEvent(event, type: appType, userID: user.id, rawParameters: updatedParameters)
     }
     
     
