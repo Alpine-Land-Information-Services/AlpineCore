@@ -223,20 +223,21 @@ extension CoreAppControl {  //MARK: Events
     private func logEvent(_ event: String, type: String? = nil, parameters: [String: Any]? = nil, fileInfo: String? = nil,
                           file: String = #file, function: String = #function, line: Int = #line) {
         
-        var updatedParameters = parameters ?? [:]
+        var updatedParameters = parameters
         
         //TODO: - Finalize the targeting ("appTarget") definition for frameworks and packages
 //       let currentBundle = Bundle(for: BundleCheck.self)
 //       updatedParameters["appTarget"] = Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Unknown Target"
         
-        updatedParameters["fileInfo"] = "[\(URL(fileURLWithPath: file).lastPathComponent):\(line)] \(function)"
-        updatedParameters["eventType"] = type
+        updatedParameters?["fileInfo"] = "[\(URL(fileURLWithPath: file).lastPathComponent):\(line)] \(function)"
+        updatedParameters?["eventType"] = type
         
         logFirebaseEvent(event, parameters: updatedParameters)
-//        log(event)
+        log(event)
         
-//        guard let user, let type, let appType = AppEventType(rawValue: type) else { return }
-//        recordAppEvent(event, type: appType, userID: user.id, rawParameters: updatedParameters)
+        guard let user, let type, let appType = AppEventType(rawValue: type) else { return }
+
+        createEvent(event, type: appType, userID: user.id, rawParameters: updatedParameters)
     }
     
     
@@ -248,7 +249,7 @@ extension CoreAppControl {  //MARK: Events
     /// - Parameters:
     ///   - event: The name of the event to be logged.
     ///   - parameters: An optional dictionary of parameters associated with the event.
-    private func logFirebaseEvent(_ event: String, parameters: [String: Any]?) {
+    private func logFirebaseEvent(_ event: String, parameters: [String: Any]? = nil) {
         if let firebaseEventLogger {
             firebaseEventLogger(event, parameters)
         }
@@ -263,16 +264,16 @@ extension CoreAppControl {  //MARK: Events
     ///   - type: The type of the event as an `AppEventType`.
     ///   - userID: The user ID associated with the event.
     ///   - rawParameters: An optional dictionary of raw parameters associated with the event. Defaults to `nil`.
-    private func recordAppEvent(_ event: String, type: AppEventType, userID: String, rawParameters: [String: Any]? = nil) {
-       
+    private func createEvent(_ event: String, type: AppEventType, userID: String, rawParameters: [String: Any]? = nil) {
+        var sanitizedParameters = rawParameters 
+        sanitizedParameters?.removeValue(forKey: "eventType")
+        let finalEventParameters = sanitizedParameters
+        
         Task(priority: .background) { [weak self] in
-            var updatedParameters = rawParameters
-            updatedParameters?.removeValue(forKey: "eventType")
-            
-            await self?.actor.createEvent(event, type: type, userID: userID, rawParameters: updatedParameters)
+            await self?.actor.createEvent(event, type: type, userID: userID, rawParameters: finalEventParameters)
         }
     }
-    
+
     /// Logs a message to the system logger.
     ///
     /// This private method logs a message to the system logger using the specified log level and event type.
@@ -287,14 +288,13 @@ extension CoreAppControl {  //MARK: Events
         let logger = Logger(subsystem: subSystem, category: strType ?? type.rawValue)
         logger.log(level: level, "\(message)")
     }
-    
 }
 
 extension CoreAppControl { //MARK: Actor
     
     private func saveActor() {
         Task(priority: .background) { [weak self] in
-            await self?.actor.save()
+           try? await self?.actor.save()
         }
     }
     

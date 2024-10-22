@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-
 import AlpineUI
 
 public struct SupportContactView: View {
@@ -52,7 +51,7 @@ public struct SupportContactView: View {
                 issueType
                 isRepeatable
                 if isManual {
-//                    error
+                    error
                 }
             }
             comments

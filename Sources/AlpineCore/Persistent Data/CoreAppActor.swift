@@ -15,15 +15,24 @@ actor CoreAppActor: ModelActor {
     
     var user: CoreUser?
     
+    @MainActor
+    init(container modelContainer: ModelContainer) {
+        try? modelContainer.mainContext.save()
+        
+        self.modelContainer = modelContainer
+        let context = ModelContext(modelContainer)
+        modelExecutor = DefaultSerialModelExecutor(modelContext: context)
+    }
+
     init(modelContainer: ModelContainer) {
         self.modelContainer = modelContainer
         let context = ModelContext(modelContainer)
         modelExecutor = DefaultSerialModelExecutor(modelContext: context)
-        
     }
     
     func initialize(user: PersistentIdentifier, userID: String) {
-        self.user = modelContext.model(for: user) as? CoreUser
+//        self.user = modelContext.model(for: user) as? CoreUser
+        self.user = try? getCoreUser(userID: userID)
         
         Task(priority: .background) {
             sendPendingLogs(userID: userID)
@@ -33,34 +42,39 @@ actor CoreAppActor: ModelActor {
     
     func sendPendingLogs(userID: String) {
         guard NetworkTracker.shared.isConnected else { return }
-        
         try? attemptSendPendingErrors()
         try? attemptSendEventPackages()
     }
     
     func save() {
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            print("Error saving context: \(error)")
+        }
+    }
+    
+    private func getCoreUser(userID: String) throws -> CoreUser? {
+        let descriptor = FetchDescriptor(predicate: #Predicate<CoreUser> { $0.id == userID })
+        return try modelContext.fetch(descriptor).first
     }
 }
 
 extension CoreAppActor { //MARK: Events
     
-    func createEvent(_ event: String, type: AppEventType, userID: String, rawParameters: [String: Any]? = nil) {
-        let event = AppEventLog(event, type: type, userID: userID, rawParameters: rawParameters)
-        modelContext.insert(event)
-        
-        try? modelContext.save()
+    func createEvent(_ event: String, type: AppEventType, userID: String, rawParameters: [String: Any]? = nil) async {
+        let eventLog = AppEventLog(event, type: type, userID: userID, rawParameters: rawParameters)
+        modelContext.insert(eventLog)
+        save()
     }
     
-    func clearOldEvents() throws {
+    private func clearOldEvents() throws {
         let oldEvents = try getOldEvents()
         if !oldEvents.isEmpty {
             Core.logCoreEvent(.clearingOutOldEvents, type: .system, parameters: ["oldEvents count" : "\(oldEvents.count)"])
             for event in oldEvents {
                 modelContext.delete(event)
             }
-            
-            try modelContext.save()
         }
     }
     
@@ -128,7 +142,7 @@ extension CoreAppActor { //MARK: Sending Events
             package.send()
         }
         
-        try modelContext.save()
+        save()
     }
     
     private func getNotExportedEventPackages() throws -> [EventPackage] {
@@ -142,7 +156,7 @@ extension CoreAppActor { //MARK: Sending Events
             Core.logCoreEvent(.crashLogUploaded, type: .log)
         }
         
-        try modelContext.save()
+        save()
     }
 }
 
@@ -168,7 +182,6 @@ extension CoreAppActor { //MARK: Errors
     
     private func getPendingErrors() throws -> [AppError] {
         let descriptor = FetchDescriptor(predicate: #Predicate<AppError> { $0.report != nil })
-        
         return try modelContext.fetch(descriptor)
     }
 }
