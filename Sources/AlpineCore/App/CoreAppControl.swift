@@ -300,9 +300,10 @@ extension CoreAppControl { //MARK: Actor
     
     func createEventPack(interval: Double) {
         guard let user else { return }
+        let userID = user.id
         Core.makeSimpleAlert(title: "Events Submitted", message: "Thank you, your event logs will be sent to developer.")
         Task(priority: .background) { [weak self] in
-            try? await self?.actor.createEventPackage(interval: interval, userID: user.persistentModelID)
+            try? await self?.actor.createEventPackage(interval: interval, userID: userID)
         }
     }
 }

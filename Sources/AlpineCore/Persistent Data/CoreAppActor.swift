@@ -78,7 +78,7 @@ extension CoreAppActor { //MARK: Events
         }
     }
     
-    func getRecentEvents(interval: Double, from date: Date = Date()) throws -> [AppEventLog] {
+    private func getRecentEvents(interval: Double, from date: Date = Date()) throws -> [AppEventLog] {
         let interval = date.addingTimeInterval(interval)
         
         let descriptor = FetchDescriptor(predicate: #Predicate<AppEventLog> { $0.timestamp >= interval }, sortBy: [SortDescriptor(\.timestamp, order: .reverse)])
@@ -86,7 +86,7 @@ extension CoreAppActor { //MARK: Events
     }
     
     
-    func getRecentEvents(interval: Double, from date: Date, to endDate: Date) throws -> [AppEventLog] {
+    private func getRecentEvents(interval: Double, from date: Date, to endDate: Date) throws -> [AppEventLog] {
         let interval = date.addingTimeInterval(interval)
         
         let descriptor = FetchDescriptor(predicate: #Predicate<AppEventLog> { $0.timestamp >= interval && $0.timestamp < endDate }, sortBy: [SortDescriptor(\.timestamp, order: .reverse)])
@@ -121,7 +121,7 @@ extension CoreAppActor { //MARK: Events
 
 extension CoreAppActor { //MARK: Sending Events
     
-    func createEventPackage(interval: Double, userID: PersistentIdentifier) throws {
+    func createEventPackage(interval: Double, userID: String) throws {
         let date = Date().addingTimeInterval(interval)
 
         var log = 
@@ -136,7 +136,7 @@ extension CoreAppActor { //MARK: Sending Events
         
         let package = EventPackage(log: log)
         modelContext.insert(package)
-        package.user = modelContext.model(for: userID) as? CoreUser
+        package.user = try? getCoreUser(userID: userID)
         
         if NetworkTracker.isConnected {
             package.send()
