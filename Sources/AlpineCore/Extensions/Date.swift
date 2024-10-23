@@ -235,7 +235,8 @@ public extension Date {
 
 public extension Date {
     
-    static func fromISO8601String(_ isoDateString: String) -> Date? {
+    static func fromISO8601String(_ isoDateString: String?) -> Date? {
+        guard let isoDateString else { return nil }
         let isoFormatter = ISO8601DateFormatter()
         isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         isoFormatter.timeZone = TimeZone(secondsFromGMT: 0) // Set to GMT
