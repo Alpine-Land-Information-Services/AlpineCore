@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import AlpineUI
 
 public enum AlpineCoreEvent: String {
     case openedApplicationLogs = "opened_application_logs"

@@ -382,7 +382,7 @@ extension CoreAppControl { //MARK: Errors
         Task { [weak self] in
             guard let self else { return }
             
-            let errorID = await actor.createError(error: error, errorTag: errorTag, additionalInfo: additionalInfo, userId: user.persistentModelID)
+            let errorID = await actor.createError(error: error, errorTag: errorTag, additionalInfo: additionalInfo, userID: user.id)
             
             if showToUser {
                 await self.presentErrorToUser(error: error, errorID: errorID, errorTag: errorTag)

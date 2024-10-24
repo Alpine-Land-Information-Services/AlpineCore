@@ -10,31 +10,6 @@ import UIKit
 
 public extension UIApplication {
     
-    var keyWindow: UIWindow? {
-        connectedScenes
-            .compactMap {
-                $0 as? UIWindowScene
-            }
-            .flatMap {
-                $0.windows
-            }
-            .first {
-                $0.isKeyWindow
-            }
-    }
-    
-    var isKeyboardPresented: Bool {
-        if let keyboardWindowClass = NSClassFromString("UIRemoteKeyboardWindow"), self.windows.contains(where: { $0.isKind(of: keyboardWindowClass) }) {
-            return true
-        } else {
-            return false
-        }
-    }
-    
-    func hideKeyboard() {
-        sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-    }
-    
     func addTapGestureRecognizer() {
         guard let window = (connectedScenes.first as? UIWindowScene)?.windows.first else { return }
         let tapGesture = TapGestureRecognizer(target: window, action: #selector(UIView.endEditing))
