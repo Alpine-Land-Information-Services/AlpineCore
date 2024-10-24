@@ -235,9 +235,9 @@ extension CoreAppControl {  //MARK: Events
         logFirebaseEvent(event, parameters: updatedParameters)
         log(event)
         
-        guard let user, let type, let appType = AppEventType(rawValue: type) else { return }
-
-        createEvent(event, type: appType, userID: user.id, rawParameters: updatedParameters)
+//        guard let user, let type, let appType = AppEventType(rawValue: type) else { return }
+//
+//        createEvent(event, type: appType, userID: user.id, rawParameters: updatedParameters)
     }
     
     
@@ -269,8 +269,10 @@ extension CoreAppControl {  //MARK: Events
         sanitizedParameters?.removeValue(forKey: "eventType")
         let finalEventParameters = sanitizedParameters
         
-        Task(priority: .background) { [weak self] in
-            await self?.actor.createEvent(event, type: type, userID: userID, rawParameters: finalEventParameters)
+        let actor = CoreAppActor(modelContainer: modelContainer)
+
+        Task(priority: .background) {
+            await actor.createEvent(event, type: type, userID: userID, rawParameters: finalEventParameters)
         }
     }
 
