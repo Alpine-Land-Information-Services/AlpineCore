@@ -72,9 +72,9 @@ public extension CoreAppControl { //MARK: Init
     
     func sendPendingLogs() {
         guard let user else { return }
-        
+        let userID = user.id
         Task(priority: .background) { [weak self] in
-            await self?.actor.sendPendingLogs(userID: user.id)
+            await self?.actor.sendPendingLogs(userID: userID)
         }
     }
     
