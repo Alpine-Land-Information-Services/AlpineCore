@@ -45,6 +45,11 @@ public extension ModelContext {
         return try self.fetch(descriptor).first
     }
     
+    func getCoreUser(id: PersistentIdentifier) throws -> CoreUser? {
+        let descriptor = FetchDescriptor(predicate: #Predicate<CoreUser> { $0.persistentModelID == id })
+        return try self.fetch(descriptor).first
+    }
+    
     func getPendingErrors() throws -> [AppError] {
         let descriptor = FetchDescriptor(predicate: #Predicate<AppError> { $0.report != nil })
         return try self.fetch(descriptor)

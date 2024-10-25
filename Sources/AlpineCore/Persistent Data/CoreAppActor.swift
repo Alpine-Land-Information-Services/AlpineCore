@@ -30,8 +30,8 @@ actor CoreAppActor: ModelActor {
         modelExecutor = DefaultSerialModelExecutor(modelContext: context)
     }
     
-    func initialize(user: PersistentIdentifier, userID: String) {
-        self.user = try? modelContext.getCoreUser(userID: userID)
+    func initialize(persistentID: PersistentIdentifier, userID: String) {
+        self.user = try? modelContext.getCoreUser(id: persistentID)
         
         Task(priority: .background) {
             sendPendingLogs(userID: userID)
@@ -76,7 +76,7 @@ extension CoreAppActor { //MARK: Events
 
 extension CoreAppActor { //MARK: Sending Events
     
-    func createEventPackage(interval: Double, userID: String) throws {
+    func createEventPackage(interval: Double, persistentID: PersistentIdentifier) throws {
         let date = Date().addingTimeInterval(interval)
 
         var log = 
@@ -91,7 +91,7 @@ extension CoreAppActor { //MARK: Sending Events
         
         let package = EventPackage(log: log)
         modelContext.insert(package)
-        package.user = try? modelContext.getCoreUser(userID: userID)
+        package.user = try? modelContext.getCoreUser(id: persistentID)
         
         if NetworkTracker.isConnected {
             package.send()
@@ -117,10 +117,10 @@ extension CoreAppActor { //MARK: Sending Events
 
 extension CoreAppActor { //MARK: Errors
     
-    public func createError(error: Error, errorTag: String? = nil, additionalInfo: String? = nil, userID: String) -> PersistentIdentifier {
+    public func createError(error: Error, errorTag: String? = nil, additionalInfo: String? = nil, persistentID: PersistentIdentifier) -> PersistentIdentifier {
         let error = AppError.create(error: error, errorTag: errorTag, additionalInfo: additionalInfo, in: modelContext)
         error.events = try? modelContext.getRecentEvents(interval: -900)
-        let user = try? modelContext.getCoreUser(userID: userID)
+        let user = try? modelContext.getCoreUser(id: persistentID)
         user?.errors.append(error)
         save()
         return error.persistentModelID
@@ -132,5 +132,4 @@ extension CoreAppActor { //MARK: Errors
             Core.logCoreEvent(.errorLogUploaded, type: .log)
         }
     }
-
 }
