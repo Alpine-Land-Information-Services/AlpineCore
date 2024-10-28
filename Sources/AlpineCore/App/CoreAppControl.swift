@@ -43,8 +43,8 @@ public class CoreAppControl {
     
     public func assignUser(_ user: CoreUser) {
         self.user = user
-        let actor = CoreAppActor(modelContainer: modelContainer)
         Task(priority: .high) { @MainActor  in
+            let actor = CoreAppActor(modelContainer: modelContainer)
             await actor.initialize(persistentID: user.persistentModelID, userID: user.id)
         }
     }
@@ -72,9 +72,9 @@ public extension CoreAppControl { //MARK: Init
     func sendPendingLogs() {
         guard let user else { return }
         let userID = user.id
-        let actor = CoreAppActor(modelContainer: modelContainer)
         
         Task(priority: .background) {
+            let actor = CoreAppActor(modelContainer: modelContainer)
             await actor.sendPendingLogs(userID: userID)
         }
     }
@@ -236,8 +236,9 @@ extension CoreAppControl {  //MARK: Events
         logFirebaseEvent(event, parameters: updatedParameters)
         log(event)
         
-//        guard let user, let type, let appType = AppEventType(rawValue: type) else { return }
-//        createEvent(event, type: appType, userID: user.id, rawParameters: updatedParameters)
+       guard let user, let type, let appType = AppEventType(rawValue: type) else { return }
+        
+        createEvent(event, type: appType, userID: user.id, rawParameters: updatedParameters)
     }
     
     
@@ -269,9 +270,8 @@ extension CoreAppControl {  //MARK: Events
         sanitizedParameters?.removeValue(forKey: "eventType")
         let finalEventParameters = sanitizedParameters
         
-        let actor = CoreAppActor(modelContainer: modelContainer)
-
         Task(priority: .background) {
+            let actor = CoreAppActor(modelContainer: modelContainer)
             await actor.createEvent(event, type: type, userID: userID, rawParameters: finalEventParameters)
         }
     }
@@ -295,9 +295,8 @@ extension CoreAppControl {  //MARK: Events
 extension CoreAppControl { //MARK: Actor
     
     private func saveActor() {
-        let actor = CoreAppActor(modelContainer: modelContainer)
-        
         Task(priority: .background) {
+            let actor = CoreAppActor(modelContainer: modelContainer)
            await actor.save()
         }
     }
@@ -305,9 +304,10 @@ extension CoreAppControl { //MARK: Actor
     func createEventPack(interval: Double) {
         guard let user else { return }
         let persistentID = user.persistentModelID
-        let actor = CoreAppActor(modelContainer: modelContainer)
+       
         Core.makeSimpleAlert(title: "Events Submitted", message: "Thank you, your event logs will be sent to developer.")
         Task(priority: .background) {
+            let actor = CoreAppActor(modelContainer: modelContainer)
             try? await actor.createEventPackage(interval: interval, persistentID: persistentID)
         }
     }
@@ -384,12 +384,12 @@ extension CoreAppControl { //MARK: Errors
     private func createError(error: Error, errorTag: String? = nil, additionalInfo: String? = nil, showToUser: Bool = true) {
         guard let user else { return }
         
-        let actor = CoreAppActor(modelContainer: modelContainer)
         let persistentID = user.persistentModelID
         
         Task { [weak self] in
             guard let self else { return }
             
+            let actor = CoreAppActor(modelContainer: modelContainer)
             let errorID = await actor.createError(error: error, errorTag: errorTag, additionalInfo: additionalInfo, persistentID: persistentID)
             
             if showToUser {
