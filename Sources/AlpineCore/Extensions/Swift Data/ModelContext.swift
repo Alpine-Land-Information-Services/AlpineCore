@@ -22,7 +22,6 @@ public extension ModelContext {
         return try self.fetch(descriptor)
     }
     
-    
     func getContextEntities<T: PersistentModel>(ofType type: T.Type) throws -> [T] {
         let descriptor = FetchDescriptor<T>()
         return try self.fetch(descriptor)

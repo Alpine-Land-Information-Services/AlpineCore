@@ -19,7 +19,7 @@ public extension Encodable {
     func save(to path: FSPath) throws {
         let data = try encoder.encode(self)
         if let json = data.prettyJson {
-            try json.write(toFile: path.fullPath.rawValue, atomically: true, encoding: .utf8)
+            try json.write(toFile: path.fullPath(in: .documents).rawValue, atomically: true, encoding: .utf8)
         }
     }
     

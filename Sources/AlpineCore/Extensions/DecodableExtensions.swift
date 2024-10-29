@@ -22,7 +22,7 @@ public extension Decodable {
     static func load<Object: Decodable>(from path: FSPath) throws -> Object? {
         guard FS.exists(at: path) else { return nil }
         
-        let jsonString = try String.init(contentsOfFile: path.fullPath.rawValue)
+        let jsonString = try String.init(contentsOfFile: path.fullPath(in: .documents).rawValue)
         guard let data = jsonString.data(using: .utf8) else { return nil }
         return try decoder.decode(Object.self, from: data)
     }

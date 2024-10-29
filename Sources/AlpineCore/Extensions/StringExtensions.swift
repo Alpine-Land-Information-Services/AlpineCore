@@ -365,6 +365,19 @@ public extension String {
     func toSnakeCase() -> String {
         return self.lowercased().replacingOccurrences(of: " ", with: "_")
     }
+    
+    /// This method is useful when dealing with file paths or URLs represented as strings.
+    /// It returns a new string with the last segment (after the final "/") removed.
+    ///
+    /// - Returns: A new `String` that contains the original string minus its last path component.
+    ///            If the string does not contain a "/", it returns the original string unchanged.
+    func removeLastComponent() -> String {
+        guard let lastSlashIndex = self.lastIndex(of: "/") else {
+            return self
+        }
+        return String(self[..<lastSlashIndex])
+    }
+    
     // MARK: - Private Methods
     
     /// Replaces occurrences of a target string with another string.
