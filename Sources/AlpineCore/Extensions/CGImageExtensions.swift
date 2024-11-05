@@ -32,18 +32,18 @@ public extension CGImage {
         
         let destWidth = Int(size.width)
         let destHeight = Int(size.height)
-        let bitsPerComponent = 8
-        let bytesPerPixel = self.bitsPerPixel / bitsPerComponent
-        let destBytesPerRow = destWidth * bytesPerPixel
+        let bitsPerComponent = self.bitsPerComponent
+//        let bytesPerPixel = self.bitsPerPixel / bitsPerComponent
+//        let destBytesPerRow = destWidth * bytesPerPixel
         
         guard let context = CGContext(data: nil,
                                       width: destWidth,
                                       height: destHeight,
                                       bitsPerComponent: bitsPerComponent,
-                                      bytesPerRow: destBytesPerRow,
+                                      bytesPerRow: 0, // Automatically calculated based on image width
                                       space: colorSpace,
                                       bitmapInfo: self.bitmapInfo.rawValue) else {
-            print("Error: Unable to create CGContext.")
+            print("⛔️ Error: Unable to create CGContext.")
             return nil
         }
         
