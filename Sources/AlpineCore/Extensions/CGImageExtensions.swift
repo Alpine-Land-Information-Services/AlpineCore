@@ -27,8 +27,28 @@ public extension CGImage {
         return nil
     }
     
+    /// Draw 2nd image on the first one. They have to have the same size.
+    static func combineImages(_ image1: CGImage?, _ image2: CGImage?) -> CGImage? {
+        guard let image1, let colorSpace = image1.colorSpace else { return image2 }
+        guard let image2 else { return image1 }
+        
+        guard let context = CGContext(data: nil,
+                                      width: image1.width,
+                                      height: image1.height,
+                                      bitsPerComponent: image1.bitsPerComponent,
+                                      bytesPerRow: 0,
+                                      space: colorSpace,
+                                      bitmapInfo: image1.bitmapInfo.rawValue) else {
+            print("⛔️ Error: Unable to create CGContext.")
+            return nil
+        }
+        context.draw(image1, in: CGRect(x: 0, y: 0, width: image1.width, height: image1.height))
+        context.draw(image2, in: CGRect(x: 0, y: 0, width: image1.width, height: image1.height))
+        return context.makeImage()
+    }
+    
     func resize(to size: CGSize) -> CGImage? {
-        guard let colorSpace = self.colorSpace else { return nil }
+        guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) else { return nil }
         
         let destWidth = Int(size.width)
         let destHeight = Int(size.height)
@@ -42,12 +62,12 @@ public extension CGImage {
                                       bitsPerComponent: bitsPerComponent,
                                       bytesPerRow: 0, // Automatically calculated based on image width
                                       space: colorSpace,
-                                      bitmapInfo: self.bitmapInfo.rawValue) else {
+                                      bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue) else {
             print("⛔️ Error: Unable to create CGContext.")
             return nil
         }
         
-        context.interpolationQuality = .low
+        context.interpolationQuality = .high
         context.draw(self, in: CGRect(origin: .zero, size: size))
         return context.makeImage()
     }
